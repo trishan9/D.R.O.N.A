@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>drona_bringup</name>
+  <version>0.1.0</version>
+  <description>Launch files and configuration for D.R.O.N.A. ROS2 deployment.</description>
+  <maintainer email="trisan.wagle@softwarica.edu.np">Trisan Wagle</maintainer>
+  <license>MIT</license>
+
+  <depend>drona_ros</depend>
+  <depend>drona_msgs</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

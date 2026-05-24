@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>drona_ros</name>
+  <version>0.1.0</version>
+  <description>
+    ROS2 Humble node implementations for D.R.O.N.A. Phase 2.
+
+    Each node is a thin transport wrapper around Phase 1 Python logic:
+      advising_node    — wraps drona.advising.engine.AdvisingEngine
+      gesture_node     — wraps drona.interaction.gesture_dispatcher.GestureDispatcher
+      perception_node  — wraps drona.perception.mediapipe_detector
+      orchestrator_node — wraps drona.orchestrator.SessionMachine + Orchestrator
+
+    Zero new logic lives in this package. All algorithmic decisions remain in
+    drona.* so Phase 1 unit tests continue to cover Phase 2 behaviour.
+  </description>
+  <maintainer email="trisan.wagle@softwarica.edu.np">Trisan Wagle</maintainer>
+  <license>MIT</license>
+
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>drona_msgs</depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

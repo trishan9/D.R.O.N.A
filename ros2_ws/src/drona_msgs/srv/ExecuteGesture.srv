@@ -1,0 +1,6 @@
+# Execute a gesture synchronously and return the result.
+GestureCommand command
+---
+GestureResult result
+bool success
+string error

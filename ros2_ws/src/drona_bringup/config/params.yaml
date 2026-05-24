@@ -1,0 +1,25 @@
+# D.R.O.N.A. ROS2 node parameters
+# Loaded by all launch files. Override per-deployment in hardware.yaml / sim.yaml
+
+drona_perception_node:
+  ros__parameters:
+    use_camera: false          # true = real camera + MediaPipe
+    camera_index: 0
+    detection_hz: 10.0
+
+drona_gesture_node:
+  ros__parameters:
+    use_hardware: false        # true = SO-100 arm via Dynamixel SDK
+    checkpoint_dir: ""         # "" = auto-detect data/checkpoints/
+    joint_pub_hz: 20.0
+
+drona_advising_node:
+  ros__parameters:
+    log_level: INFO
+    max_pathways: 3
+
+drona_orchestrator_node:
+  ros__parameters:
+    session_timeout_s: 8.0
+    tick_hz: 10.0
+    max_pathways: 3

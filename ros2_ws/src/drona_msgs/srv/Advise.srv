@@ -1,0 +1,7 @@
+# Request advising for a student query.
+# Synchronous alternative to the pub/sub topic pair.
+AdvisingQuery query
+---
+AdvisingResponse response
+bool success
+string error

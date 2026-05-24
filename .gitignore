@@ -1,0 +1,91 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual envs
+.venv/
+venv/
+env/
+ENV/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Environment
+.env
+.env.local
+*.env
+
+# D.R.O.N.A. specific
+# Raw data is too large for git — store on disk + document in data_cards
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*.parquet
+data/processed/*.feather
+data/cache/
+
+# ChromaDB local store
+data/chromadb/
+chroma/
+
+# Model files
+models/*.gguf
+models/*.bin
+models/*.safetensors
+*.pt
+*.pth
+*.ckpt
+
+# Ollama cache (system-level)
+
+# Logs
+logs/
+*.log
+
+# ROS2 build artifacts (when added in WS4)
+build/
+install/
+log/
+
+# LeRobot artifacts (when added in WS3)
+lerobot_data/
+checkpoints/
+wandb/
+mlruns/
+
+# Manual collection — keep STRUCTURE in git, raw text gitignored if sensitive
+# data/manual_collection/  # Uncomment if you decide to gitignore

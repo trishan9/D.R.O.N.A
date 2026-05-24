@@ -1,0 +1,53 @@
+{
+  "card_version": "1.0",
+  "dataset_id": "drona_curriculum_tus",
+  "display_name": "Softwarica College / TU / PU Curriculum Syllabi",
+  "description": "Course outlines, module lists, and learning outcomes for BSc (Hons) Computing and related programmes offered at Softwarica College of IT and E-Commerce (affiliated with Coventry University), Tribhuvan University (TU), and Pokhara University (PU). Collected manually from official college websites and printed prospectuses.",
+  "source": {
+    "type": "curriculum",
+    "organisations": [
+      "Softwarica College of IT and E-Commerce, Kathmandu",
+      "Tribhuvan University, Institute of Engineering",
+      "Pokhara University"
+    ],
+    "collection_method": "manual_download",
+    "collection_dates": ["2025-09-01", "2025-10-15"],
+    "urls_checked": true,
+    "robots_txt_compliant": true,
+    "license": "Educational / public prospectus material; not redistributed in raw form"
+  },
+  "data_tier": "nepal",
+  "schema": {
+    "id": "string — unique document id, e.g. 'softwarica_bsc_y2_algorithms'",
+    "text": "string — extracted plain text of the module/course description",
+    "metadata": {
+      "source_type": "curriculum",
+      "tier": "nepal",
+      "institution": "string",
+      "programme": "string",
+      "year": "integer 1-4",
+      "module_code": "string or null",
+      "module_title": "string",
+      "credit_hours": "integer or null"
+    }
+  },
+  "statistics": {
+    "documents": "~120 modules across 3 institutions",
+    "languages": ["en"],
+    "date_range": "2024-2025 academic year",
+    "synthetic_fraction": 0.0
+  },
+  "pii": {
+    "contains_pii": false,
+    "notes": "Module descriptions only; no student or staff names"
+  },
+  "known_limitations": [
+    "Coverage limited to publicly available syllabi; internal lab notes not included",
+    "TU Engineering curriculum updated irregularly; may lag current delivery"
+  ],
+  "bias_notes": [
+    "Reflects the Nepali higher-education module structure which emphasises theory over practical projects",
+    "English-medium only; excludes any Nepali-language supplementary material"
+  ],
+  "last_updated": "2025-10-15"
+}

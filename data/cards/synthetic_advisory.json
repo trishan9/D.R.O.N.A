@@ -1,0 +1,57 @@
+{
+  "card_version": "1.0",
+  "dataset_id": "drona_synthetic_advisory",
+  "display_name": "Synthetic Career Advisory Q&A Pairs",
+  "description": "Synthetically generated student queries and reference advisory responses created by the research team for training bias-detection rules and evaluating the advising pipeline. All data is fabricated — no real student statements are used. Synthetic origin is flagged explicitly in every record's metadata.",
+  "source": {
+    "type": "synthetic",
+    "generation_method": "human_authored",
+    "authors": ["Research team — D.R.O.N.A. project, Softwarica College"],
+    "generation_date": "2025-10",
+    "seed_biases_modelled": [
+      "anchoring (single employer fixation)",
+      "availability (recency / friend effect)",
+      "status_quo (parental expectation lock-in)",
+      "overconfidence (skill mis-self-assessment)",
+      "consistency (public commitment paralysis)"
+    ]
+  },
+  "data_tier": "synthetic",
+  "schema": {
+    "id": "string — 'syn_NNNN'",
+    "text": "string — the synthetic student query text",
+    "metadata": {
+      "source_type": "synthetic",
+      "tier": "synthetic",
+      "bias_type": "string or null — the target bias label, e.g. 'anchoring'",
+      "expected_flags": "list[string] — bias_type values the detector should produce",
+      "is_clean": "boolean — true when the query contains no bias (negative examples)",
+      "author_note": "string or null"
+    }
+  },
+  "statistics": {
+    "documents": "~200 queries (100 biased, 100 clean)",
+    "languages": ["en"],
+    "date_range": "2025-10",
+    "synthetic_fraction": 1.0
+  },
+  "pii": {
+    "contains_pii": false,
+    "notes": "All text is fabricated; any resemblance to real persons is coincidental"
+  },
+  "labelling": {
+    "method": "human_authored",
+    "inter_rater_agreement": "N/A — single author team",
+    "notes": "Each record specifies the intended bias type; used as ground truth for C2 evaluation"
+  },
+  "known_limitations": [
+    "English-only; does not capture Nepali-medium student phrasing",
+    "Bias archetypes are idealised; real students exhibit mixed or subtle bias signals",
+    "Small corpus relative to production diversity"
+  ],
+  "bias_notes": [
+    "Synthetic data over-represents textbook bias archetypes",
+    "Must never be mixed with real student data without explicit label separation"
+  ],
+  "last_updated": "2025-10-31"
+}

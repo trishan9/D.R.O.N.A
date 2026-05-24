@@ -1,0 +1,82 @@
+{
+  "card_version": "1.0",
+  "dataset_id": "drona_job_postings_nepal",
+  "display_name": "Nepali IT Job Postings (MeroJob / JobsNepal / Kumarijob)",
+  "description": "Software, IT, and technology-sector job postings scraped from three Nepali job portals under their stated robots.txt allowances. Each record captures the job title, required skills, salary band (where disclosed), location, and company sector. No applicant data or personal information is collected.",
+  "source": {
+    "type": "job_posting",
+    "portals": [
+      {
+        "name": "MeroJob",
+        "url_base": "https://www.merojob.com",
+        "robots_txt_checked": true,
+        "robots_txt_result": "No Disallow for /jobs/* as of 2025-09-10",
+        "tos_checked": true,
+        "tos_result": "Permits non-commercial indexing for research; contact form submitted to confirm",
+        "collection_method": "manual_copy_and_structured_extraction"
+      },
+      {
+        "name": "JobsNepal",
+        "url_base": "https://www.jobsnepal.com",
+        "robots_txt_checked": true,
+        "robots_txt_result": "robots.txt not present; treated as fully permissive",
+        "tos_checked": true,
+        "tos_result": "No explicit scraping prohibition; non-commercial research use acceptable",
+        "collection_method": "manual_copy_and_structured_extraction"
+      },
+      {
+        "name": "Kumarijob",
+        "url_base": "https://www.kumarijob.com",
+        "robots_txt_checked": true,
+        "robots_txt_result": "Allows user-agent * with no disallow for job listings",
+        "tos_checked": true,
+        "tos_result": "Standard portal; non-commercial research use acceptable",
+        "collection_method": "manual_copy_and_structured_extraction"
+      }
+    ],
+    "explicitly_excluded": [
+      "LinkedIn — ToS prohibits scraping; actively litigated",
+      "Glassdoor — ToS prohibits scraping",
+      "Indeed Nepal — ToS prohibits automated collection"
+    ],
+    "collection_dates": ["2025-09-01", "2025-11-30"],
+    "pii_removed": true
+  },
+  "data_tier": "nepal",
+  "schema": {
+    "id": "string — portal_postingid, e.g. 'merojob_90123'",
+    "text": "string — job title, required skills, and job description concatenated",
+    "metadata": {
+      "source_type": "job_posting",
+      "tier": "nepal",
+      "portal": "string",
+      "job_title": "string",
+      "employer_sector": "string e.g. 'fintech', 'telecom', 'startup'",
+      "location": "string e.g. 'Kathmandu', 'Remote Nepal'",
+      "salary_band_nrs": "string or null e.g. '40000-60000'",
+      "posted_date": "ISO date string",
+      "required_skills": "list[string]"
+    }
+  },
+  "statistics": {
+    "documents": "~800 postings (Oct-Nov 2025 snapshot)",
+    "languages": ["en"],
+    "date_range": "2025-09 to 2025-11",
+    "synthetic_fraction": 0.0
+  },
+  "pii": {
+    "contains_pii": false,
+    "notes": "Recruiter contact email addresses stripped during extraction"
+  },
+  "known_limitations": [
+    "Snapshot in time — market conditions shift; postings expire",
+    "Salary disclosure is optional on these portals; ~30% of records have null salary",
+    "IT sector over-represented relative to manufacturing and agriculture"
+  ],
+  "bias_notes": [
+    "Kathmandu-centric — most postings from Valley-based employers",
+    "English-language postings biased toward multinational and large domestic firms",
+    "Remote-Nepal postings are sparse; rural tech employment under-represented"
+  ],
+  "last_updated": "2025-11-30"
+}

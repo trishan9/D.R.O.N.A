@@ -1,0 +1,47 @@
+{
+  "card_version": "1.0",
+  "dataset_id": "drona_gesture_demonstrations",
+  "display_name": "SO-100 Arm Gesture Demonstration Episodes",
+  "description": "Kinematic demonstration episodes for six robot arm gestures (greet, nod, point, idle, listen, farewell) recorded in MuJoCo simulation and/or manually authored as joint-angle keyframe sequences. Each episode is a sequence of (joint_angles, gripper) observations paired with target joint-angle action chunks used to train the ACT imitation-learning policy.",
+  "source": {
+    "type": "gesture_demonstration",
+    "collection_method": "keyframe_authoring_and_sim_rollout",
+    "environment": "MuJoCo StubEnv / SO-100 6-DOF model",
+    "gestures": ["greet", "nod", "point", "idle", "listen", "farewell"],
+    "dof": 6,
+    "control_hz": 20,
+    "collection_date": "2025-11"
+  },
+  "data_tier": "synthetic",
+  "schema": {
+    "episode_id": "string — 'gesture_LABEL_NNNN'",
+    "fields": {
+      "observation.state": "float32[6] — joint angles in radians at each timestep",
+      "action": "float32[6] — target joint angles for the next chunk_size steps",
+      "gesture": "string — gesture label",
+      "step": "integer — timestep index within episode"
+    },
+    "storage_format": "HuggingFace LeRobot dataset (parquet + metadata JSON)"
+  },
+  "statistics": {
+    "episodes_per_gesture": "~50",
+    "total_episodes": "~300",
+    "steps_per_episode": "20-80 (gesture-dependent)",
+    "languages": ["N/A — kinematic data"],
+    "synthetic_fraction": 1.0
+  },
+  "pii": {
+    "contains_pii": false,
+    "notes": "Robot kinematics only — no human motion capture data"
+  },
+  "known_limitations": [
+    "Phase 1 episodes are simulation-only; real-hardware episodes pending Phase 2 deployment",
+    "Keyframe interpolation produces smooth but not anthropomorphic motion",
+    "ACT policy trained on short episodes may not generalise to novel start poses"
+  ],
+  "bias_notes": [
+    "All gestures authored in a forward-facing, table-height context — may not transfer to different mounting angles",
+    "Western gesture conventions assumed; cross-cultural gesture appropriateness not evaluated"
+  ],
+  "last_updated": "2025-11-30"
+}

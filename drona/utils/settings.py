@@ -30,6 +30,7 @@ class DronaSettings(BaseSettings):
     log_file: str | None = Field("logs/drona.log", description="Rotating log file path")
 
     # --- Data paths ---
+    data_dir: Path = Field(Path("data"))
     data_raw_dir: Path = Field(Path("data/raw"))
     data_processed_dir: Path = Field(Path("data/processed"))
     data_manual_dir: Path = Field(Path("data/manual_collection"))
@@ -61,6 +62,18 @@ class DronaSettings(BaseSettings):
     tier_international_boost: float = Field(1.0, ge=1.0)
     tier_synthetic_penalty: float = Field(0.7, gt=0.0, le=1.0)
 
+    # --- Session / orchestrator ---
+    session_timeout_s: float = Field(
+        8.0,
+        description="Seconds without engagement before session times out.",
+        ge=1.0,
+    )
+    perception_interval_s: float = Field(
+        0.1,
+        description="Seconds between perception ticks.",
+        ge=0.01,
+    )
+
     # --- Scraper behaviour ---
     scraper_requests_per_second: float = Field(
         0.5,
@@ -89,8 +102,8 @@ class DronaSettings(BaseSettings):
 
     def ensure_dirs(self) -> None:
         """Create all configured data directories if they don't exist."""
-        for d in (self.data_raw_dir, self.data_processed_dir, self.data_manual_dir,
-                  self.chroma_dir):
+        for d in (self.data_dir, self.data_raw_dir, self.data_processed_dir,
+                  self.data_manual_dir, self.chroma_dir):
             d.mkdir(parents=True, exist_ok=True)
 
 

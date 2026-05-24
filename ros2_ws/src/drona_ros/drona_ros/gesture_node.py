@@ -34,8 +34,8 @@ from drona_msgs.srv import ExecuteGesture
 from sensor_msgs.msg import JointState
 
 from drona_ros.msg_bridge import (
-    gesture_result_to_ros,
     ros_gesture_command_to_action,
+    gesture_result_to_ros,
 )
 
 
@@ -53,8 +53,8 @@ class GestureNode(Node):
         self._checkpoint_dir = self.get_parameter("checkpoint_dir").value or None
         self._joint_pub_hz = float(self.get_parameter("joint_pub_hz").value)
 
-        self._dispatcher = None  # lazy
-        self._arm_interface = None
+        self._dispatcher = None  # lazy init
+        self._arm = None         # lazy init
         self._exec_lock = threading.Lock()
 
         self._cmd_cb_group = MutuallyExclusiveCallbackGroup()
@@ -82,88 +82,103 @@ class GestureNode(Node):
             f"checkpoint_dir={self._checkpoint_dir or 'none (keyframe fallback)'}"
         )
 
+    # ── Lazy initialisers ─────────────────────────────────────────────────────
+
     def _get_dispatcher(self):
         if self._dispatcher is None:
             from drona.interaction.gesture_dispatcher import GestureDispatcher
-            from drona.interaction.act_policy import PolicyRouter
             from drona.utils.settings import settings
-
             ckpt = self._checkpoint_dir or str(settings.data_dir / "checkpoints")
-            router = PolicyRouter(checkpoint_base_dir=ckpt, device="cpu")
-            self._dispatcher = GestureDispatcher(policy_router=router)
+            self._dispatcher = GestureDispatcher(
+                checkpoint_base_dir=ckpt,
+                device="cpu",
+            )
             self.get_logger().info("GestureDispatcher initialised.")
         return self._dispatcher
 
     def _get_arm(self):
-        if self._arm_interface is None:
+        if self._arm is None:
             if self._use_hardware:
                 from drona_ros.arm_interface import SO100ArmInterface
-                self._arm_interface = SO100ArmInterface()
-                self.get_logger().info("SO-100 arm interface connected.")
+                self._arm = SO100ArmInterface()
+                self._arm.connect()
+                self.get_logger().info("SO-100 arm connected.")
             else:
                 from drona_ros.arm_interface import SimArmInterface
-                self._arm_interface = SimArmInterface()
+                self._arm = SimArmInterface()
+                self._arm.connect()
                 self.get_logger().info("Sim arm interface active.")
-        return self._arm_interface
+        return self._arm
+
+    # ── Joint state publisher ─────────────────────────────────────────────────
 
     def _publish_joints(self, q: np.ndarray) -> None:
         from drona.interaction.demonstration import JOINT_NAMES
         msg = JointState()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.name = JOINT_NAMES
+        msg.name = list(JOINT_NAMES)
         msg.position = q.tolist()
         self._joint_pub.publish(msg)
 
-    def _execute(self, action) -> GestureResult:
-        """Run the gesture, stream joints, send to hardware if enabled."""
+    # ── Gesture execution ─────────────────────────────────────────────────────
+
+    def _execute_gesture(self, action) -> GestureResult:
+        """Run gesture via GestureDispatcher and build a RosGestureResult.
+
+        Streams joint positions to /drona/joint_states while executing.
+        Sends commands to hardware arm if use_hardware=true.
+        """
         dispatcher = self._get_dispatcher()
         arm = self._get_arm()
+        gesture_label = action.gesture.value if hasattr(action.gesture, "value") else str(action.gesture)
 
-        from drona.interaction.act_policy import KeyframePolicy
-        from drona.interaction.demonstration import GESTURE_KEYFRAMES
-
-        gesture_label = str(action.gesture)
+        # Use dispatcher's internal router to stream joints in real time
         policy = dispatcher._router.get_policy(gesture_label)
         policy.reset()
 
         from drona.interaction.mujoco_env import StubEnv
-        env = StubEnv()
+        env = StubEnv(dt=0.05)
         obs = env.reset()
 
-        positions = []
-        t_start = time.monotonic()
-        dt = 0.05
+        frames = 0
         frame_interval = 1.0 / self._joint_pub_hz
+        last_pub = 0.0
+        t_start = time.monotonic()
 
-        last_pub = time.monotonic()
-        while not getattr(policy, "is_complete", False):
-            action_joints = policy.select_action({"observation.state": obs})
-            obs, _ = env.step(action_joints)
-            positions.append(obs.copy())
+        try:
+            while not getattr(policy, "is_complete", False):
+                action_joints = policy.select_action({"observation.state": obs})
+                obs, _ = env.step(action_joints)
+                frames += 1
 
-            # Send to hardware
-            arm.set_joint_positions(action_joints)
+                # Send to hardware arm
+                arm.set_joint_positions(action_joints)
 
-            # Publish joint states at configured rate
-            now = time.monotonic()
-            if now - last_pub >= frame_interval:
-                self._publish_joints(obs)
-                last_pub = now
+                # Publish joint states at the configured rate
+                now = time.monotonic()
+                if now - last_pub >= frame_interval:
+                    self._publish_joints(obs)
+                    last_pub = now
 
-            time.sleep(dt)
-
-        env.close()
-        duration = time.monotonic() - t_start
+            duration = time.monotonic() - t_start
+        finally:
+            env.close()
 
         from drona.contracts import InteractionActionResult
-        result_pydantic = InteractionActionResult(
-            gesture_label=gesture_label,
+        pydantic_result = InteractionActionResult(
+            action_id=action.action_id,
             success=True,
-            frames_executed=len(positions),
-            duration_s=duration,
-            policy_used=policy.name,
+            actual_duration_seconds=time.monotonic() - t_start,
         )
-        return gesture_result_to_ros(result_pydantic, self.get_clock())
+        return gesture_result_to_ros(
+            pydantic_result,
+            self.get_clock(),
+            gesture_label=gesture_label,
+            frames_executed=frames,
+            policy_used=getattr(policy, "name", ""),
+        )
+
+    # ── Callbacks ─────────────────────────────────────────────────────────────
 
     def _on_command(self, msg: GestureCommand) -> None:
         if not self._exec_lock.acquire(blocking=False):
@@ -174,11 +189,12 @@ class GestureNode(Node):
         try:
             self.get_logger().info(f"Executing gesture: {msg.gesture_label}")
             action = ros_gesture_command_to_action(msg)
-            result = self._execute(action)
+            result = self._execute_gesture(action)
             self._result_pub.publish(result)
             self.get_logger().info(
-                f"Gesture '{msg.gesture_label}' complete in {result.duration_s:.2f}s "
-                f"({result.frames_executed} frames, {result.policy_used})"
+                f"Gesture '{msg.gesture_label}' complete — "
+                f"{result.frames_executed} frames, {result.duration_s:.2f}s, "
+                f"policy={result.policy_used}"
             )
         except Exception as exc:
             self.get_logger().error(f"Gesture execution error: {exc}")
@@ -197,7 +213,7 @@ class GestureNode(Node):
         with self._exec_lock:
             try:
                 action = ros_gesture_command_to_action(request.command)
-                result = self._execute(action)
+                result = self._execute_gesture(action)
                 response.result = result
                 response.success = True
             except Exception as exc:
@@ -205,6 +221,11 @@ class GestureNode(Node):
                 response.success = False
                 response.error = str(exc)
         return response
+
+    def destroy_node(self) -> None:
+        if self._arm is not None:
+            self._arm.disconnect()
+        super().destroy_node()
 
 
 def main(args=None) -> None:

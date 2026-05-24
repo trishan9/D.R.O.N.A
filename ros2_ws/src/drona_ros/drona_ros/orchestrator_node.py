@@ -57,15 +57,12 @@ class OrchestratorNode(Node):
         self._max_pathways = int(self.get_parameter("max_pathways").value)
 
         from drona.orchestrator.session_machine import SessionMachine
-        from drona.utils.settings import settings
-        self._machine = SessionMachine(
-            timeout_s=timeout if timeout is not None else settings.session_timeout_s
-        )
+        self._machine = SessionMachine(timeout_s=timeout)
 
         self._pending_query: str | None = None
         self._awaiting_response = False
         self._awaiting_gesture = False
-        self._gesture_queue: queue.SimpleQueue = queue.SimpleQueue()
+        self._gesture_queue: queue.SimpleQueue[str] = queue.SimpleQueue()
 
         cb = MutuallyExclusiveCallbackGroup()
 
@@ -98,20 +95,22 @@ class OrchestratorNode(Node):
     # ── Inbound ────────────────────────────────────────────────────────────────
 
     def _on_engagement(self, msg: EngagementDetection) -> None:
-        from drona.perception.mediapipe_detector import DetectionResult, EngagementState
+        from drona.perception.mediapipe_detector import StudentDetection, EngagementState
         try:
-            state = EngagementState(msg.state)
+            eng_state = EngagementState(msg.state)
         except ValueError:
-            state = EngagementState.ABSENT
+            eng_state = EngagementState.ABSENT
 
-        detection = DetectionResult(
-            state=state,
-            confidence=msg.confidence,
-            distance_m=msg.distance_m,
+        detection = StudentDetection(
+            detection_id=str(uuid.uuid4()),
+            engagement=eng_state,
+            confidence=float(msg.confidence),
+            estimated_distance_m=float(msg.distance_m) if msg.distance_m > 0 else None,
         )
-        prev_state = self._machine.context.state
+
+        prev_state = self._machine.state
         self._machine.feed_detection(detection)
-        new_state = self._machine.context.state
+        new_state = self._machine.state
 
         if new_state != prev_state:
             self.get_logger().info(f"Session: {prev_state.value} → {new_state.value}")
@@ -124,10 +123,9 @@ class OrchestratorNode(Node):
             f"Advising response received: {len(msg.pathways)} pathways, "
             f"bias={[b.bias_type for b in msg.bias_flags]}"
         )
-        # Mark response delivered in state machine
         self._machine.mark_response_delivered()
         self._publish_session_state()
-        # Queue farewell gesture
+        # Queue farewell after delivering the response
         self._gesture_queue.put("farewell")
 
     def _on_gesture_result(self, msg: GestureResult) -> None:
@@ -140,9 +138,14 @@ class OrchestratorNode(Node):
         else:
             self.get_logger().warn(f"Gesture '{msg.gesture_label}' failed: {msg.error_message}")
 
-        # If farewell completed, close session
+        # Farewell gesture completing → close the session
         if msg.gesture_label == "farewell":
             self._machine.mark_session_closed()
+            self._publish_session_state()
+
+        # Greet completing → auto-transition session to NEEDS_ASSESSMENT
+        if msg.gesture_label == "greet" and msg.success:
+            self._machine.mark_greeted()
             self._publish_session_state()
 
     # ── State machine dispatch ─────────────────────────────────────────────────
@@ -157,7 +160,7 @@ class OrchestratorNode(Node):
             self._send_gesture("farewell")
 
     def _tick(self) -> None:
-        # Consume pending query if in advising state and not waiting
+        # Flush a pending query when in advising state and not blocked
         if (
             self._pending_query is not None
             and not self._awaiting_response
@@ -167,7 +170,7 @@ class OrchestratorNode(Node):
             self._pending_query = None
             self._awaiting_response = True
 
-        # Drain gesture queue if not currently executing one
+        # Drain gesture queue when not currently executing one
         if not self._awaiting_gesture:
             try:
                 label = self._gesture_queue.get_nowait()
@@ -188,23 +191,23 @@ class OrchestratorNode(Node):
         pydantic_q = PydanticQuery(
             query_id=str(uuid.uuid4()),
             query_text=text,
-            profile=StudentProfile(session_id=str(self._machine.context.session_id)),
+            profile=StudentProfile(session_id=str(self._machine.session_id)),
             max_pathways=self._max_pathways,
         )
         ros_msg = advising_query_to_ros(pydantic_q)
         self._query_pub.publish(ros_msg)
+        self._machine.submit_query(text)
         self.get_logger().info(f"Query published: {text[:60]}")
 
     def _publish_session_state(self) -> None:
-        msg = session_state_to_ros(self._machine.context, self.get_clock())
+        msg = session_state_to_ros(self._machine, self.get_clock())
         self._state_pub.publish(msg)
 
-    # ── External interface (called by dashboard / CLI) ─────────────────────────
+    # ── External interface ─────────────────────────────────────────────────────
 
     def submit_student_query(self, text: str) -> None:
-        """Called externally to inject a student query into the session."""
+        """Inject a student query from an external source (dashboard / CLI)."""
         self._pending_query = text
-        self._machine.submit_query(text)
 
 
 def main(args=None) -> None:

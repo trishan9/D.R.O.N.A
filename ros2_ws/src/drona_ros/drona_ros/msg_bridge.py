@@ -169,59 +169,100 @@ def ros_to_advising_response(msg: "RosAdvisingResponse"):
 # ── Engagement detection ──────────────────────────────────────────────────────
 
 def engagement_to_ros(detection, clock) -> "RosEngagementDetection":
+    """Convert StudentDetection → RosEngagementDetection.
+
+    StudentDetection fields: detection_id, engagement, estimated_distance_m,
+    gaze_on_robot, confidence.
+    """
     from drona_msgs.msg import EngagementDetection
     msg = EngagementDetection()
     msg.stamp = clock.now().to_msg()
-    msg.state = str(detection.state.value) if hasattr(detection.state, "value") else str(detection.state)
+    # engagement is the EngagementState enum; convert to string value
+    eng = detection.engagement
+    msg.state = eng.value if hasattr(eng, "value") else str(eng)
     msg.confidence = float(detection.confidence)
-    msg.distance_m = float(detection.distance_m or 0.0)
+    msg.distance_m = float(detection.estimated_distance_m or 0.0)
     return msg
 
 
 # ── Gesture command / result ──────────────────────────────────────────────────
 
 def gesture_command_to_ros(action, clock) -> "RosGestureCommand":
+    """Convert InteractionAction → RosGestureCommand.
+
+    InteractionAction fields: action_id, gesture, target_direction, speech_text,
+    duration_seconds.
+    """
     from drona_msgs.msg import GestureCommand
     msg = GestureCommand()
     msg.stamp = clock.now().to_msg()
-    msg.gesture_label = str(action.gesture)
-    t = action.target_position
+    msg.gesture_label = str(action.gesture.value) if hasattr(action.gesture, "value") else str(action.gesture)
+    # target_direction is a 3-tuple (x, y, z) or None
+    t = action.target_direction
     if t is not None:
         msg.target_x, msg.target_y, msg.target_z = float(t[0]), float(t[1]), float(t[2])
+    else:
+        msg.target_x = msg.target_y = msg.target_z = 0.0
+    msg.policy_hint = ""
     return msg
 
 
 def ros_gesture_command_to_action(msg: "RosGestureCommand"):
+    """Convert RosGestureCommand → InteractionAction.
+
+    Generates a fresh action_id since ROS2 command messages don't carry one.
+    """
     from drona.contracts import InteractionAction
     target = None
     if msg.target_x != 0.0 or msg.target_y != 0.0 or msg.target_z != 0.0:
-        target = [msg.target_x, msg.target_y, msg.target_z]
+        target = (msg.target_x, msg.target_y, msg.target_z)
     return InteractionAction(
+        action_id=str(uuid.uuid4()),
         gesture=msg.gesture_label,  # type: ignore[arg-type]
-        target_position=target,
+        target_direction=target,
     )
 
 
-def gesture_result_to_ros(result, clock) -> "RosGestureResult":
+def gesture_result_to_ros(
+    result,
+    clock,
+    gesture_label: str = "",
+    frames_executed: int = 0,
+    policy_used: str = "",
+) -> "RosGestureResult":
+    """Convert InteractionActionResult → RosGestureResult.
+
+    InteractionActionResult fields: action_id, success, error_message,
+    actual_duration_seconds.
+
+    Additional context (gesture_label, frames_executed, policy_used) must be
+    supplied by the caller since the Pydantic result does not carry them.
+    """
     from drona_msgs.msg import GestureResult
     msg = GestureResult()
     msg.stamp = clock.now().to_msg()
-    msg.gesture_label = result.gesture_label
-    msg.success = result.success
-    msg.frames_executed = result.frames_executed
-    msg.duration_s = result.duration_s
-    msg.policy_used = result.policy_used or ""
+    msg.gesture_label = gesture_label
+    msg.success = bool(result.success)
+    msg.frames_executed = frames_executed
+    msg.duration_s = float(result.actual_duration_seconds or 0.0)
+    msg.policy_used = policy_used
     msg.error_message = result.error_message or ""
     return msg
 
 
 # ── Session state ─────────────────────────────────────────────────────────────
 
-def session_state_to_ros(context, clock) -> "RosSessionState":
+def session_state_to_ros(machine, clock) -> "RosSessionState":
+    """Convert SessionMachine state → RosSessionState.
+
+    SessionMachine public API: .session_id, .state, .session_summary().
+    """
     from drona_msgs.msg import SessionState
     msg = SessionState()
     msg.stamp = clock.now().to_msg()
-    msg.session_id = str(context.session_id)
-    msg.state = str(context.state.value) if hasattr(context.state, "value") else str(context.state)
-    msg.query_count = context.query_count
+    msg.session_id = str(machine.session_id)
+    state = machine.state
+    msg.state = state.value if hasattr(state, "value") else str(state)
+    summary = machine.session_summary()
+    msg.query_count = summary.get("query_count", 0)
     return msg

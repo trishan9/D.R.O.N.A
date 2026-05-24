@@ -64,7 +64,7 @@ class PerceptionNode(Node):
             self.get_logger().error(f"Detection error: {exc}")
 
     def destroy_node(self) -> None:
-        self._detector.release()
+        self._detector.close()
         super().destroy_node()
 
 

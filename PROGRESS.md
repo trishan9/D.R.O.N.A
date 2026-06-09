@@ -4,10 +4,11 @@
 > PROTOCOL in `DRONA_BUILD_PROMPT.md`). Format defined in `PROGRESS_TEMPLATE.md`.
 
 ## Current State
-- **Active phase:** Phase 4 — LeRobot policies (dataset conversion + sim eval + Diffusion/SmolVLA seams + notebooks 07/08 done)
-- **Active task:** Phase 4 complete (ACT/Diffusion training runs on Colab T4). Next: Phase 5 (ROS2/sim) or Phase 6 (Next.js).
-- **Last commit:** see `git log -1` (Phase 4 commit)
+- **Active phase:** Phase 6 — Next.js frontend (chat streaming + gamification + comparison done)
+- **Active task:** Phase 6 complete (builds clean, typecheck green). Next: Phase 5 (ROS2/sim), then Phase 7/8.
+- **Last commit:** see `git log -1` (Phase 6 commit)
 - **Working tree:** managed per-phase; commit between phases.
+- **User sequencing:** Phase 6 was built before Phase 5 at the user's request.
 
 ## Reconciliation note (IMPORTANT for any future session)
 This repo was originally built to a **lighter plan** than `DRONA_BUILD_PROMPT.md`
@@ -39,13 +40,27 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 | 3 | LoRA fine-tune | ☑ | Q&A gen + SFT format + gold curation + LoRA config + ablation + Colab notebook + model_card; training runs on Colab T4 |
 | 4 | LeRobot policies | ☑ | LeRobot dataset conversion + sim eval (success/jerk) + Diffusion wrapper + SmolVLA seam + notebooks 07/08; training runs on Colab T4 |
 | 5 | ROS2 + simulation | ◐ | ros2_ws exists; need actions + sim |
-| 6 | Frontend | ◐ | Streamlit legacy; need Next.js |
+| 6 | Frontend | ☑ | Next.js 14 App Router + Tailwind + shadcn/ui: WS streaming chat, profile builder (no PII), multi-pathway + comparison + citation drill-down, anti-bias gamification (diversity/badges/skill-map/counter-rec/reversibility), bias flags; build+typecheck green |
 | 7 | Evaluation | ◐ | C1–C4 harness exists; need Ragas + stats |
 | 8 | Documentation | ◐ | partial docs exist |
 
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-09 — Phase 6 Next.js frontend — `frontend/` Next.js 14 App Router +
+  TypeScript + Tailwind + shadcn/ui (new-york). `lib/types.ts` mirrors the Pydantic
+  contracts; `lib/api.ts` REST + WS client (derives ws:// from API URL; advising
+  path stays local-only); `lib/gamification.ts` pure anti-bias logic (diversity
+  score, badges, skill-tree, counter-rec selection, reversibility classification).
+  Components: streaming `ChatPanel` (WS `/ws/advise` node-by-node progress →
+  result/refusal), `ProfileBuilder` (session-scoped, no PII, no persistence,
+  self-rated skill sliders), `PathwayCard` + `PathwayComparison` (head-to-head)
+  + `CitationDrilldown` (tier-coloured excerpts), gamification (`DiversityMeter`
+  recharts donut, `ExplorationBadges`, `SkillTree`, `CounterRecommendationPanel`,
+  `ReversibilityViz`), `BiasFlags`, `HealthStatus` (live backend poll). 12 shadcn
+  primitives. **Verify:** `cd frontend && npm install && npm run build`
+  (passes; Next 14.2.35) + `npm run typecheck` (green); `npm run dev` against
+  `python scripts/run_api.py`.
 - 2026-06-09 — Phase 4 LeRobot policies — `drona/interaction/lerobot_dataset.py`
   (pure `to_lerobot_records` + `LEROBOT_FEATURES` spec + lazy `build_lerobot_dataset`
   via `LeRobotDataset.create`; gesture label = per-frame `task`/instruction, 20 FPS),
@@ -132,9 +147,16 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   2026 version per prompt; to be recorded in `docs/research_papers.md` (Phase 8).
 
 ## Notes for Next Session
-- Phase 5 (ROS2/sim) or Phase 6 (Next.js frontend) next. Phase 6 is the biggest
-  visible deliverable (Next.js dashboard); Phase 5 needs hardware/ROS2 + sim
-  installs (Isaac/Gazebo) so is harder to validate on this dev box.
+- Phase 5 (ROS2/sim) is next per the user's ordering (6 before 5). Phase 5 needs
+  ROS2 + sim installs (Isaac/Gazebo) so is harder to fully validate on this dev
+  box; build the packages/launch/URDF/docs and validate what's possible offline.
+- Phase 6 done: `frontend/` is a standalone Next.js app (own package.json,
+  node_modules gitignored). It expects the FastAPI backend at
+  `NEXT_PUBLIC_DRONA_API_URL` (default http://localhost:8000). The legacy
+  Streamlit dashboard (`drona/dashboard/`) still exists; the Next.js app is the
+  prompt-spec frontend. Keep `lib/types.ts` in sync with `drona/contracts` +
+  `drona/api/schemas.py` if contracts change. Anti-bias UI logic is pure in
+  `frontend/lib/gamification.ts` (could add JS unit tests later).
 - Phase 4 done: all new policy I/O uses the shared `BasePolicy` interface so
   `sim_eval.compare_policies` scores keyframe/ACT/Diffusion/SmolVLA identically.
   ACT/Diffusion train on Colab T4 (notebooks 07/08) via the LeRobot CLI on the

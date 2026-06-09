@@ -4,9 +4,9 @@
 > PROTOCOL in `DRONA_BUILD_PROMPT.md`). Format defined in `PROGRESS_TEMPLATE.md`.
 
 ## Current State
-- **Active phase:** Phase 2 — Advising intelligence (LangGraph + FastAPI done)
-- **Active task:** Phase 2 complete; next is Phase 3 (LoRA fine-tune) or Phase 4 (LeRobot notebooks).
-- **Last commit:** see `git log -1` (Phase 2 commit)
+- **Active phase:** Phase 3 — LoRA fine-tune (data + config + notebook + ablation done)
+- **Active task:** Phase 3 complete (training itself runs on Colab T4). Next: Phase 4 (LeRobot) or Phase 6 (Next.js).
+- **Last commit:** see `git log -1` (Phase 3 commit)
 - **Working tree:** managed per-phase; commit between phases.
 
 ## Reconciliation note (IMPORTANT for any future session)
@@ -36,7 +36,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 | 0 | Repo bootstrap | ☑ | gap-fill done |
 | 1 | Contracts + data pipeline | ☑ | ESCO/BLS/NLFS/synthetic + stores + cards done; backend wiring optional |
 | 2 | Advising intelligence | ☑ | LangGraph orchestration + citation verify + Qwen fallback + FastAPI (REST+WS) |
-| 3 | LoRA fine-tune | ☐ | |
+| 3 | LoRA fine-tune | ☑ | Q&A gen + SFT format + gold curation + LoRA config + ablation + Colab notebook + model_card; training runs on Colab T4 |
 | 4 | LeRobot policies | ◐ | ACT scaffolding exists; need notebooks + Diffusion + SmolVLA |
 | 5 | ROS2 + simulation | ◐ | ros2_ws exists; need actions + sim |
 | 6 | Frontend | ◐ | Streamlit legacy; need Next.js |
@@ -46,6 +46,20 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-09 — Phase 3 LoRA fine-tune — `drona/finetune/`: `qa_generator.py`
+  (deterministic, grounded, bias-balanced synthetic advising Q&A → gold JSON
+  answers; anchored + labelled), `dataset.py` (chat SFT formatting via the
+  production prompt_builder + train/val split + JSONL), `gold_set.py` (stratified
+  ~50 human-review file + approved-only loader), `lora_config.py`
+  (Colab-T4 QLoRA dataclass + lazy PEFT/BnB/TrainingArgs builders),
+  `ablation.py` (transparent base+RAG vs LoRA+RAG metrics, backend-agnostic),
+  `model_card.py` (ModelCard generator). `scripts/generate_qa.py` CLI;
+  `notebooks/09_lora_finetune_phi35.ipynb` (Colab T4, 14 cells);
+  `models/phi35-lora-advising/model_card.md` (+ yaml). pyproject `finetune` extra
+  (transformers/peft/trl/accelerate; bitsandbytes=Colab-only).
+  +19 tests (395 total green, 1 skipped=peft). **Verify:**
+  `pytest tests/test_ws3_finetune.py -q`;
+  `python scripts/generate_qa.py --pathways <pathways.json> --n 500`.
 - 2026-06-09 — Phase 2 advising intelligence — `drona/advising/verify.py`
   (transparent citation-grounding check → downgrades/strips ungrounded pathways).
   Qwen2.5-3B multilingual fallback in `LLMClient` (local, tries primary→fallback,
@@ -105,10 +119,15 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   2026 version per prompt; to be recorded in `docs/research_papers.md` (Phase 8).
 
 ## Notes for Next Session
-- Phase 3 (LoRA) or Phase 4 (LeRobot) next. LoRA: generate ~500 synthetic
-  advising Q&A grounded in real data (reuse `synthetic.py` + offline Gemini),
-  human-review ~50 into a gold set, write `notebooks/09_lora_finetune_phi35.ipynb`
-  (Colab T4), evaluate base+RAG vs LoRA+RAG, write `model_card.md`.
+- Phase 4 (LeRobot) or Phase 6 (Next.js frontend) next. Phase 4: existing
+  `drona/interaction/` has demonstration/mujoco_env/act_policy/gesture_dispatcher
+  + `scripts/train_act.py` + `notebooks/03_gesture_training.ipynb`. Gaps:
+  MuJoCo upper-body env polish, LeRobot dataset conversion, ACT notebook (07),
+  Diffusion Policy notebook (08), SmolVLA inference seam, sim eval (success rate,
+  jerk). Phase 6 is the biggest visible deliverable (Next.js dashboard).
+- Phase 3 training runs on Colab T4 via notebook 09; the repo holds all data-prep,
+  config, ablation, and the model card. Re-run `scripts/generate_qa.py` once real
+  pathway anchors exist in `data/processed/`.
 - Phase 2 is wired through `AdvisingGraph` (LangGraph). The older imperative
   `AdvisingEngine` still exists and is used as the API fallback if LangGraph is
   missing; keep both green. `[backend]` extras are installed in the dev env

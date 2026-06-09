@@ -148,16 +148,50 @@ python scripts/run_evaluation.py --c2 --c3
 
 Results are saved as JSON to `data/evaluation/report_<timestamp>.json`.
 
+### Web frontend (Next.js 14)
+
+```bash
+cd frontend && npm install && npm run dev   # http://localhost:3000
+# Requires the API running: python scripts/run_api.py
+```
+
+### Robot simulation (Ubuntu 22.04 + ROS2 Humble)
+
+```bash
+cd ros2_ws && colcon build --symlink-install && source install/setup.bash
+ros2 launch drona_bringup drona_system.launch.py use_rviz:=true
+```
+
 ### Tests
 
 ```bash
-pytest                          # 305 tests, ~7 seconds, no network/GPU
-pytest tests/test_ws6_evaluation.py -v   # evaluation harness only
+pytest                                   # full suite (431 pass, 1 skipped), no network/GPU
+pytest tests/test_ws7_phase7_eval.py -v  # evaluation harness only
 ```
 
 ---
 
+## Documentation
+
+| Doc | What it covers |
+|---|---|
+| [`docs/architecture.md`](docs/architecture.md) | System design + **mermaid** diagrams |
+| [`docs/phase1_plan.md`](docs/phase1_plan.md) / [`docs/phase2_plan.md`](docs/phase2_plan.md) | Delivered scope vs deferred (hardware + study) |
+| [`docs/data_ethics.md`](docs/data_ethics.md) | PII policy, licensing matrix, scraping prohibitions |
+| [`docs/data_cards/`](docs/data_cards/) | One data card per dataset |
+| [`models/*/model_card.md`](models/) | One model card per trained model |
+| [`docs/research_papers.md`](docs/research_papers.md) | Paper → design-choice grounding |
+| [`docs/ros2_topics_actions.md`](docs/ros2_topics_actions.md) | Every ROS2 topic / action / service |
+| [`docs/sim_setup_gazebo.md`](docs/sim_setup_gazebo.md) / [`docs/sim_setup_isaac.md`](docs/sim_setup_isaac.md) | Simulator setup |
+| [`docs/viva_prep.md`](docs/viva_prep.md) | Anticipated examiner questions + answers |
+| [`docs/demo_video_script.md`](docs/demo_video_script.md) | Shot-by-shot demo script |
+| [`PROGRESS.md`](PROGRESS.md) | Live build ledger |
+
+---
+
 ## Data sources and ethics
+
+Full licensing matrix, PII policy, and scraping prohibitions: [`docs/data_ethics.md`](docs/data_ethics.md).
 
 | Source | Type | License / access |
 |--------|------|-----------------|

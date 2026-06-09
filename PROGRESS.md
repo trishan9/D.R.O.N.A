@@ -4,11 +4,12 @@
 > PROTOCOL in `DRONA_BUILD_PROMPT.md`). Format defined in `PROGRESS_TEMPLATE.md`.
 
 ## Current State
-- **Active phase:** Phase 7 — evaluation harness (Ragas + bias-mitigation + stats + citation eval + 11 notebooks done)
-- **Active task:** Phase 7 complete (16 new tests, 431 total pass). Next: Phase 8 (documentation).
-- **Last commit:** see `git log -1` (Phase 7 commit)
+- **Active phase:** Phase 8 — documentation (COMPLETE). **All phases 0–8 done.**
+- **Active task:** project build complete. Remaining real-world work is Phase-2
+  (physical SO-100 arm swap + live student user study + multilingual production).
+- **Last commit:** see `git log -1` (Phase 8 commit)
 - **Working tree:** managed per-phase; commit between phases.
-- **User sequencing:** Phase 6 before Phase 5 at user's request; both done, then Phase 7.
+- **User sequencing:** Phase 6 before Phase 5 at user's request; then 7, then 8.
 
 ## Reconciliation note (IMPORTANT for any future session)
 This repo was originally built to a **lighter plan** than `DRONA_BUILD_PROMPT.md`
@@ -42,11 +43,23 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 | 5 | ROS2 + simulation | ☑ | ExecuteGesture.action + policy_node action server (feedback/cancel), drona_description humanoid URDF + RViz, Gazebo Harmonic + Isaac launch (+ standalone stage script), full-system launch (rviz + rosbag), docs (gazebo/isaac/topics-actions); colcon build needs Ubuntu+ROS2 |
 | 6 | Frontend | ☑ | Next.js 14 App Router + Tailwind + shadcn/ui: WS streaming chat, profile builder (no PII), multi-pathway + comparison + citation drill-down, anti-bias gamification (diversity/badges/skill-map/counter-rec/reversibility), bias flags; build+typecheck green |
 | 7 | Evaluation | ☑ | C1–C4 harness + Ragas harness (proxy fallback) + bias-MITIGATION metrics + scipy.stats comparison + citation-grounding eval; 11 canonical notebooks; 16 new tests (431 total pass) |
-| 8 | Documentation | ◐ | partial docs exist |
+| 8 | Documentation | ☑ | architecture +mermaid; data_ethics; phase1/2 plans; research_papers; viva_prep; demo script; 7 data cards; 3 model cards; README docs index |
 
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-09 — Phase 8 documentation (PROJECT COMPLETE) — `docs/data_ethics.md`
+  (PII policy + full licensing matrix + scraping prohibitions + cloud-LLM boundary);
+  `docs/phase1_plan.md` + `docs/phase2_plan.md` (delivered vs deferred); 
+  `docs/research_papers.md` (paper → design-choice mapping, 12 core + supporting);
+  `docs/viva_prep.md` (20 anticipated examiner Q&A grouped by theme);
+  `docs/demo_video_script.md` (shot-by-shot demo storyboard + commands); 4 **mermaid**
+  diagrams added to `docs/architecture.md` (system context, advising pipeline,
+  provenance tiers, sim-to-real seam); `docs/data_cards/` with 7 per-dataset cards
+  + index; `models/act-gesture-policy/model_card.md` + 
+  `models/diffusion-gesture-policy/model_card.md` (phi35-lora card already existed);
+  README documentation index + Running updates (Next.js + ROS2). **Verify:** all docs
+  render; `rg "```mermaid" docs/architecture.md` → 4.
 - 2026-06-09 — Phase 7 evaluation harness — new `drona/evaluation/` modules:
   `bias_mitigation.py` (pathway diversity, hedge frequency, counter-recommendation
   rate, refusal rate, tier-citation distribution, nepal-first rate, bias-flag
@@ -181,7 +194,9 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   2026 version per prompt; to be recorded in `docs/research_papers.md` (Phase 8).
 
 ## Notes for Next Session
-- Phase 8 (documentation) is the last phase. Phases 0–7 done.
+- **All 8 phases complete.** The next session is for: viva rehearsal, recording the
+  demo (see `docs/demo_video_script.md`), populating real numbers (ingest data +
+  Ollama + a Colab T4 training run), or starting Phase-2 hardware work.
 - Phase 7 caveat: notebooks are runnable but most need data/models for *real*
   outputs (ChromaDB via ingest, Ollama for LLM cells, a Colab T4 for 07/08/09).
   They run end-to-end with graceful skips on this box. Ragas isn't installed, so

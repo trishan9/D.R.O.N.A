@@ -154,3 +154,79 @@ If ChromaDB returns fewer than 2 citations above `min_citation_score`, the engin
 | C4 | Nepal citation ratio | Automated check of `DataTier.NEPAL` fraction in responses |
 
 Run with: `python scripts/run_evaluation.py --c1 --c2 --c3 --c4`
+
+---
+
+## Diagrams (Mermaid)
+
+### System context
+
+```mermaid
+flowchart LR
+    student([Student]) -->|profile + query| FE[Next.js dashboard]
+    FE <-->|REST + websocket| API[FastAPI service]
+    API --> ENG[AdvisingEngine]
+    ENG --> RET[Hybrid retriever + reranker]
+    RET --> CDB[(ChromaDB / pgvector)]
+    ENG --> LLM[Ollama local LLM<br/>Phi-3.5 / Qwen2.5]
+    ENG --> BIAS[Rule-based bias detector]
+    API --> ROS[ROS2 policy node]
+    ROS --> SIM[Gazebo / Isaac sim arm]
+    ROS -. Phase 2 .-> ARM[SO-100 physical arm]
+    GEM[Gemini / Vertex]:::offline -. offline only .-> SYN[Synthetic data + eval]
+    classDef offline stroke-dasharray: 5 5;
+```
+
+### Advising request pipeline (LangGraph)
+
+```mermaid
+flowchart TD
+    Q[AdvisingQuery] --> D[detect_bias]
+    D --> R[retrieve<br/>BM25 + dense + RRF]
+    R --> RR[rerank<br/>cross-encoder]
+    RR --> G[generate<br/>bias-aware prompt → local LLM]
+    G --> V[verify_citations]
+    V -->|grounded| F[format AdvisingResponse]
+    V -->|too few grounded| RETRY{retry?}
+    RETRY -->|yes| G
+    RETRY -->|no| REF[refusal response]
+    F --> OUT([response: pathways + citations + bias flags])
+    REF --> OUT
+```
+
+### Data provenance tiers (C4)
+
+```mermaid
+flowchart LR
+    subgraph Sources
+      O[O*NET CC BY 4.0]
+      E[ESCO CC BY 4.0]
+      B[BLS OEWS public domain]
+      N[NLFS Nepal]
+      M[Nepali postings<br/>manual only]
+      C[Softwarica curriculum]
+      S[Synthetic labelled]
+    end
+    O --> INTL[[international tier]]
+    E --> REG[[regional tier]]
+    B --> INTL
+    N --> NEP[[nepal tier]]
+    M --> NEP
+    C --> NEP
+    S --> SYN[[synthetic tier]]
+    NEP -->|boosted first| RANK[Tier-aware ranking]
+    REG --> RANK
+    INTL --> RANK
+    SYN -->|labelled, never silent| RANK
+```
+
+### Sim-to-real seam (C3)
+
+```mermaid
+flowchart LR
+    POL[Gesture policy<br/>ACT / Diffusion / keyframe] --> ACT[ExecuteGesture action]
+    ACT --> PN[policy_node]
+    PN -->|/drona/joint_states| STUB[StubEnv / MuJoCo]
+    PN -->|/drona/joint_states| GZ[Gazebo / Isaac URDF]
+    PN -. Phase 2: same interface .-> DRV[SO-100 driver]
+```

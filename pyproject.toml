@@ -120,6 +120,8 @@ ignore = ["E501"]
 [tool.ruff.lint.per-file-ignores]
 # Typer CLI idiom requires function calls (typer.Option/Argument) in defaults.
 "scripts/*" = ["B008"]
+# FastAPI dependency-injection idiom requires Depends() in defaults.
+"drona/api/*" = ["B008"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

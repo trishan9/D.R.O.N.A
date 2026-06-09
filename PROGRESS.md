@@ -4,9 +4,9 @@
 > PROTOCOL in `DRONA_BUILD_PROMPT.md`). Format defined in `PROGRESS_TEMPLATE.md`.
 
 ## Current State
-- **Active phase:** Phase 1 — Contracts + data pipeline (core gaps filled; optional wiring remains)
-- **Active task:** Phase 1 source ingestion + synthetic + data cards + stores done; next is Phase 2 (LangGraph + FastAPI).
-- **Last commit:** see `git log -1` (Phase 1 ingestion commit)
+- **Active phase:** Phase 2 — Advising intelligence (LangGraph + FastAPI done)
+- **Active task:** Phase 2 complete; next is Phase 3 (LoRA fine-tune) or Phase 4 (LeRobot notebooks).
+- **Last commit:** see `git log -1` (Phase 2 commit)
 - **Working tree:** managed per-phase; commit between phases.
 
 ## Reconciliation note (IMPORTANT for any future session)
@@ -34,8 +34,8 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 | Phase | Name | Status | Notes |
 |-------|------|--------|-------|
 | 0 | Repo bootstrap | ☑ | gap-fill done |
-| 1 | Contracts + data pipeline | ◐ | ESCO/BLS/NLFS/synthetic + stores + cards done; backend wiring optional |
-| 2 | Advising intelligence | ◐ | core RAG/bias exist; need LangGraph + FastAPI |
+| 1 | Contracts + data pipeline | ☑ | ESCO/BLS/NLFS/synthetic + stores + cards done; backend wiring optional |
+| 2 | Advising intelligence | ☑ | LangGraph orchestration + citation verify + Qwen fallback + FastAPI (REST+WS) |
 | 3 | LoRA fine-tune | ☐ | |
 | 4 | LeRobot policies | ◐ | ACT scaffolding exists; need notebooks + Diffusion + SmolVLA |
 | 5 | ROS2 + simulation | ◐ | ros2_ws exists; need actions + sim |
@@ -46,6 +46,19 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-09 — Phase 2 advising intelligence — `drona/advising/verify.py`
+  (transparent citation-grounding check → downgrades/strips ungrounded pathways).
+  Qwen2.5-3B multilingual fallback in `LLMClient` (local, tries primary→fallback,
+  bounded retries). `drona/advising/graph.py` — LangGraph StateGraph
+  (detect_bias→retrieve→generate→verify→format, conditional retry on parse
+  failure, refusal on thin coverage) wrapping the EXISTING tested components +
+  `.advise()`/`.stream()`; node fns unit-testable without LangGraph. FastAPI app
+  `drona/api/` (REST `POST /advise`, `GET /health`, websocket `/ws/advise`
+  node-by-node streaming via thread→asyncio queue, CORS, lifespan guard that
+  hard-asserts Gemini stays OUT of the request path). `scripts/run_api.py`.
+  +22 tests (376 total green); LangGraph + FastAPI paths covered (importorskip on
+  [dev]-only). **Verify:** `pytest tests/test_ws2b_phase2.py -q`;
+  `pip install -e ".[backend]"` then `python scripts/run_api.py` → open `/docs`.
 - 2026-06-09 — Phase 1 ingestion — Added source loaders: `esco.py` (ESCO v1.2.1
   CSV bulk + API fallback, ICT filter), `bls.py` (OEWS wage bands + pathway
   enrichment), `nlfs.py` (Nepal LFS PDF → citable LabourSnippets), `synthetic.py`
@@ -92,12 +105,15 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   2026 version per prompt; to be recorded in `docs/research_papers.md` (Phase 8).
 
 ## Notes for Next Session
-- Phase 2 next: add a LangChain RAG chain + LangGraph orchestration graph
-  (detect-bias → retrieve → generate → verify-citations → format, with retry on
-  parse failure) wrapping the EXISTING `drona/advising/` modules (retriever,
-  bias_detector, prompt_builder, llm_client, engine). Add reranker
-  (bge-reranker-base) into the retriever. Build the FastAPI app
-  (`drona/api/`) with a websocket streaming advising endpoint + Qwen fallback.
+- Phase 3 (LoRA) or Phase 4 (LeRobot) next. LoRA: generate ~500 synthetic
+  advising Q&A grounded in real data (reuse `synthetic.py` + offline Gemini),
+  human-review ~50 into a gold set, write `notebooks/09_lora_finetune_phi35.ipynb`
+  (Colab T4), evaluate base+RAG vs LoRA+RAG, write `model_card.md`.
+- Phase 2 is wired through `AdvisingGraph` (LangGraph). The older imperative
+  `AdvisingEngine` still exists and is used as the API fallback if LangGraph is
+  missing; keep both green. `[backend]` extras are installed in the dev env
+  (fastapi, langgraph, langchain-core, sse-starlette); CI still runs [dev] only,
+  so backend/graph tests importorskip there.
 - Optional Phase 1 leftovers (non-blocking): wire `VECTOR_BACKEND` selector into
   `scripts/ingest_data.py` so it routes to chroma/pgvector/pinecone; add salary
   columns to CareerPathwayORM if pgvector pathway wages are wanted.

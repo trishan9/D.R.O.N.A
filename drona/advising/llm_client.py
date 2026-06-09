@@ -36,7 +36,6 @@ from drona.contracts import (
 )
 from drona.utils.settings import settings
 
-
 # ── Raw response schema (LLM output before full AdvisingResponse assembly) ────
 
 def _parse_pathways(
@@ -99,8 +98,17 @@ def _extract_json(text: str) -> dict[str, Any] | None:
 class LLMClient:
     """Ollama-backed LLM client for structured advising responses."""
 
-    def __init__(self, model: str | None = None, host: str | None = None) -> None:
+    def __init__(
+        self,
+        model: str | None = None,
+        host: str | None = None,
+        fallback_model: str | None = None,
+    ) -> None:
         self._model = model or settings.ollama_model
+        # Multilingual fallback (Qwen2.5-3B) — still LOCAL, no API cost. Tried
+        # when the primary model is unavailable or exhausts its retries, which
+        # also helps for Nepali/code-switched queries (proposal Phase 2 seam).
+        self._fallback_model = fallback_model or settings.ollama_fallback_model
         self._host = host or settings.ollama_host
         self._client: Any = None  # lazy import
 
@@ -115,18 +123,38 @@ class LLMClient:
                 "ollama package not installed. Run: pip install ollama"
             ) from exc
 
+    def _loaded_model_names(self) -> list[str]:
+        self._ensure_client()
+        models = self._client.list()
+        return [m.model for m in (models.models or [])]
+
+    def _model_present(self, model: str, names: list[str]) -> bool:
+        base = model.split(":")[0]
+        return any(n.startswith(base) for n in names)
+
     def is_available(self) -> bool:
-        """Return True if Ollama is reachable and the model is loaded."""
+        """Return True if Ollama is reachable and the primary OR fallback model is loaded."""
         try:
-            self._ensure_client()
-            models = self._client.list()
-            names = [m.model for m in (models.models or [])]
-            # Accept both 'phi3.5' and 'phi3.5:latest' etc.
-            base = self._model.split(":")[0]
-            return any(n.startswith(base) for n in names)
+            names = self._loaded_model_names()
+            return self._model_present(self._model, names) or self._model_present(
+                self._fallback_model, names
+            )
         except Exception as exc:
             logger.warning(f"Ollama availability check failed: {exc}")
             return False
+
+    def _available_models(self) -> list[str]:
+        """Ordered list of usable models: primary first, then fallback if loaded."""
+        try:
+            names = self._loaded_model_names()
+        except Exception:
+            return [self._model]
+        usable = []
+        if self._model_present(self._model, names):
+            usable.append(self._model)
+        if self._fallback_model and self._model_present(self._fallback_model, names):
+            usable.append(self._fallback_model)
+        return usable or [self._model]
 
     def generate(
         self,
@@ -149,39 +177,44 @@ class LLMClient:
         ]
 
         last_error: str | None = None
-        for attempt in range(max_retries + 1):
-            t0 = time.monotonic()
-            try:
-                response = self._client.chat(
-                    model=self._model,
-                    messages=messages,
-                    options={"temperature": 0.2, "num_ctx": 4096},
-                )
-                elapsed_ms = int((time.monotonic() - t0) * 1000)
-                raw_text: str = response.message.content or ""
-                logger.debug(
-                    f"LLM response in {elapsed_ms}ms "
-                    f"({len(raw_text)} chars, attempt {attempt + 1})"
-                )
+        # Try each usable model in order (primary → Qwen fallback). Each model
+        # gets max_retries+1 attempts to emit parseable JSON.
+        for model in self._available_models():
+            for attempt in range(max_retries + 1):
+                t0 = time.monotonic()
+                try:
+                    response = self._client.chat(
+                        model=model,
+                        messages=messages,
+                        options={"temperature": 0.2, "num_ctx": 4096},
+                    )
+                    elapsed_ms = int((time.monotonic() - t0) * 1000)
+                    raw_text: str = response.message.content or ""
+                    logger.debug(
+                        f"LLM [{model}] response in {elapsed_ms}ms "
+                        f"({len(raw_text)} chars, attempt {attempt + 1})"
+                    )
 
-                parsed = _extract_json(raw_text)
-                if parsed is None:
-                    last_error = f"Could not extract JSON from LLM output (attempt {attempt + 1})"
+                    parsed = _extract_json(raw_text)
+                    if parsed is None:
+                        last_error = (
+                            f"Could not extract JSON from {model} output "
+                            f"(attempt {attempt + 1})"
+                        )
+                        logger.warning(last_error)
+                        continue
+
+                    pathways = _parse_pathways(parsed.get("pathways", []), citations)
+                    speak_text = str(parsed.get("speak_text", ""))
+                    return pathways, speak_text, False, None
+
+                except Exception as exc:
+                    elapsed_ms = int((time.monotonic() - t0) * 1000)
+                    last_error = f"LLM [{model}] call failed after {elapsed_ms}ms: {exc}"
                     logger.warning(last_error)
-                    continue
+            logger.warning(f"Model {model} exhausted retries; trying next fallback if any")
 
-                pathways = _parse_pathways(
-                    parsed.get("pathways", []), citations
-                )
-                speak_text = str(parsed.get("speak_text", ""))
-                return pathways, speak_text, False, None
-
-            except Exception as exc:
-                elapsed_ms = int((time.monotonic() - t0) * 1000)
-                last_error = f"LLM call failed after {elapsed_ms}ms: {exc}"
-                logger.warning(last_error)
-
-        # All retries exhausted
+        # All models + retries exhausted
         return (
             [],
             "I'm sorry, I could not generate a response right now. "

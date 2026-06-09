@@ -1,0 +1,24 @@
+# Execute a learned gesture as a ROS2 action (long-running, with feedback).
+#
+# Wraps the LeRobot/keyframe policy rollout in drona.interaction. Unlike the
+# ExecuteGesture *service* (blocking, no feedback) this action streams per-frame
+# progress so the orchestrator / dashboard can show the gesture playing out and
+# can preempt it (cancel) mid-motion.
+
+# ── Goal ──────────────────────────────────────────────────────────────────────
+string gesture_label      # greet | nod | point | idle | listen | farewell
+float32 target_x          # optional world-frame target for POINT (metres)
+float32 target_y
+float32 target_z
+string policy_hint        # "" = auto | "keyframe" | "act" | "diffusion"
+---
+# ── Result ────────────────────────────────────────────────────────────────────
+GestureResult result      # final outcome (echoes the GestureResult message)
+bool success
+string error              # non-empty on failure / cancellation
+---
+# ── Feedback (streamed each control step) ─────────────────────────────────────
+float32 progress          # 0.0 .. 1.0 completion fraction
+int32 current_frame
+int32 total_frames
+float32[] joint_positions # current 6-DOF joint state (radians)

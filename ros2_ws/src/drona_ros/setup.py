@@ -21,6 +21,7 @@ setup(
         "console_scripts": [
             "advising_node    = drona_ros.advising_node:main",
             "gesture_node     = drona_ros.gesture_node:main",
+            "policy_node      = drona_ros.policy_node:main",
             "perception_node  = drona_ros.perception_node:main",
             "orchestrator_node = drona_ros.orchestrator_node:main",
         ],

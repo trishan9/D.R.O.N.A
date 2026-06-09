@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>drona_description</name>
+  <version>0.1.0</version>
+  <description>
+    URDF description of the D.R.O.N.A. simulated humanoid (head + torso + 6-DOF
+    advising arm). Joint names match drona.interaction.demonstration.JOINT_NAMES
+    (j0_base_yaw .. j5_gripper) so the gesture/policy nodes' /drona/joint_states
+    drive the model directly in RViz, Gazebo, and Isaac Sim.
+  </description>
+  <maintainer email="trisan.wagle@softwarica.edu.np">Trisan Wagle</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -4,11 +4,11 @@
 > PROTOCOL in `DRONA_BUILD_PROMPT.md`). Format defined in `PROGRESS_TEMPLATE.md`.
 
 ## Current State
-- **Active phase:** Phase 6 — Next.js frontend (chat streaming + gamification + comparison done)
-- **Active task:** Phase 6 complete (builds clean, typecheck green). Next: Phase 5 (ROS2/sim), then Phase 7/8.
-- **Last commit:** see `git log -1` (Phase 6 commit)
+- **Active phase:** Phase 5 — ROS2 + simulation (action server, URDF, Gazebo/Isaac launch, full launch, rosbag, docs done)
+- **Active task:** Phase 5 complete (code/launch/docs; needs Ubuntu+ROS2 to colcon-build & run). Next: Phase 7, then Phase 8.
+- **Last commit:** see `git log -1` (Phase 5 commit)
 - **Working tree:** managed per-phase; commit between phases.
-- **User sequencing:** Phase 6 was built before Phase 5 at the user's request.
+- **User sequencing:** Phase 6 was built before Phase 5 at the user's request; both now done.
 
 ## Reconciliation note (IMPORTANT for any future session)
 This repo was originally built to a **lighter plan** than `DRONA_BUILD_PROMPT.md`
@@ -39,7 +39,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 | 2 | Advising intelligence | ☑ | LangGraph orchestration + citation verify + Qwen fallback + FastAPI (REST+WS) |
 | 3 | LoRA fine-tune | ☑ | Q&A gen + SFT format + gold curation + LoRA config + ablation + Colab notebook + model_card; training runs on Colab T4 |
 | 4 | LeRobot policies | ☑ | LeRobot dataset conversion + sim eval (success/jerk) + Diffusion wrapper + SmolVLA seam + notebooks 07/08; training runs on Colab T4 |
-| 5 | ROS2 + simulation | ◐ | ros2_ws exists; need actions + sim |
+| 5 | ROS2 + simulation | ☑ | ExecuteGesture.action + policy_node action server (feedback/cancel), drona_description humanoid URDF + RViz, Gazebo Harmonic + Isaac launch (+ standalone stage script), full-system launch (rviz + rosbag), docs (gazebo/isaac/topics-actions); colcon build needs Ubuntu+ROS2 |
 | 6 | Frontend | ☑ | Next.js 14 App Router + Tailwind + shadcn/ui: WS streaming chat, profile builder (no PII), multi-pathway + comparison + citation drill-down, anti-bias gamification (diversity/badges/skill-map/counter-rec/reversibility), bias flags; build+typecheck green |
 | 7 | Evaluation | ◐ | C1–C4 harness exists; need Ragas + stats |
 | 8 | Documentation | ◐ | partial docs exist |
@@ -47,6 +47,24 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-09 — Phase 5 ROS2 + simulation — `drona_msgs/action/ExecuteGesture.action`
+  (goal/result/feedback; wired into CMakeLists + package.xml with action_msgs).
+  `drona_ros/policy_node.py` — ROS2 **ActionServer** wrapping the LeRobot/keyframe
+  PolicyRouter with per-frame feedback (progress/joint_positions), cancellation,
+  and /drona/joint_states streaming (entry point added). New `drona_description`
+  package: humanoid upper-body URDF (`drona_humanoid.urdf.xacro`, joints =
+  JOINT_NAMES j0..j5), RViz config, `display.launch.py` (gui sliders or live
+  joint stream). `drona_bringup` launches: `drona_gazebo.launch.py` (Gazebo
+  Harmonic + ros_gz bridge + spawn), `drona_isaac.launch.py` (ROS2 side,
+  use_sim_time) + `isaac/drona_isaac_stage.py` (standalone Isaac stage builder,
+  URDF import + ROS2-bridge OmniGraph), `drona_system.launch.py` (full stack +
+  optional RViz + optional rosbag record of all topics). Docs:
+  `sim_setup_gazebo.md`, `sim_setup_isaac.md` (≥8GB VRAM note + cloud-GPU recipe),
+  `ros2_topics_actions.md` (full topic/service/action graph). All new launch/node
+  Python `py_compile`-clean. **Verify (Ubuntu+ROS2 Humble):** `cd ros2_ws &&
+  colcon build --symlink-install`; `ros2 launch drona_bringup drona_system.launch.py
+  use_rviz:=true`; `ros2 action send_goal /drona/execute_gesture_action
+  drona_msgs/action/ExecuteGesture "{gesture_label: 'greet'}" --feedback`.
 - 2026-06-09 — Phase 6 Next.js frontend — `frontend/` Next.js 14 App Router +
   TypeScript + Tailwind + shadcn/ui (new-york). `lib/types.ts` mirrors the Pydantic
   contracts; `lib/api.ts` REST + WS client (derives ws:// from API URL; advising
@@ -147,9 +165,14 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   2026 version per prompt; to be recorded in `docs/research_papers.md` (Phase 8).
 
 ## Notes for Next Session
-- Phase 5 (ROS2/sim) is next per the user's ordering (6 before 5). Phase 5 needs
-  ROS2 + sim installs (Isaac/Gazebo) so is harder to fully validate on this dev
-  box; build the packages/launch/URDF/docs and validate what's possible offline.
+- Phase 7 (evaluation harness) is next, then Phase 8 (docs). Phases 5 and 6 done.
+- Phase 5 caveat: code/launch/URDF/docs are written and Python-syntax-clean, but
+  `colcon build` + runtime need Ubuntu 22.04 + ROS2 Humble (and Gazebo Harmonic /
+  Isaac for sim). Cannot be built on this Windows dev box. `policy_node` is the
+  new action server; the older `gesture_node` (service) is kept for back-compat.
+  URDF joint names == `drona.interaction.demonstration.JOINT_NAMES` so the joint
+  stream drives RViz/Gazebo/Isaac unchanged. New pkg `drona_description` is
+  ament_cmake (installs urdf/launch/rviz share dirs).
 - Phase 6 done: `frontend/` is a standalone Next.js app (own package.json,
   node_modules gitignored). It expects the FastAPI backend at
   `NEXT_PUBLIC_DRONA_API_URL` (default http://localhost:8000). The legacy

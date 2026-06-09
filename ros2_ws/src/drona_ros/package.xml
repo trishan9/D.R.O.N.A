@@ -9,6 +9,7 @@
     Each node is a thin transport wrapper around Phase 1 Python logic:
       advising_node    — wraps drona.advising.engine.AdvisingEngine
       gesture_node     — wraps drona.interaction.gesture_dispatcher.GestureDispatcher
+      policy_node      — action server wrapping LeRobot gesture-policy inference
       perception_node  — wraps drona.perception.mediapipe_detector
       orchestrator_node — wraps drona.orchestrator.SessionMachine + Orchestrator
 
@@ -21,6 +22,7 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>action_msgs</depend>
   <depend>drona_msgs</depend>
 
   <test_depend>ament_copyright</test_depend>

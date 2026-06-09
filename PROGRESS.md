@@ -4,11 +4,11 @@
 > PROTOCOL in `DRONA_BUILD_PROMPT.md`). Format defined in `PROGRESS_TEMPLATE.md`.
 
 ## Current State
-- **Active phase:** Phase 5 — ROS2 + simulation (action server, URDF, Gazebo/Isaac launch, full launch, rosbag, docs done)
-- **Active task:** Phase 5 complete (code/launch/docs; needs Ubuntu+ROS2 to colcon-build & run). Next: Phase 7, then Phase 8.
-- **Last commit:** see `git log -1` (Phase 5 commit)
+- **Active phase:** Phase 7 — evaluation harness (Ragas + bias-mitigation + stats + citation eval + 11 notebooks done)
+- **Active task:** Phase 7 complete (16 new tests, 431 total pass). Next: Phase 8 (documentation).
+- **Last commit:** see `git log -1` (Phase 7 commit)
 - **Working tree:** managed per-phase; commit between phases.
-- **User sequencing:** Phase 6 was built before Phase 5 at the user's request; both now done.
+- **User sequencing:** Phase 6 before Phase 5 at user's request; both done, then Phase 7.
 
 ## Reconciliation note (IMPORTANT for any future session)
 This repo was originally built to a **lighter plan** than `DRONA_BUILD_PROMPT.md`
@@ -41,12 +41,28 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 | 4 | LeRobot policies | ☑ | LeRobot dataset conversion + sim eval (success/jerk) + Diffusion wrapper + SmolVLA seam + notebooks 07/08; training runs on Colab T4 |
 | 5 | ROS2 + simulation | ☑ | ExecuteGesture.action + policy_node action server (feedback/cancel), drona_description humanoid URDF + RViz, Gazebo Harmonic + Isaac launch (+ standalone stage script), full-system launch (rviz + rosbag), docs (gazebo/isaac/topics-actions); colcon build needs Ubuntu+ROS2 |
 | 6 | Frontend | ☑ | Next.js 14 App Router + Tailwind + shadcn/ui: WS streaming chat, profile builder (no PII), multi-pathway + comparison + citation drill-down, anti-bias gamification (diversity/badges/skill-map/counter-rec/reversibility), bias flags; build+typecheck green |
-| 7 | Evaluation | ◐ | C1–C4 harness exists; need Ragas + stats |
+| 7 | Evaluation | ☑ | C1–C4 harness + Ragas harness (proxy fallback) + bias-MITIGATION metrics + scipy.stats comparison + citation-grounding eval; 11 canonical notebooks; 16 new tests (431 total pass) |
 | 8 | Documentation | ◐ | partial docs exist |
 
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-09 — Phase 7 evaluation harness — new `drona/evaluation/` modules:
+  `bias_mitigation.py` (pathway diversity, hedge frequency, counter-recommendation
+  rate, refusal rate, tier-citation distribution, nepal-first rate, bias-flag
+  coverage — the response-level *mitigation* metrics, distinct from detection
+  P/R/F1); `stats.py` (scipy.stats comparison harness: Welch t, Mann-Whitney U,
+  Cohen's d, rank-biserial, bootstrap 95% CI, Shapiro normality, paired
+  t/Wilcoxon — for robot-vs-traditional and ACT-vs-keyframe); `ragas_harness.py`
+  (Ragas when installed + offline judge, else a transparent lexical proxy clearly
+  labelled as such); `citation_eval.py` (aggregate grounding / hallucination rate
+  over response sets, reusing `advising.verify`). Exported via `evaluation/__init__`.
+  Notebooks reconciled to the canonical **11** (created 02_curriculum_parsing,
+  03_embedding_quality, 04_retrieval_ablations, 05_bias_detection_eval,
+  06_llm_response_quality, 10_end_to_end_eval, 11_sim_to_real_handoff; removed 4
+  non-canonical duplicates). All notebooks degrade gracefully (no ChromaDB/Ollama/
+  GPU needed to run). **Verify:** `pytest tests/test_ws7_phase7_eval.py` (16 pass;
+  431 total) ; `python scripts/run_evaluation.py --c2 --c3`.
 - 2026-06-09 — Phase 5 ROS2 + simulation — `drona_msgs/action/ExecuteGesture.action`
   (goal/result/feedback; wired into CMakeLists + package.xml with action_msgs).
   `drona_ros/policy_node.py` — ROS2 **ActionServer** wrapping the LeRobot/keyframe
@@ -165,7 +181,13 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   2026 version per prompt; to be recorded in `docs/research_papers.md` (Phase 8).
 
 ## Notes for Next Session
-- Phase 7 (evaluation harness) is next, then Phase 8 (docs). Phases 5 and 6 done.
+- Phase 8 (documentation) is the last phase. Phases 0–7 done.
+- Phase 7 caveat: notebooks are runnable but most need data/models for *real*
+  outputs (ChromaDB via ingest, Ollama for LLM cells, a Colab T4 for 07/08/09).
+  They run end-to-end with graceful skips on this box. Ragas isn't installed, so
+  `ragas_harness` uses the labelled lexical-proxy backend by default.
+- The live user study (robot vs traditional advising) is Phase 2 per the proposal;
+  `stats.compare_conditions` is the ready-to-use harness for when that data exists.
 - Phase 5 caveat: code/launch/URDF/docs are written and Python-syntax-clean, but
   `colcon build` + runtime need Ubuntu 22.04 + ROS2 Humble (and Gazebo Harmonic /
   Isaac for sim). Cannot be built on this Windows dev box. `policy_node` is the

@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -38,6 +39,10 @@ class DronaSettings(BaseSettings):
     # --- LLM (Ollama) ---
     ollama_host: str = Field("http://localhost:11434")
     ollama_model: str = Field("phi3.5:3.8b-mini-instruct-q4_K_M")
+    ollama_fallback_model: str = Field(
+        "qwen2.5:3b-instruct-q4_K_M",
+        description="Multilingual fallback; still local, no API cost.",
+    )
     llm_max_tokens: int = Field(600, ge=64, le=4096)
     llm_temperature: float = Field(0.3, ge=0.0, le=2.0)
 
@@ -47,8 +52,42 @@ class DronaSettings(BaseSettings):
     reranker_model: str = Field("BAAI/bge-reranker-base")
 
     # --- Vector store ---
+    # Backend selector lets dev run on local ChromaDB while prod/thesis demo
+    # can switch to pgvector or Pinecone without touching call sites.
+    vector_backend: Literal["chroma", "pgvector", "pinecone"] = Field("chroma")
     chroma_dir: Path = Field(Path("data/chromadb"))
     chroma_collection_prefix: str = Field("drona")
+
+    # --- PostgreSQL 16 + pgvector ---
+    postgres_dsn: str = Field(
+        "postgresql+psycopg://drona:drona@localhost:5432/drona",
+        description="SQLAlchemy DSN for Postgres+pgvector (matches docker-compose).",
+    )
+
+    # --- Pinecone (managed cloud vector store, optional) ---
+    pinecone_api_key: str | None = Field(default=None)
+    pinecone_environment: str = Field("us-east-1")
+    pinecone_index_curriculum: str = Field("drona-curriculum")
+    pinecone_index_career: str = Field("drona-career")
+
+    # --- Google Gemini (OFFLINE USE ONLY — synthetic gen + eval sets) ---
+    gemini_api_key: str | None = Field(default=None)
+    gemini_model: str = Field("gemini-1.5-flash")
+    # Hard guard: code asserts this is False before any request-path LLM call.
+    allow_gemini_in_request_path: bool = Field(
+        False,
+        description="MUST stay False — preserves the local-only advising claim.",
+    )
+
+    # --- Google Vertex AI Agent Builder (optional, default OFF) ---
+    enable_vertex_agent: bool = Field(False)
+    vertex_project_id: str | None = Field(default=None)
+    vertex_location: str = Field("us-central1")
+
+    # --- FastAPI backend ---
+    api_host: str = Field("0.0.0.0")
+    api_port: int = Field(8000, ge=1, le=65535)
+    api_cors_origins: str = Field("http://localhost:3000")
 
     # --- Retrieval ---
     retrieval_top_k: int = Field(20, ge=1, le=100)

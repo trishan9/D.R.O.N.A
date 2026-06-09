@@ -1,0 +1,54 @@
+# D.R.O.N.A. local infrastructure.
+#
+# Brings up PostgreSQL 16 with the pgvector extension for the production-grade
+# vector + relational store, and (optionally) Ollama for local LLM serving.
+#
+# Usage:
+#   docker compose up -d db                 # just Postgres+pgvector
+#   docker compose --profile llm up -d      # also start Ollama
+#
+# pgvector/pgvector:pg16 is the official image that ships the extension; the
+# Alembic migration runs `CREATE EXTENSION vector` on first migrate.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: drona-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-drona}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-drona}
+      POSTGRES_DB: ${POSTGRES_DB:-drona}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - drona_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-drona} -d ${POSTGRES_DB:-drona}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Optional local LLM server. Enable with: docker compose --profile llm up -d
+  # GPU passthrough is commented out — the student's GTX 1650 4GB runs Phi-3.5
+  # Q4_K_M on CPU/partial-GPU fine; uncomment `deploy` on a bigger machine.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: drona-ollama
+    profiles: ["llm"]
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - drona_ollama:/root/.ollama
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+volumes:
+  drona_pgdata:
+  drona_ollama:

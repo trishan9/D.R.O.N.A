@@ -4,9 +4,9 @@
 > PROTOCOL in `DRONA_BUILD_PROMPT.md`). Format defined in `PROGRESS_TEMPLATE.md`.
 
 ## Current State
-- **Active phase:** Phase 0 — Repo bootstrap (closing out gaps under EXTEND strategy)
-- **Active task:** Phase 0 gap-fill complete; next is Phase 1 (ESCO/BLS/NLFS ingestion, pgvector schema, synthetic generator).
-- **Last commit:** see `git log -1` (Phase 0 gap-fill commit)
+- **Active phase:** Phase 1 — Contracts + data pipeline (core gaps filled; optional wiring remains)
+- **Active task:** Phase 1 source ingestion + synthetic + data cards + stores done; next is Phase 2 (LangGraph + FastAPI).
+- **Last commit:** see `git log -1` (Phase 1 ingestion commit)
 - **Working tree:** managed per-phase; commit between phases.
 
 ## Reconciliation note (IMPORTANT for any future session)
@@ -33,8 +33,8 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 ## Phase Status
 | Phase | Name | Status | Notes |
 |-------|------|--------|-------|
-| 0 | Repo bootstrap | ◐ | gap-fill done (this commit); see below |
-| 1 | Contracts + data pipeline | ◐ | contracts + O*NET + Chroma exist; extending |
+| 0 | Repo bootstrap | ☑ | gap-fill done |
+| 1 | Contracts + data pipeline | ◐ | ESCO/BLS/NLFS/synthetic + stores + cards done; backend wiring optional |
 | 2 | Advising intelligence | ◐ | core RAG/bias exist; need LangGraph + FastAPI |
 | 3 | LoRA fine-tune | ☐ | |
 | 4 | LeRobot policies | ◐ | ACT scaffolding exists; need notebooks + Diffusion + SmolVLA |
@@ -46,6 +46,17 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-09 — Phase 1 ingestion — Added source loaders: `esco.py` (ESCO v1.2.1
+  CSV bulk + API fallback, ICT filter), `bls.py` (OEWS wage bands + pathway
+  enrichment), `nlfs.py` (Nepal LFS PDF → citable LabourSnippets), `synthetic.py`
+  (deterministic rule-based + optional local-LLM/offline-Gemini, always labelled
+  & anchored). Added `pgvector_store.py` + `pinecone_store.py` (lazy-import upsert
+  paths mirroring the Chroma ingestor). `DataCard` now emits Markdown alongside
+  YAML (prompt's `data_card.md`). Manual-collection source subdirs + `_template.json`.
+  CLI `scripts/ingest_sources.py` (esco/bls/nlfs/synthetic, all `--help` + paths).
+  +20 offline tests (354 total green). **Verify:** `pytest -q`;
+  `python scripts/ingest_sources.py --help`;
+  `python scripts/ingest_sources.py synthetic --jobs data/manual_collection/_template.json --n 2 --out /tmp/s.json`.
 - 2026-06-09 — Phase 0 gap-fill — Added: optional dep groups (backend/db/genai/eval)
   in `pyproject.toml`; expanded `.env.example` + `settings.py` with Gemini (offline-
   only, guarded), Vertex (flagged off), Pinecone, Postgres DSN, FastAPI config;
@@ -81,11 +92,15 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   2026 version per prompt; to be recorded in `docs/research_papers.md` (Phase 8).
 
 ## Notes for Next Session
-- Phase 1 first: build ESCO v1.2.1 + BLS OEWS + NLFS PDF ingestion scripts under
-  `drona/data_pipeline/`, each with `--help` + path args + Pydantic-validated
-  output + a `data/cards/<dataset>_data_card.md`. Then the synthetic generator
-  (local Phi-3.5 primary, Gemini optional/offline). Then a pgvector ingest path
-  parallel to the existing Chroma `ingest.py`.
+- Phase 2 next: add a LangChain RAG chain + LangGraph orchestration graph
+  (detect-bias → retrieve → generate → verify-citations → format, with retry on
+  parse failure) wrapping the EXISTING `drona/advising/` modules (retriever,
+  bias_detector, prompt_builder, llm_client, engine). Add reranker
+  (bge-reranker-base) into the retriever. Build the FastAPI app
+  (`drona/api/`) with a websocket streaming advising endpoint + Qwen fallback.
+- Optional Phase 1 leftovers (non-blocking): wire `VECTOR_BACKEND` selector into
+  `scripts/ingest_data.py` so it routes to chroma/pgvector/pinecone; add salary
+  columns to CareerPathwayORM if pgvector pathway wages are wanted.
 - The career embedding model in `.env.example` currently says JobBERT-**v2**
   (legacy) but the prompt mandates **v3** (Decorte et al. 2025, arXiv:2507.21609).
   Reconcile to v3 when touching the embedding pipeline; `CAREER_EMBED_DIM=1024`

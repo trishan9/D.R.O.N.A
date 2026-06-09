@@ -1,0 +1,36 @@
+[
+  {
+    "posting_id": "mj_2026_001",
+    "source": "merojob",
+    "tier": "nepal",
+    "title": "Junior Python Developer",
+    "employer": "EXAMPLE COMPANY — replace me",
+    "location": "Kathmandu",
+    "skills_required": ["Python", "Django", "REST APIs", "PostgreSQL"],
+    "skills_preferred": ["Docker", "AWS"],
+    "experience_years_min": 0,
+    "salary_min_npr": 30000,
+    "salary_max_npr": 50000,
+    "description": "TEMPLATE ENTRY — paraphrase 2-4 sentences of the real posting here. Delete this file's examples once you add real data; this file lives at the manual_collection root so the loader (which only reads source subdirectories) ignores it.",
+    "posted_date": "2026-05-10T00:00:00",
+    "source_url": "https://merojob.com/replace-with-real-url",
+    "is_synthetic": false
+  },
+  {
+    "posting_id": "is_2026_001",
+    "source": "internsathi",
+    "tier": "nepal",
+    "title": "Frontend Developer Intern",
+    "employer": "EXAMPLE COMPANY — replace me",
+    "location": "Lalitpur",
+    "skills_required": ["JavaScript", "React", "HTML", "CSS"],
+    "skills_preferred": ["TypeScript", "Tailwind"],
+    "experience_years_min": 0,
+    "salary_min_npr": null,
+    "salary_max_npr": null,
+    "description": "TEMPLATE ENTRY — internship example. salary fields are null because the posting did not state a figure; never guess.",
+    "posted_date": "2026-05-12T00:00:00",
+    "source_url": "https://internsathi.com/replace-with-real-url",
+    "is_synthetic": false
+  }
+]

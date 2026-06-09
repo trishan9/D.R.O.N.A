@@ -96,7 +96,7 @@ class PoliteScraper:
     def close(self) -> None:
         self._client.close()
 
-    def __enter__(self) -> "PoliteScraper":
+    def __enter__(self) -> PoliteScraper:
         return self
 
     def __exit__(self, *args: Any) -> None:

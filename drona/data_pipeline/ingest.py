@@ -34,7 +34,7 @@ import chromadb
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 from loguru import logger
 
-from drona.contracts import CareerPathway, CurriculumModule, DataTier, JobPosting
+from drona.contracts import CareerPathway, CurriculumModule, JobPosting
 from drona.utils.settings import settings
 
 # Collection name constants
@@ -277,7 +277,7 @@ class Ingestor:
 
     # ── Context manager ──────────────────────────────────────────────────────
 
-    def __enter__(self) -> "Ingestor":
+    def __enter__(self) -> Ingestor:
         return self
 
     def __exit__(self, *args: Any) -> None:

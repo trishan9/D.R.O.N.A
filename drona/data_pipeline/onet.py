@@ -17,7 +17,6 @@ import hashlib
 import io
 import zipfile
 from pathlib import Path
-from typing import IO
 
 import httpx
 import pandas as pd

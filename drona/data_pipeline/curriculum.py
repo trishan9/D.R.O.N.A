@@ -22,13 +22,12 @@ Usage (in a script):
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 from loguru import logger
 
 from drona.contracts import CurriculumModule
-
 
 # ── Text extraction ─────────────────────────────────────────────────────────
 

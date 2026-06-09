@@ -93,8 +93,13 @@ class DataCard(BaseModel):
     )
     notes: str = Field(default="")
 
-    def write(self, path: Path) -> None:
-        """Serialise to YAML. Creates parent directories automatically."""
+    def write(self, path: Path, also_markdown: bool = True) -> None:
+        """Serialise to YAML (machine-readable). Creates parent dirs.
+
+        Also emits a sibling ``<name>_data_card.md`` by default, because the
+        build prompt mandates a Markdown ``data_card.md`` per dataset while the
+        pipeline standard is YAML — we keep both, generated from one source.
+        """
         path.parent.mkdir(parents=True, exist_ok=True)
         data = self.model_dump(mode="json")
         # Make datetimes human-readable strings
@@ -103,8 +108,59 @@ class DataCard(BaseModel):
                 data[key] = str(data[key])
         with path.open("w", encoding="utf-8") as f:
             yaml.safe_dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+        if also_markdown:
+            self.write_markdown(path.with_suffix(".md"))
+
+    def write_markdown(self, path: Path) -> None:
+        """Write a human-readable Markdown data card."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(self.to_markdown(), encoding="utf-8")
+
+    def to_markdown(self) -> str:
+        """Render the card as a Markdown document (for docs / viva evidence)."""
+        def _bullets(items: list[str]) -> str:
+            return "\n".join(f"- {x}" for x in items) if items else "- (none)"
+
+        lines = [
+            f"# Data Card — `{self.name}`",
+            "",
+            f"**Source:** {self.source_name}"
+            + (f" ([link]({self.source_url}))" if self.source_url else ""),
+            f"**License:** {self.license}",
+            f"**Provenance tier:** `{self.tier}`",
+            f"**Collection method:** `{self.collection_method}`  "
+            f"**Collected:** {self.collection_date.date()}  **By:** {self.collector}",
+            f"**Records:** {self.record_count if self.record_count is not None else 'n/a'}",
+            f"**Version:** {self.version}  **Created:** {self.created_at.date()}",
+            "",
+            "## Description",
+            self.description or "_(none)_",
+            "",
+            "## Fields",
+            _bullets(self.fields),
+            "",
+            "## Known limitations",
+            _bullets(self.known_limitations),
+            "",
+            "## Synthetic content",
+            f"- contains_synthetic: **{self.contains_synthetic}**",
+            f"- synthetic_fraction: {self.synthetic_fraction if self.synthetic_fraction is not None else 'n/a'}",
+            "",
+            "## Collection ethics",
+            f"- robots.txt verified: {self.robots_txt_verified}",
+            f"- robots.txt allows crawl: {self.robots_txt_allows_crawl}",
+            f"- rate limit applied: {self.rate_limit_applied or 'n/a'}",
+            "",
+            "## Outputs",
+            _bullets(self.output_files),
+        ]
+        if self.derived_from:
+            lines += ["", "## Derived from", _bullets(self.derived_from)]
+        if self.notes:
+            lines += ["", "## Notes", self.notes]
+        return "\n".join(lines) + "\n"
 
     @classmethod
-    def read(cls, path: Path) -> "DataCard":
+    def read(cls, path: Path) -> DataCard:
         with path.open(encoding="utf-8") as f:
             return cls(**yaml.safe_load(f))

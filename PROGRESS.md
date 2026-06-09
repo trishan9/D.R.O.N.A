@@ -4,9 +4,9 @@
 > PROTOCOL in `DRONA_BUILD_PROMPT.md`). Format defined in `PROGRESS_TEMPLATE.md`.
 
 ## Current State
-- **Active phase:** Phase 3 — LoRA fine-tune (data + config + notebook + ablation done)
-- **Active task:** Phase 3 complete (training itself runs on Colab T4). Next: Phase 4 (LeRobot) or Phase 6 (Next.js).
-- **Last commit:** see `git log -1` (Phase 3 commit)
+- **Active phase:** Phase 4 — LeRobot policies (dataset conversion + sim eval + Diffusion/SmolVLA seams + notebooks 07/08 done)
+- **Active task:** Phase 4 complete (ACT/Diffusion training runs on Colab T4). Next: Phase 5 (ROS2/sim) or Phase 6 (Next.js).
+- **Last commit:** see `git log -1` (Phase 4 commit)
 - **Working tree:** managed per-phase; commit between phases.
 
 ## Reconciliation note (IMPORTANT for any future session)
@@ -37,7 +37,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 | 1 | Contracts + data pipeline | ☑ | ESCO/BLS/NLFS/synthetic + stores + cards done; backend wiring optional |
 | 2 | Advising intelligence | ☑ | LangGraph orchestration + citation verify + Qwen fallback + FastAPI (REST+WS) |
 | 3 | LoRA fine-tune | ☑ | Q&A gen + SFT format + gold curation + LoRA config + ablation + Colab notebook + model_card; training runs on Colab T4 |
-| 4 | LeRobot policies | ◐ | ACT scaffolding exists; need notebooks + Diffusion + SmolVLA |
+| 4 | LeRobot policies | ☑ | LeRobot dataset conversion + sim eval (success/jerk) + Diffusion wrapper + SmolVLA seam + notebooks 07/08; training runs on Colab T4 |
 | 5 | ROS2 + simulation | ◐ | ros2_ws exists; need actions + sim |
 | 6 | Frontend | ◐ | Streamlit legacy; need Next.js |
 | 7 | Evaluation | ◐ | C1–C4 harness exists; need Ragas + stats |
@@ -46,6 +46,19 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-09 — Phase 4 LeRobot policies — `drona/interaction/lerobot_dataset.py`
+  (pure `to_lerobot_records` + `LEROBOT_FEATURES` spec + lazy `build_lerobot_dataset`
+  via `LeRobotDataset.create`; gesture label = per-frame `task`/instruction, 20 FPS),
+  `sim_eval.py` (backend/policy-agnostic harness: success rate = reached-apex +
+  returned-to-rest, gesture quality = mean jerk + path length; `compare_policies`
+  for keyframe-vs-ACT C3 claim; pure with KeyframePolicy+StubEnv → keyframe baseline
+  scores 100% success), `diffusion_policy.py` (LeRobot Diffusion Policy wrapper +
+  keyframe fallback, C3 ablation), `smolvla.py` (pre-trained SmolVLA inference seam,
+  instruction→gesture keyword map, transparent KeyframePolicy fallback when LeRobot
+  absent). `notebooks/07_lerobot_act_training.ipynb` + `08_lerobot_diffusion_policy.ipynb`
+  (Colab T4, LeRobot CLI training + three-way eval). +20 tests (415 total green, 1
+  skipped). **Verify:** `pytest tests/test_ws4_phase4_lerobot.py -q`;
+  `python -c "from drona.interaction.sim_eval import evaluate_keyframe_baseline as e; print(e().success_rate)"`.
 - 2026-06-09 — Phase 3 LoRA fine-tune — `drona/finetune/`: `qa_generator.py`
   (deterministic, grounded, bias-balanced synthetic advising Q&A → gold JSON
   answers; anchored + labelled), `dataset.py` (chat SFT formatting via the
@@ -119,12 +132,20 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   2026 version per prompt; to be recorded in `docs/research_papers.md` (Phase 8).
 
 ## Notes for Next Session
-- Phase 4 (LeRobot) or Phase 6 (Next.js frontend) next. Phase 4: existing
-  `drona/interaction/` has demonstration/mujoco_env/act_policy/gesture_dispatcher
-  + `scripts/train_act.py` + `notebooks/03_gesture_training.ipynb`. Gaps:
-  MuJoCo upper-body env polish, LeRobot dataset conversion, ACT notebook (07),
-  Diffusion Policy notebook (08), SmolVLA inference seam, sim eval (success rate,
-  jerk). Phase 6 is the biggest visible deliverable (Next.js dashboard).
+- Phase 5 (ROS2/sim) or Phase 6 (Next.js frontend) next. Phase 6 is the biggest
+  visible deliverable (Next.js dashboard); Phase 5 needs hardware/ROS2 + sim
+  installs (Isaac/Gazebo) so is harder to validate on this dev box.
+- Phase 4 done: all new policy I/O uses the shared `BasePolicy` interface so
+  `sim_eval.compare_policies` scores keyframe/ACT/Diffusion/SmolVLA identically.
+  ACT/Diffusion train on Colab T4 (notebooks 07/08) via the LeRobot CLI on the
+  `LeRobotDataset` built from keyframe-seed demos; checkpoints drop into
+  `data/checkpoints/<gesture>/` for `PolicyRouter` to auto-load. SmolVLA is a
+  forward-looking VLA seam (no training) that falls back to keyframes today.
+- Pre-existing ruff lints in legacy interaction files (`act_policy.py`,
+  `demonstration.py`, `gesture_dispatcher.py`, `visualizer.py` — unused imports,
+  E702 semicolons) are NOT from Phase 4; left untouched to avoid scope creep.
+  The 4 new Phase-4 modules are lint-clean. Consider a `ruff --fix` housekeeping
+  pass on the interaction package later.
 - Phase 3 training runs on Colab T4 via notebook 09; the repo holds all data-prep,
   config, ablation, and the model card. Re-run `scripts/generate_qa.py` once real
   pathway anchors exist in `data/processed/`.

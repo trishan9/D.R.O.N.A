@@ -155,11 +155,17 @@ python scripts/run_evaluation.py --c2 --c3
 
 Results are saved as JSON to `data/evaluation/report_<timestamp>.json`.
 
-### Web frontend (Next.js 14)
+### Web frontend (Next.js 14 — multi-page platform)
+
+A full sidebar-navigated app (Dashboard · Advisor · Pathways · Skills · Analytics ·
+Robot Control · Profile · Achievements · Preferences · About) with light/dark
+theming. The Robot Control page is an in-browser 6-DOF gesture twin that can also
+drive the **live** ROS2 robot via rosbridge. See [`frontend/README.md`](frontend/README.md).
 
 ```bash
 cd frontend && npm install && npm run dev   # http://localhost:3000
 # Requires the API running: python scripts/run_api.py
+# Optional live robot (in WSL2): ros2 launch drona_bringup drona_system.launch.py rosbridge:=true
 ```
 
 ### Robot simulation (ROS2 Humble — run in WSL2 on Windows)

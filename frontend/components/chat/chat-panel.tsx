@@ -25,7 +25,8 @@ export interface ChatTurn {
 interface ChatPanelProps {
   profile: ProfileDraft;
   onResponse: (response: AdvisingResponse) => void;
-  onQuerySent: () => void;
+  /** Fired when a query is submitted; receives the query text (for history). */
+  onQuerySent: (query: string) => void;
 }
 
 const SUGGESTED = [
@@ -55,7 +56,7 @@ export function ChatPanel({ profile, onResponse, onQuerySent }: ChatPanelProps) 
     setError(null);
     setBusy(true);
     setProgress("Connecting to D.R.O.N.A…");
-    onQuerySent();
+    onQuerySent(q);
 
     const userTurn: ChatTurn = { id: crypto.randomUUID(), role: "user", text: q };
     const assistantId = crypto.randomUUID();

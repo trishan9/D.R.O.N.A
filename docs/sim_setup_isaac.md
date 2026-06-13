@@ -6,8 +6,15 @@ rendering and accurate articulation dynamics in the evaluation chapter. It is
 (see `sim_setup_gazebo.md`), which is the recommended path on modest hardware.
 
 > ⚠️ **Hardware requirement: an RTX-class GPU with ≥ 8 GB VRAM.**
-> The student's GTX-1650 (4 GB) **cannot** run Isaac Sim. Use Gazebo locally, or
-> run Isaac on a cloud GPU (recipe in §4).
+> Isaac Sim uses the Omniverse **RTX renderer**, so it needs RTX ray-tracing
+> cores — a **GTX** 1650 (4 GB, no RTX cores) **cannot** run it, with or without
+> WSL2. So on this machine Isaac Sim is **cloud-only** (recipe in §4); the local
+> embodied demo is **Gazebo Harmonic in WSL2** (`sim_setup_gazebo.md`) plus the
+> in-browser **Robot Control** page in the Next.js app (faithful 6-DOF twin).
+>
+> **About WSL2:** NVIDIA *does* officially support Isaac Sim on WSL2 (Ubuntu
+> 22.04) — so if you later get an RTX card (≥8 GB), you can run §3 inside WSL2
+> exactly as written. The blocker here is the GPU class (GTX vs RTX), not WSL.
 
 ---
 

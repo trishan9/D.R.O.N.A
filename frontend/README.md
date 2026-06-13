@@ -1,52 +1,64 @@
 # D.R.O.N.A. Frontend
 
-Next.js 14 (App Router) dashboard for the **D.R.O.N.A.** bias-aware academic
-advising system. It talks to the FastAPI backend in [`drona/api/`](../drona/api)
-over REST and WebSocket — the advising request path stays **local-only** (Ollama).
+A **multi-page Next.js 14 (App Router)** web platform for the **D.R.O.N.A.**
+bias-aware, locally-grounded robotic advising system — effectively a web version
+of the robot itself. It talks to the FastAPI backend in [`drona/api/`](../drona/api)
+over REST + WebSocket (advising stays **local-only**, Ollama), and to the live
+ROS2 graph over **rosbridge** for the robot page.
 
-## Features
+## Pages (sidebar navigation)
 
-- **Streaming chat** — questions stream node-by-node over `WS /ws/advise`
-  (bias check → retrieve → generate → verify → format), then render the answer.
-- **Profile builder** — session-scoped, no PII, nothing persisted. Year, interests,
-  skills (with self-rated levels), completed modules, aspirations, geography.
-- **Multiple pathways** — every answer surfaces several evidence-backed options
-  (anti-anchoring by design), each with Softwarica-module matches, Nepal vs. global
-  evidence, and confidence.
-- **Citation drill-down** — open the exact excerpts each claim is grounded in,
-  colour-coded by data tier (Nepal / regional / international / synthetic).
-- **Pathway comparison** — head-to-head table across the same dimensions.
-- **Anti-bias gamification**
-  - Evidence **diversity meter** (recharts donut over tiers)
-  - Exploration **badges** that reward breadth and evidence-checking, not fast commitment
-  - **Skill map** — a graph of what you have vs. what pathways grow (not a ladder)
-  - **Counter-recommendation panel** — the option you'd likely overlook (anti-confirmation)
-  - **Reversibility tags** — each next step marked easily-undone vs. big-commitment
-    (anti loss-aversion)
-- **Bias flags** — transparent display of which cognitive biases the backend
-  detected in your question and how the answer countered them.
+| Route | Page | What it does |
+|---|---|---|
+| `/` | **Dashboard** | Overview: system status, your progress, quick actions, recent questions |
+| `/advisor` | **Advisor** | The core AI — profile-aware streaming chat over `WS /ws/advise` |
+| `/pathways` | **Pathways** | Explore / compare evidence-backed pathways + citation drill-down + counter-recommendation |
+| `/skills` | **Skills & Interests** | Curriculum skill map, self-assessed skills, interest alignment, step reversibility |
+| `/analytics` | **Analytics** | Live session metrics + C1–C4 charts (tier mix, gesture jerk live; retrieval/bias reference) |
+| `/robot` | **Robot Control** | In-browser 6-DOF gesture twin + telemetry + session FSM + engagement, with **live ROS2** mode |
+| `/profile` | **Profile** | Session-scoped academic profile + device-local identity + question history (no PII) |
+| `/achievements` | **Achievements** | Anti-bias exploration badges, diversity, habits |
+| `/preferences` | **Preferences** | Theme (light/dark/system), advising defaults, backend + rosbridge URLs, data reset |
+| `/about` | **About** | Architecture, research contributions, tech stack, ethics |
+
+## Highlights
+
+- **Robot twin** — `lib/robot.ts` is a 1:1 port of `drona/interaction/demonstration.py`
+  (joint limits, rest pose, and the exact gesture keyframes), so the animated arm
+  plays the *same* motions as the ROS2 policy. Live mode connects to rosbridge,
+  mirrors `/drona/joint_states`, and calls the `/drona/execute_gesture` service.
+- **Anti-bias UX** — multiple pathways by default, a counter-recommendation that
+  challenges your stated interest, reversibility tags, an evidence-diversity meter,
+  and exploration badges that reward breadth over fast commitment.
+- **Theming** — DataCamp-style modern-minimal design system with full light/dark
+  support (`next-themes`), an emerald brand accent, and the Nepal-first data-tier
+  palette preserved for provenance.
+- **Privacy** — everything (profile, history, prefs) is device-local
+  (`localStorage`); the only thing sent is the PII-free `AdviseRequest`.
 
 ## Stack
 
 Next.js 14 · React 18 · TypeScript · Tailwind CSS · shadcn/ui (new-york) ·
-Radix primitives · lucide-react · recharts.
+Radix primitives · next-themes · lucide-react · recharts.
 
 ## Run
 
 ```bash
-# 1. Start the backend (from the repo root)
+# 1. Backend (from repo root)
 pip install -e ".[backend]"
-python scripts/run_api.py            # serves http://localhost:8000
+python scripts/run_api.py            # http://localhost:8000
 
-# 2. Start the frontend
+# 2. Frontend
 cd frontend
-cp .env.example .env.local           # set NEXT_PUBLIC_DRONA_API_URL if not :8000
 npm install
 npm run dev                          # http://localhost:3000
+
+# 3. (optional) live robot — inside WSL2, see docs/wsl_setup.md §9
+ros2 launch drona_bringup drona_system.launch.py rosbridge:=true
 ```
 
-The header shows a live backend health indicator. If the backend is offline the
-chat surfaces a clear message with the command to start it.
+The top bar shows a live backend health indicator; the Advisor surfaces a clear
+message (with the start command) if the backend is offline.
 
 ## Scripts
 
@@ -58,16 +70,21 @@ chat surfaces a clear message with the command to start it.
 | `npm run lint` | Next.js ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
 
+## Architecture notes
+
+- **Routing** — all pages live under the `app/(app)/` route group, which shares one
+  layout (`components/layout/app-shell.tsx`: fixed sidebar + sticky topbar).
+- **State** — `lib/store.tsx` is a React context persisted to `localStorage`; the
+  Advisor's response flows to Pathways / Skills / Achievements / Analytics.
+- **Contracts** — `lib/types.ts` mirrors the Pydantic contracts in
+  `drona/contracts/` + `drona/api/schemas.py`. Keep in sync if the backend changes.
+- **Pure logic** — anti-bias scoring (`lib/gamification.ts`), analytics
+  (`lib/analytics.ts`), and robot kinematics (`lib/robot.ts`) are dependency-free
+  and unit-reasonable.
+
 ## Configuration
 
-`NEXT_PUBLIC_DRONA_API_URL` (default `http://localhost:8000`) — base URL of the
-FastAPI backend. The WebSocket URL is derived from it automatically.
-
-## Notes
-
-- The TypeScript contracts in [`lib/types.ts`](./lib/types.ts) mirror the Pydantic
-  contracts in `drona/contracts/__init__.py` and `drona/api/schemas.py`. Keep them
-  in sync if the backend changes.
-- All anti-bias logic (diversity score, badges, counter-recommendation selection,
-  reversibility classification) lives in [`lib/gamification.ts`](./lib/gamification.ts)
-  as pure functions.
+`NEXT_PUBLIC_DRONA_API_URL` (default `http://localhost:8000`) sets the backend base
+URL at build time. It can be overridden at runtime per-device on the **Preferences**
+page; the WebSocket URL is derived automatically. The rosbridge URL (default
+`ws://localhost:9090`) is also set on Preferences / Robot Control.

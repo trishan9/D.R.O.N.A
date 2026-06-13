@@ -44,13 +44,34 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 | 3 | LoRA fine-tune | ☑ | Q&A gen + SFT format + gold curation + LoRA config + ablation + Colab notebook + model_card; training runs on Colab T4 |
 | 4 | LeRobot policies | ☑ | LeRobot dataset conversion + sim eval (success/jerk) + Diffusion wrapper + SmolVLA seam + notebooks 07/08; training runs on Colab T4 |
 | 5 | ROS2 + simulation | ☑ | ExecuteGesture.action + policy_node action server (feedback/cancel), drona_description humanoid URDF + RViz, Gazebo Harmonic + Isaac launch (+ standalone stage script), full-system launch (rviz + rosbag), docs (gazebo/isaac/topics-actions); colcon build needs Ubuntu+ROS2 |
-| 6 | Frontend | ☑ | Next.js 14 App Router + Tailwind + shadcn/ui: WS streaming chat, profile builder (no PII), multi-pathway + comparison + citation drill-down, anti-bias gamification (diversity/badges/skill-map/counter-rec/reversibility), bias flags; build+typecheck green |
+| 6 | Frontend | ☑ | **v2 (2026-06-13): 10-page sidebar app** (Dashboard/Advisor/Pathways/Skills/Analytics/Robot/Profile/Achievements/Preferences/About), light+dark, robot web-twin + live rosbridge, localStorage store, analytics charts. Original chat/pathways/gamification components reused. build+typecheck green |
 | 7 | Evaluation | ☑ | C1–C4 harness + Ragas harness (proxy fallback) + bias-MITIGATION metrics + scipy.stats comparison + citation-grounding eval; 11 canonical notebooks; 16 new tests (431 total pass) |
 | 8 | Documentation | ☑ | architecture +mermaid; data_ethics; phase1/2 plans; research_papers; viva_prep; demo script; 7 data cards; 3 model cards; README docs index |
 
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-13 — **Frontend v2: multi-page platform + robot web-twin + NVIDIA/WSL
+  sim clarity.** Rebuilt `frontend/` from a single dashboard into a 10-page
+  sidebar-navigated app (DataCamp-style modern-minimal, light+dark via
+  next-themes). New app shell (`components/layout/`: sidebar, topbar, user menu,
+  mobile sheet). Pages under `app/(app)/`: Dashboard, Advisor (real WS streaming),
+  Pathways, Skills, Analytics, **Robot Control**, Profile, Achievements,
+  Preferences, About. New libs: `store.tsx` (localStorage session store — profile/
+  response/exploration/history/prefs, zero PII), `robot.ts` (1:1 TS port of
+  `demonstration.py` keyframes + FK), `rosbridge.ts` (dependency-free rosbridge v2
+  client), `analytics.ts` (live + clearly-labelled reference metrics), `nav.ts`.
+  Robot page = faithful animated 6-DOF twin (real gesture keyframes), joint
+  telemetry, session FSM, engagement gauge, full-session autoplay, AND **live ROS2**
+  mode: subscribes `/drona/joint_states`, calls `/drona/execute_gesture`. Added
+  `rosbridge:=true` arg to `drona_system.launch.py` + `docs/wsl_setup.md` §9.
+  Clarified Isaac Sim story (`sim_setup_isaac.md`): WSL2 is supported but Isaac
+  needs an **RTX** GPU — the GTX 1650 is GTX (no RTX cores) → cloud-only; Gazebo +
+  web twin are the local embodied demo. Added shadcn primitives (avatar,
+  dropdown-menu, switch, select, scroll-area, sheet, skeleton); deps next-themes +
+  5 radix pkgs. Reused all existing components (chat/pathways/gamification).
+  **Verify:** `cd frontend && npm run build` (✓ 11 routes) + `npm run typecheck`
+  (✓ clean); runtime SSR 200 on all routes.
 - 2026-06-13 — **WSL2 migration** (student dropped Ubuntu dual-boot; now Windows 11
   + WSL only). New `docs/wsl_setup.md` (WSL2 install, WSLg GUI, NVIDIA WSL GPU,
   `/mnt/c` vs native repo, ROS2 Humble + Gazebo Harmonic install, build/run, GL

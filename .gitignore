@@ -4,18 +4,22 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
 develop-eggs/
-dist/
-downloads/
 eggs/
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+# NOTE: these Python build-artifact dirs are anchored to the repo root with a
+# leading slash so they do NOT clobber the frontend's source dirs
+# (frontend/lib/, frontend/build/, etc.). The bare `lib/` rule previously made
+# frontend/lib/ untracked — fixed 2026-06-13.
+/build/
+/dist/
+/downloads/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+/wheels/
 *.egg-info/
 .installed.cfg
 *.egg

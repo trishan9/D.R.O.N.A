@@ -216,6 +216,31 @@ This is Phase-2 work — the simulation demo above needs no USB.
 
 ---
 
+## 9. Drive the robot from the web app (rosbridge)
+
+The Next.js **Robot Control** page has a *live* mode that talks to the ROS2 graph
+over **rosbridge** (a WebSocket↔ROS2 bridge). It subscribes to
+`/drona/joint_states` to mirror the real arm and calls the `/drona/execute_gesture`
+service to trigger gestures.
+
+```bash
+# inside WSL2, once:
+sudo apt install ros-humble-rosbridge-suite
+
+# start the full stack WITH the bridge on :9090:
+ros2 launch drona_bringup drona_system.launch.py rosbridge:=true
+# (or standalone, alongside any launch:)
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+```
+
+Then in the web app: open **Robot Control → Live ROS2 bridge**, confirm the URL is
+`ws://localhost:9090`, and click **Connect**. The browser reaches WSL on
+`localhost` automatically (WSL2 forwards localhost ports to Windows). Gestures you
+click now run on the real ROS2 robot and the arm view tracks the live joint
+stream. With nothing connected, the page stays in its local-simulation mode.
+
+---
+
 ## See also
 
 - `docs/ros2_setup.md` — full ROS2 install + node/topic reference

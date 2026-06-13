@@ -9,12 +9,14 @@ Brings up the complete embodied advising stack:
     - orchestrator_node  (session state machine: idle→greet→assess→advise→close)
     - optional RViz visualisation
     - optional rosbag recording of the whole interaction
+    - optional rosbridge websocket (for the web Robot Control page's live mode)
 
 Usage:
     ros2 launch drona_bringup drona_system.launch.py
     ros2 launch drona_bringup drona_system.launch.py use_rviz:=true
     ros2 launch drona_bringup drona_system.launch.py record:=true
     ros2 launch drona_bringup drona_system.launch.py record:=true bag_path:=demo_run
+    ros2 launch drona_bringup drona_system.launch.py rosbridge:=true   # web UI live control
 
 The recorded bag (see docs/ros2_topics_actions.md) captures every D.R.O.N.A.
 topic so an end-to-end session can be replayed for the viva / evaluation.
@@ -57,6 +59,7 @@ def generate_launch_description() -> LaunchDescription:
     record = LaunchConfiguration("record")
     bag_path = LaunchConfiguration("bag_path")
     log_level = LaunchConfiguration("log_level")
+    rosbridge = LaunchConfiguration("rosbridge")
 
     args = [
         DeclareLaunchArgument("use_rviz", default_value="false",
@@ -66,6 +69,9 @@ def generate_launch_description() -> LaunchDescription:
         DeclareLaunchArgument("bag_path", default_value="drona_interaction",
                               description="Output directory for the rosbag"),
         DeclareLaunchArgument("log_level", default_value="INFO"),
+        DeclareLaunchArgument("rosbridge", default_value="false",
+                              description="Start rosbridge_server websocket on :9090 so the "
+                                          "Next.js Robot Control page can drive the live robot"),
     ]
 
     robot_description = {"robot_description": Command(["xacro ", urdf])}
@@ -110,6 +116,16 @@ def generate_launch_description() -> LaunchDescription:
         output="screen",
     )
 
+    # rosbridge websocket — bridges the ROS2 graph to the browser (Robot Control
+    # page). Requires `sudo apt install ros-humble-rosbridge-suite`.
+    rosbridge_node = Node(
+        package="rosbridge_server",
+        executable="rosbridge_websocket",
+        name="rosbridge_websocket",
+        condition=IfCondition(rosbridge),
+        output="screen",
+    )
+
     return LaunchDescription([
         *args,
         LogInfo(msg="Starting the full D.R.O.N.A. system (perception + policy action "
@@ -122,4 +138,5 @@ def generate_launch_description() -> LaunchDescription:
         orchestrator,
         rviz,
         rosbag,
+        rosbridge_node,
     ])

@@ -5,8 +5,11 @@ Isaac Sim it runs comfortably on CPU / integrated graphics, so it is the
 recommended sim for the student's **GTX-1650 (4 GB)** dev box and for CI smoke
 tests.
 
-> **Platform:** Ubuntu 22.04 LTS + ROS2 Humble. On Windows, use WSL2 (Ubuntu
-> 22.04). Phase 1 sim (`scripts/run_simulation.py`) is the Windows-native path.
+> **Platform:** Ubuntu 22.04 LTS + ROS2 Humble. **On Windows with no dual-boot,
+> run this inside WSL2** — Windows 11's WSLg shows the Gazebo/RViz windows on your
+> desktop with no extra X-server. Do `docs/wsl_setup.md` first, then every command
+> below is identical. Phase 1 sim (`scripts/run_simulation.py`) is the
+> Windows-native path that needs no ROS2.
 
 ---
 
@@ -93,6 +96,8 @@ show gesture quality; the trajectory smoothness metric (C3) is measured in the
 | Symptom | Fix |
 |---|---|
 | `gz sim` opens then closes | GPU/driver issue — try `headless:=true` |
+| **WSL2:** black screen / GL3 / Ogre2 error | `export LIBGL_ALWAYS_SOFTWARE=1` (and `export QT_QPA_PLATFORM=xcb`), relaunch. See `wsl_setup.md` §7. |
+| **WSL2:** no window appears | `wsl --update` then `wsl --shutdown` (PowerShell), reopen Ubuntu — WSLg must be current. |
 | Model not visible | check `ros2 topic echo /robot_description` is non-empty; xacro installed |
 | No `/clock` | confirm `ros_gz_bridge` started and world name matches `empty` |
 | Joints don't move | expected without `gz_ros2_control`; TF still updates from joint states |

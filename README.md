@@ -4,6 +4,13 @@
 BSc Computing individual project — Softwarica College of IT & E-Commerce / Coventry University  
 Author: Trisan Wagle
 
+> **Start here if you are Trisan:** [`docs/STUDENT_RUNBOOK.md`](docs/STUDENT_RUNBOOK.md) —
+> complete step-by-step guide: what data to collect, where to put files, which scripts
+> to run in order, local vs Colab vs Ubuntu, time estimates, and what's left for you.
+
+**Build status:** Phases 0–8 complete · `pytest` 431 pass · software ready · your data +
+Colab training runs + demo recording remain.
+
 ---
 
 ## Overview
@@ -155,7 +162,11 @@ cd frontend && npm install && npm run dev   # http://localhost:3000
 # Requires the API running: python scripts/run_api.py
 ```
 
-### Robot simulation (Ubuntu 22.04 + ROS2 Humble)
+### Robot simulation (ROS2 Humble — run in WSL2 on Windows)
+
+No Ubuntu dual-boot needed: ROS2 + Gazebo run inside **WSL2 (Ubuntu 22.04)** and
+WSLg shows the windows on your Windows desktop. One-time setup: [`docs/wsl_setup.md`](docs/wsl_setup.md).
+Then, **inside the WSL Ubuntu shell**:
 
 ```bash
 cd ros2_ws && colcon build --symlink-install && source install/setup.bash
@@ -175,6 +186,7 @@ pytest tests/test_ws7_phase7_eval.py -v  # evaluation harness only
 
 | Doc | What it covers |
 |---|---|
+| **[`docs/STUDENT_RUNBOOK.md`](docs/STUDENT_RUNBOOK.md)** | **Your operational guide** — data, scripts, Colab, ROS2, timeline |
 | [`docs/architecture.md`](docs/architecture.md) | System design + **mermaid** diagrams |
 | [`docs/phase1_plan.md`](docs/phase1_plan.md) / [`docs/phase2_plan.md`](docs/phase2_plan.md) | Delivered scope vs deferred (hardware + study) |
 | [`docs/data_ethics.md`](docs/data_ethics.md) | PII policy, licensing matrix, scraping prohibitions |
@@ -182,6 +194,7 @@ pytest tests/test_ws7_phase7_eval.py -v  # evaluation harness only
 | [`models/*/model_card.md`](models/) | One model card per trained model |
 | [`docs/research_papers.md`](docs/research_papers.md) | Paper → design-choice grounding |
 | [`docs/ros2_topics_actions.md`](docs/ros2_topics_actions.md) | Every ROS2 topic / action / service |
+| [`docs/wsl_setup.md`](docs/wsl_setup.md) | **Run ROS2 + Gazebo on Windows via WSL2** (no dual-boot) |
 | [`docs/sim_setup_gazebo.md`](docs/sim_setup_gazebo.md) / [`docs/sim_setup_isaac.md`](docs/sim_setup_isaac.md) | Simulator setup |
 | [`docs/viva_prep.md`](docs/viva_prep.md) | Anticipated examiner questions + answers |
 | [`docs/demo_video_script.md`](docs/demo_video_script.md) | Shot-by-shot demo script |

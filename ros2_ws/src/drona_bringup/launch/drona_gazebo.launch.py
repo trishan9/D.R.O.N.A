@@ -15,6 +15,10 @@ Prerequisites (Ubuntu 22.04 + ROS2 Humble):
     sudo apt install ros-humble-ros-gz gz-harmonic
 See docs/sim_setup_gazebo.md for the full guide.
 
+On Windows with no dual-boot: run this inside WSL2 (Ubuntu 22.04); Windows 11's
+WSLg renders the GUI window. If GL fails under WSL, `export LIBGL_ALWAYS_SOFTWARE=1`
+or pass headless:=true. Full WSL guide: docs/wsl_setup.md.
+
 Usage:
     ros2 launch drona_bringup drona_gazebo.launch.py
     ros2 launch drona_bringup drona_gazebo.launch.py headless:=true

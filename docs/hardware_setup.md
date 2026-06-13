@@ -66,7 +66,8 @@ Before launching the hardware nodes:
 ## Launch Hardware Mode
 
 ```bash
-# On Ubuntu 22.04 with ROS2 Humble:
+# On Ubuntu 22.04 + ROS2 Humble (native or WSL2 — see docs/wsl_setup.md).
+# Real hardware over USB in WSL2 needs usbipd-win (wsl_setup.md §8).
 source /opt/ros/humble/setup.bash
 source ~/D.R.O.N.A/ros2_ws/install/setup.bash
 

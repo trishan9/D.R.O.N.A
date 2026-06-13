@@ -5,8 +5,11 @@
 
 ## Current State
 - **Active phase:** Phase 8 — documentation (COMPLETE). **All phases 0–8 done.**
-- **Active task:** project build complete. Remaining real-world work is Phase-2
-  (physical SO-100 arm swap + live student user study + multilingual production).
+  431 tests pass (re-verified 2026-06-13).
+- **Active task:** project build complete. 2026-06-13: migrated ROS2/sim docs from
+  Ubuntu dual-boot → **WSL2 on Windows 11** (`docs/wsl_setup.md`). Remaining
+  real-world work is the student's data/training/recording + Phase-2 (physical
+  SO-100 arm swap + live student user study + multilingual production).
 - **Last commit:** see `git log -1` (Phase 8 commit)
 - **Working tree:** managed per-phase; commit between phases.
 - **User sequencing:** Phase 6 before Phase 5 at user's request; then 7, then 8.
@@ -48,6 +51,25 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-13 — **WSL2 migration** (student dropped Ubuntu dual-boot; now Windows 11
+  + WSL only). New `docs/wsl_setup.md` (WSL2 install, WSLg GUI, NVIDIA WSL GPU,
+  `/mnt/c` vs native repo, ROS2 Humble + Gazebo Harmonic install, build/run, GL
+  software-fallback troubleshooting, usbipd-win for Phase-2 USB arm). Re-pointed
+  every "Ubuntu dual-boot" reference to WSL2: `STUDENT_RUNBOOK.md` (env matrix
+  column, Part A6, Part G, timeline wk5, checklist, related-docs), `README.md`
+  (sim section + docs index), `ros2_setup.md` (WSL2 promoted to primary path),
+  `sim_setup_gazebo.md` (platform note + WSL GL troubleshooting rows),
+  `phase1_plan.md`, `hardware_setup.md`, and the `drona_gazebo.launch.py` docstring.
+  No ROS2 *code* change needed — Humble runs unchanged inside WSL2; only setup/docs
+  differ. Also committed prior session's polish (STUDENT_RUNBOOK, README/verify_env
+  edits, PROGRESS_TEMPLATE removal). **Verify:** `pytest -q` → 431 passed, 1
+  skipped (re-confirmed this session); docs render; ROS2 build is a WSL step.
+- 2026-06-09 — Student operational guide + final polish — `docs/STUDENT_RUNBOOK.md`
+  (complete runbook: data collection paths, script order, local/Colab/Ubuntu matrix,
+  time estimates, master timeline, troubleshooting, viva checklist). Added
+  `data/raw/curriculum/`, `data/raw/esco/`, `data/checkpoints/` gitkeeps.
+  Updated `README.md` (prominent runbook link + build status), `verify_env.py`
+  (current phase messaging). Confirmed canonical 11 notebooks only.
 - 2026-06-09 — Phase 8 documentation (PROJECT COMPLETE) — `docs/data_ethics.md`
   (PII policy + full licensing matrix + scraping prohibitions + cloud-LLM boundary);
   `docs/phase1_plan.md` + `docs/phase2_plan.md` (delivered vs deferred); 
@@ -168,12 +190,16 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   **Verify:** `pip install -e ".[dev]"` then `pytest -q` (existing suite green);
   `python -c "import drona.utils.settings as s; print(s.settings.vector_backend)"`.
 
-## Open Blockers
-- **Curriculum PDFs not yet provided** — needed at `data/raw/curriculum/` for
-  Phase 1 curriculum parsing. Pipeline will be built to load from there; runs on
-  whatever is present.
-- **Nepali job postings not yet collected** — manual JSON collection (~150–200).
-  A template loader will accept them when ready; ToS forbids scraping.
+## Open Blockers (student action — see `docs/STUDENT_RUNBOOK.md`)
+- **Curriculum PDFs not yet provided** — place 3 Softwarica module PDFs in
+  `data/raw/curriculum/` (`.gitkeep` added).
+- **Nepali job postings not yet collected** — manual JSON ~150–200 in
+  `data/manual_collection/<source>/`; template at `_template.json`.
+- **Colab training runs not yet executed** — LoRA (nb 09), ACT (nb 07), Diffusion
+  (nb 08); copy checkpoints to `data/checkpoints/`.
+- **ROS2/Gazebo demo not yet recorded** — runs in **WSL2 (Ubuntu 22.04) on
+  Windows 11**; no dual-boot needed. See `docs/wsl_setup.md`.
+- **Demo video not yet recorded** — script at `docs/demo_video_script.md`.
 
 ## User-Provided Context
 - 2026-06-09 — Strategy = **EXTEND** (keep working code, add missing pieces).
@@ -205,7 +231,9 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   `stats.compare_conditions` is the ready-to-use harness for when that data exists.
 - Phase 5 caveat: code/launch/URDF/docs are written and Python-syntax-clean, but
   `colcon build` + runtime need Ubuntu 22.04 + ROS2 Humble (and Gazebo Harmonic /
-  Isaac for sim). Cannot be built on this Windows dev box. `policy_node` is the
+  Isaac for sim). The student has **no Ubuntu dual-boot** — this builds/runs in
+  **WSL2 (Ubuntu 22.04)** on their Windows 11 box; WSLg renders Gazebo/RViz.
+  Setup guide added: `docs/wsl_setup.md`. `policy_node` is the
   new action server; the older `gesture_node` (service) is kept for back-compat.
   URDF joint names == `drona.interaction.demonstration.JOINT_NAMES` so the joint
   stream drives RViz/Gazebo/Isaac unchanged. New pkg `drona_description` is

@@ -1,8 +1,9 @@
 """
 D.R.O.N.A. environment verification.
 
-Run this after `pip install -e .` to confirm your dev environment is correctly set
-up for Phase 1 work. It does NOT require ROS2, LeRobot, or a GPU — those come later.
+Run this after `pip install -e ".[dev]"` to confirm your dev environment is ready.
+It does NOT require ROS2, LeRobot, or a GPU — those are Ubuntu/Colab steps (see
+`docs/STUDENT_RUNBOOK.md`).
 
 Usage:
     python scripts/verify_env.py
@@ -37,10 +38,12 @@ REQUIRED_PACKAGES = [
 ]
 
 OPTIONAL_PACKAGES = [
-    ("streamlit", "Dashboard (WS6)"),
-    ("plotly", "Dashboard charts (WS6)"),
-    ("mediapipe", "Engagement estimation (WS3)"),
-    ("mujoco", "LeRobot simulation (WS3)"),
+    ("fastapi", "Advising API (Phase 2)"),
+    ("scipy", "Evaluation stats harness (Phase 7)"),
+    ("streamlit", "Legacy Streamlit dashboard"),
+    ("plotly", "Dashboard charts"),
+    ("mediapipe", "Engagement estimation"),
+    ("mujoco", "Gesture simulation"),
 ]
 
 
@@ -172,11 +175,14 @@ def main() -> int:
 
     console.rule()
     if all_ok:
-        console.print("[bold green]Environment ready. Proceed to WS1.[/bold green]")
+        console.print(
+            "[bold green]Environment ready. Next: docs/STUDENT_RUNBOOK.md "
+            "Part A (setup) → Part B (data collection) → Part C (pipeline).[/bold green]"
+        )
         return 0
     console.print(
-        "[bold yellow]Some issues above. Fix the required-package and Python "
-        "version items before proceeding. Optional items are fine to defer.[/bold yellow]"
+        "[bold yellow]Fix required-package and Python version items above, then "
+        "follow docs/STUDENT_RUNBOOK.md. Optional items are fine to defer.[/bold yellow]"
     )
     return 1
 

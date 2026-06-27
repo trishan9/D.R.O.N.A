@@ -19,7 +19,7 @@
     "experience_years_min": 0,
     "salary_min_npr": 60000,
     "salary_max_npr": 95000,
-    "description": "Graduate programme for new computing graduates. Structured training in enterprise software engineering with mentorship.",
+    "description": "Graduate programme for new computing graduates with structured training in enterprise software engineering.",
     "posted_date": "2026-05-10T00:00:00",
     "source_url": "https://linkedin.com/jobs/graduate-software-engineer",
     "is_synthetic": false
@@ -44,34 +44,9 @@
     "experience_years_min": 1,
     "salary_min_npr": 80000,
     "salary_max_npr": 140000,
-    "description": "Join an AI services firm building ML solutions for global clients. Develop, evaluate and deploy models end to end.",
+    "description": "Develop, evaluate and deploy ML models end to end for global clients.",
     "posted_date": "2026-05-19T00:00:00",
     "source_url": "https://linkedin.com/jobs/associate-data-scientist",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "li_2026_3f02be",
-    "source": "linkedin",
-    "tier": "nepal",
-    "title": "Cloud / DevOps Engineer",
-    "employer": "Genese Solution",
-    "location": "Kathmandu",
-    "skills_required": [
-      "Linux",
-      "AWS",
-      "Docker",
-      "CI/CD"
-    ],
-    "skills_preferred": [
-      "Kubernetes",
-      "Terraform"
-    ],
-    "experience_years_min": 2,
-    "salary_min_npr": 90000,
-    "salary_max_npr": 160000,
-    "description": "Operate cloud infrastructure for enterprise clients. Automate deployments, manage Kubernetes and implement observability.",
-    "posted_date": "2026-05-17T00:00:00",
-    "source_url": "https://linkedin.com/jobs/cloud-devops-engineer",
     "is_synthetic": false
   },
   {
@@ -89,65 +64,38 @@
     ],
     "skills_preferred": [
       "C++",
-      "Computer Vision",
-      "Machine Learning"
+      "Computer Vision"
     ],
     "experience_years_min": 2,
     "salary_min_npr": 90000,
     "salary_max_npr": 170000,
-    "description": "Develop software for service robots: motion, perception and human-robot interaction using ROS2 and Python on Linux.",
+    "description": "Develop software for service robots: motion, perception and human-robot interaction using ROS2 and Python.",
     "posted_date": "2026-05-21T00:00:00",
     "source_url": "https://linkedin.com/jobs/robotics-software-engineer",
     "is_synthetic": false
   },
   {
-    "posting_id": "li_2026_0174d1",
+    "posting_id": "li_2026_3f02be",
     "source": "linkedin",
     "tier": "nepal",
-    "title": "Full Stack Engineer",
-    "employer": "Berrybytes",
+    "title": "Cloud / DevOps Engineer",
+    "employer": "Genese Solution",
     "location": "Kathmandu",
     "skills_required": [
-      "JavaScript",
-      "React",
-      "Node.js",
-      "SQL"
-    ],
-    "skills_preferred": [
-      "TypeScript",
+      "Linux",
       "AWS",
-      "Docker"
-    ],
-    "experience_years_min": 2,
-    "salary_min_npr": 75000,
-    "salary_max_npr": 135000,
-    "description": "Build SaaS products across the stack with React and Node. Contribute to architecture, testing and deployment.",
-    "posted_date": "2026-05-16T00:00:00",
-    "source_url": "https://linkedin.com/jobs/full-stack-engineer",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "li_2026_3f89f2",
-    "source": "linkedin",
-    "tier": "nepal",
-    "title": "Business Analyst (Tech)",
-    "employer": "Leapfrog Technology",
-    "location": "Lalitpur",
-    "skills_required": [
-      "SQL",
-      "Agile",
-      "Statistics"
+      "Docker",
+      "CI/CD"
     ],
     "skills_preferred": [
-      "Product management",
-      "UX"
+      "Kubernetes"
     ],
     "experience_years_min": 2,
-    "salary_min_npr": 70000,
-    "salary_max_npr": 120000,
-    "description": "Bridge business and engineering: gather requirements, write specifications and analyse product data to guide decisions.",
-    "posted_date": "2026-05-13T00:00:00",
-    "source_url": "https://linkedin.com/jobs/business-analyst-tech",
+    "salary_min_npr": 90000,
+    "salary_max_npr": 160000,
+    "description": "Operate cloud infrastructure for enterprise clients; automate deployments and implement observability.",
+    "posted_date": "2026-05-17T00:00:00",
+    "source_url": "https://linkedin.com/jobs/cloud-devops-engineer",
     "is_synthetic": false
   }
 ]

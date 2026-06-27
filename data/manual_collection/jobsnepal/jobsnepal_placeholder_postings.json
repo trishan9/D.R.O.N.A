@@ -19,7 +19,7 @@
     "experience_years_min": 1,
     "salary_min_npr": 55000,
     "salary_max_npr": 100000,
-    "description": "Develop cloud-based web applications using Python and Django. Implement APIs, write unit tests and deploy to cloud infrastructure.",
+    "description": "Develop cloud-based web applications using Python and Django; implement APIs and deploy to cloud infrastructure.",
     "posted_date": "2026-05-11T00:00:00",
     "source_url": "https://jobsnepal.com/python-django-dev",
     "is_synthetic": false
@@ -38,13 +38,12 @@
       "SQL"
     ],
     "skills_preferred": [
-      "NLP",
-      "Deep Learning"
+      "NLP"
     ],
     "experience_years_min": 0,
     "salary_min_npr": 60000,
     "salary_max_npr": 110000,
-    "description": "Support the data science team in building document-AI models. Clean and label data, prototype models and evaluate accuracy.",
+    "description": "Support the data science team in building document-AI models; clean data, prototype models and evaluate accuracy.",
     "posted_date": "2026-05-14T00:00:00",
     "source_url": "https://jobsnepal.com/jr-data-scientist",
     "is_synthetic": false
@@ -64,41 +63,14 @@
     ],
     "skills_preferred": [
       "Spring",
-      "Microservices",
       "Agile"
     ],
     "experience_years_min": 1,
     "salary_min_npr": 65000,
     "salary_max_npr": 120000,
-    "description": "Build and maintain enterprise healthcare-analytics software in Java. Apply solid OOP and data-structure fundamentals in a large codebase.",
+    "description": "Build enterprise healthcare-analytics software in Java applying solid OOP and data-structure fundamentals.",
     "posted_date": "2026-05-10T00:00:00",
     "source_url": "https://jobsnepal.com/software-engineer-java",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "jo_2026_66bef2",
-    "source": "jobsnepal",
-    "tier": "nepal",
-    "title": "WordPress / PHP Developer",
-    "employer": "Web Experts Nepal",
-    "location": "Kathmandu",
-    "skills_required": [
-      "PHP",
-      "HTML",
-      "CSS",
-      "JavaScript",
-      "SQL"
-    ],
-    "skills_preferred": [
-      "WordPress",
-      "Laravel"
-    ],
-    "experience_years_min": 1,
-    "salary_min_npr": 35000,
-    "salary_max_npr": 65000,
-    "description": "Build and customise websites and CMS themes. Develop responsive layouts and maintain client web properties.",
-    "posted_date": "2026-05-07T00:00:00",
-    "source_url": "https://jobsnepal.com/wordpress-php-dev",
     "is_synthetic": false
   },
   {
@@ -114,13 +86,12 @@
       "Troubleshooting"
     ],
     "skills_preferred": [
-      "CCNA",
-      "Security"
+      "CCNA"
     ],
     "experience_years_min": 1,
     "salary_min_npr": 40000,
     "salary_max_npr": 75000,
-    "description": "Provide network and systems support: configure routers and switches, troubleshoot connectivity and maintain infrastructure uptime.",
+    "description": "Provide network and systems support; configure routers and switches and maintain infrastructure uptime.",
     "posted_date": "2026-05-06T00:00:00",
     "source_url": "https://jobsnepal.com/network-engineer",
     "is_synthetic": false
@@ -139,13 +110,12 @@
       "Git"
     ],
     "skills_preferred": [
-      "Firebase",
-      "CI/CD"
+      "Firebase"
     ],
     "experience_years_min": 1,
     "salary_min_npr": 55000,
     "salary_max_npr": 100000,
-    "description": "Build cross-platform mobile apps with Flutter. Integrate REST APIs, manage state and ship to the Play Store and App Store.",
+    "description": "Build cross-platform mobile apps with Flutter; integrate REST APIs and ship to the app stores.",
     "posted_date": "2026-05-13T00:00:00",
     "source_url": "https://jobsnepal.com/flutter-developer",
     "is_synthetic": false
@@ -164,40 +134,14 @@
       "Excel"
     ],
     "skills_preferred": [
-      "Power BI",
-      "ETL"
+      "Power BI"
     ],
     "experience_years_min": 2,
     "salary_min_npr": 65000,
     "salary_max_npr": 115000,
-    "description": "Build BI dashboards and reports for a fintech product. Model data, write performant SQL and communicate insights to product teams.",
+    "description": "Build BI dashboards and reports for a fintech product; model data and communicate insights.",
     "posted_date": "2026-05-18T00:00:00",
     "source_url": "https://jobsnepal.com/bi-analyst",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "jo_2026_fbf3c8",
-    "source": "jobsnepal",
-    "tier": "nepal",
-    "title": "Junior Cloud Engineer",
-    "employer": "Gurzu",
-    "location": "Kathmandu",
-    "skills_required": [
-      "Linux",
-      "AWS",
-      "Docker",
-      "Networking"
-    ],
-    "skills_preferred": [
-      "Kubernetes",
-      "Terraform"
-    ],
-    "experience_years_min": 0,
-    "salary_min_npr": 55000,
-    "salary_max_npr": 95000,
-    "description": "Assist in deploying and operating cloud workloads. Learn infrastructure-as-code, containerisation and CI/CD under senior mentorship.",
-    "posted_date": "2026-05-19T00:00:00",
-    "source_url": "https://jobsnepal.com/jr-cloud-engineer",
     "is_synthetic": false
   }
 ]

@@ -20,7 +20,7 @@
     "experience_years_min": 0,
     "salary_min_npr": 40000,
     "salary_max_npr": 65000,
-    "description": "Build and maintain backend services for web platforms using Python and Django. Write clean, tested code, integrate REST APIs and work with relational databases in an Agile team.",
+    "description": "Build and maintain backend services using Python and Django; write clean, tested code and integrate REST APIs in an Agile team.",
     "posted_date": "2026-05-18T00:00:00",
     "source_url": "https://merojob.com/jr-python-developer",
     "is_synthetic": false
@@ -41,13 +41,12 @@
     ],
     "skills_preferred": [
       "TypeScript",
-      "Tailwind",
-      "Next.js"
+      "Tailwind"
     ],
     "experience_years_min": 1,
     "salary_min_npr": 50000,
     "salary_max_npr": 90000,
-    "description": "Develop responsive, accessible user interfaces in React. Collaborate with designers and backend engineers to ship features, and maintain component libraries.",
+    "description": "Develop responsive, accessible React interfaces and maintain shared component libraries.",
     "posted_date": "2026-05-20T00:00:00",
     "source_url": "https://merojob.com/frontend-react",
     "is_synthetic": false
@@ -68,13 +67,12 @@
     ],
     "skills_preferred": [
       "Deep Learning",
-      "NLP",
-      "AWS"
+      "NLP"
     ],
     "experience_years_min": 2,
     "salary_min_npr": 90000,
     "salary_max_npr": 160000,
-    "description": "Design, train and deploy machine learning models for client products. Prepare datasets, engineer features, evaluate models and collaborate with MLOps to productionise solutions.",
+    "description": "Design, train and deploy ML models; prepare datasets, engineer features and evaluate models.",
     "posted_date": "2026-05-22T00:00:00",
     "source_url": "https://merojob.com/ml-engineer",
     "is_synthetic": false
@@ -94,13 +92,12 @@
     ],
     "skills_preferred": [
       "CI/CD",
-      "API testing",
       "Agile"
     ],
     "experience_years_min": 1,
     "salary_min_npr": 45000,
     "salary_max_npr": 80000,
-    "description": "Design and execute manual and automated test plans. Build automation suites, log and track defects, and ensure software quality across releases.",
+    "description": "Design and execute manual and automated test plans and ensure software quality across releases.",
     "posted_date": "2026-05-12T00:00:00",
     "source_url": "https://merojob.com/qa-automation",
     "is_synthetic": false
@@ -120,41 +117,14 @@
     ],
     "skills_preferred": [
       "Kubernetes",
-      "AWS",
-      "Terraform"
+      "AWS"
     ],
     "experience_years_min": 2,
     "salary_min_npr": 80000,
     "salary_max_npr": 150000,
-    "description": "Own build and deployment pipelines, containerise services, and maintain cloud and on-prem infrastructure with monitoring and automation.",
+    "description": "Own build and deployment pipelines, containerise services and maintain cloud and on-prem infrastructure.",
     "posted_date": "2026-05-09T00:00:00",
     "source_url": "https://merojob.com/devops-engineer",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "me_2026_28e96b",
-    "source": "merojob",
-    "tier": "nepal",
-    "title": "Backend Engineer (Node.js)",
-    "employer": "F1Soft International",
-    "location": "Kathmandu",
-    "skills_required": [
-      "JavaScript",
-      "Node.js",
-      "REST APIs",
-      "MongoDB",
-      "Git"
-    ],
-    "skills_preferred": [
-      "TypeScript",
-      "Microservices"
-    ],
-    "experience_years_min": 2,
-    "salary_min_npr": 70000,
-    "salary_max_npr": 120000,
-    "description": "Build secure, scalable backend services for digital payment products. Design APIs, work with databases and contribute to system architecture.",
-    "posted_date": "2026-05-15T00:00:00",
-    "source_url": "https://merojob.com/backend-node",
     "is_synthetic": false
   },
   {
@@ -172,13 +142,12 @@
     ],
     "skills_preferred": [
       "Power BI",
-      "Tableau",
       "Machine Learning"
     ],
     "experience_years_min": 1,
     "salary_min_npr": 55000,
     "salary_max_npr": 95000,
-    "description": "Turn raw data into actionable insight. Write SQL queries, build dashboards, run statistical analysis and present findings to stakeholders.",
+    "description": "Write SQL queries, build dashboards, run statistical analysis and present findings to stakeholders.",
     "posted_date": "2026-05-17T00:00:00",
     "source_url": "https://merojob.com/data-analyst",
     "is_synthetic": false
@@ -197,13 +166,12 @@
       "Git"
     ],
     "skills_preferred": [
-      "Jetpack Compose",
-      "CI/CD"
+      "Jetpack Compose"
     ],
     "experience_years_min": 1,
     "salary_min_npr": 60000,
     "salary_max_npr": 110000,
-    "description": "Develop and maintain native Android applications for a leading digital wallet. Integrate APIs, optimise performance and follow mobile UX best practice.",
+    "description": "Develop native Android applications for a leading digital wallet; integrate APIs and optimise performance.",
     "posted_date": "2026-05-19T00:00:00",
     "source_url": "https://merojob.com/android-developer",
     "is_synthetic": false
@@ -228,7 +196,7 @@
     "experience_years_min": 2,
     "salary_min_npr": 75000,
     "salary_max_npr": 140000,
-    "description": "Monitor, detect and respond to security threats. Conduct vulnerability assessments, harden systems and support incident response within an ethical framework.",
+    "description": "Monitor, detect and respond to security threats; conduct vulnerability assessments and support incident response.",
     "posted_date": "2026-05-21T00:00:00",
     "source_url": "https://merojob.com/security-analyst",
     "is_synthetic": false
@@ -249,13 +217,12 @@
     ],
     "skills_preferred": [
       "TypeScript",
-      "Docker",
-      "AWS"
+      "Docker"
     ],
     "experience_years_min": 2,
     "salary_min_npr": 70000,
     "salary_max_npr": 130000,
-    "description": "Work across the stack to deliver web applications: build React frontends, Node/Express APIs and relational data models in a collaborative team.",
+    "description": "Build React frontends and Node/Express APIs with relational data models in a collaborative team.",
     "posted_date": "2026-05-13T00:00:00",
     "source_url": "https://merojob.com/fullstack-developer",
     "is_synthetic": false
@@ -274,13 +241,12 @@
       "Linux"
     ],
     "skills_preferred": [
-      "Oracle",
-      "Performance tuning"
+      "Oracle"
     ],
     "experience_years_min": 3,
     "salary_min_npr": 80000,
     "salary_max_npr": 140000,
-    "description": "Administer and tune relational databases, manage backups and security, and support developers with schema design and query optimisation.",
+    "description": "Administer and tune relational databases, manage backups and security and support schema design.",
     "posted_date": "2026-05-08T00:00:00",
     "source_url": "https://merojob.com/dba",
     "is_synthetic": false
@@ -300,13 +266,12 @@
       "CSS"
     ],
     "skills_preferred": [
-      "Design systems",
-      "User research"
+      "Design systems"
     ],
     "experience_years_min": 1,
     "salary_min_npr": 50000,
     "salary_max_npr": 95000,
-    "description": "Design intuitive, accessible interfaces. Create wireframes and prototypes, run usability evaluations and partner with engineers to deliver polished products.",
+    "description": "Design intuitive, accessible interfaces; create wireframes and prototypes and run usability evaluations.",
     "posted_date": "2026-05-16T00:00:00",
     "source_url": "https://merojob.com/ui-ux-designer",
     "is_synthetic": false

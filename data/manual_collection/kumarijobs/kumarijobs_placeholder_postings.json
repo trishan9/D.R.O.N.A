@@ -14,41 +14,14 @@
       "Git"
     ],
     "skills_preferred": [
-      "Spring",
-      "Microservices"
+      "Spring"
     ],
     "experience_years_min": 2,
     "salary_min_npr": 70000,
     "salary_max_npr": 130000,
-    "description": "Design and build healthcare software. Apply strong engineering fundamentals across services, data and APIs.",
+    "description": "Design and build healthcare software applying strong engineering fundamentals across services, data and APIs.",
     "posted_date": "2026-05-12T00:00:00",
     "source_url": "https://kumarijob.com/software-engineer",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "ku_2026_6d171d",
-    "source": "kumarijobs",
-    "tier": "nepal",
-    "title": "Frontend Engineer",
-    "employer": "Berrybytes",
-    "location": "Kathmandu",
-    "skills_required": [
-      "JavaScript",
-      "React",
-      "HTML",
-      "CSS"
-    ],
-    "skills_preferred": [
-      "TypeScript",
-      "Next.js",
-      "Tailwind"
-    ],
-    "experience_years_min": 2,
-    "salary_min_npr": 65000,
-    "salary_max_npr": 120000,
-    "description": "Own frontend delivery for SaaS products. Build accessible, performant React interfaces and maintain shared components.",
-    "posted_date": "2026-05-14T00:00:00",
-    "source_url": "https://kumarijob.com/frontend-engineer",
     "is_synthetic": false
   },
   {
@@ -65,40 +38,14 @@
     ],
     "skills_preferred": [
       "Spark",
-      "Airflow",
       "AWS"
     ],
     "experience_years_min": 2,
     "salary_min_npr": 80000,
     "salary_max_npr": 150000,
-    "description": "Build and maintain data pipelines. Model data, optimise storage and ensure reliable data flow for analytics and ML.",
+    "description": "Build and maintain data pipelines; model data and ensure reliable data flow for analytics and ML.",
     "posted_date": "2026-05-18T00:00:00",
     "source_url": "https://kumarijob.com/data-engineer",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "ku_2026_bece06",
-    "source": "kumarijobs",
-    "tier": "nepal",
-    "title": "Junior .NET Developer",
-    "employer": "Javra Software",
-    "location": "Lalitpur",
-    "skills_required": [
-      "C#",
-      ".NET",
-      "SQL",
-      "OOP"
-    ],
-    "skills_preferred": [
-      "Azure",
-      "REST APIs"
-    ],
-    "experience_years_min": 0,
-    "salary_min_npr": 45000,
-    "salary_max_npr": 80000,
-    "description": "Develop business applications in C# and .NET. Write maintainable code and work with relational databases.",
-    "posted_date": "2026-05-09T00:00:00",
-    "source_url": "https://kumarijob.com/dotnet-developer",
     "is_synthetic": false
   },
   {
@@ -115,39 +62,14 @@
       "Python"
     ],
     "skills_preferred": [
-      "SIEM",
-      "Cloud security"
+      "SIEM"
     ],
     "experience_years_min": 3,
     "salary_min_npr": 90000,
     "salary_max_npr": 160000,
-    "description": "Lead security engineering: threat modelling, hardening, monitoring and incident response across cloud and on-prem systems.",
+    "description": "Lead security engineering: threat modelling, hardening, monitoring and incident response.",
     "posted_date": "2026-05-20T00:00:00",
     "source_url": "https://kumarijob.com/security-engineer",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "ku_2026_918a09",
-    "source": "kumarijobs",
-    "tier": "nepal",
-    "title": "Product Designer",
-    "employer": "So Code",
-    "location": "Kathmandu",
-    "skills_required": [
-      "UI",
-      "UX",
-      "Figma"
-    ],
-    "skills_preferred": [
-      "Design systems",
-      "Prototyping"
-    ],
-    "experience_years_min": 2,
-    "salary_min_npr": 60000,
-    "salary_max_npr": 110000,
-    "description": "Design end-to-end product experiences. Run research, craft interaction flows and deliver high-fidelity designs.",
-    "posted_date": "2026-05-11T00:00:00",
-    "source_url": "https://kumarijob.com/product-designer",
     "is_synthetic": false
   },
   {
@@ -170,7 +92,7 @@
     "experience_years_min": 2,
     "salary_min_npr": 70000,
     "salary_max_npr": 125000,
-    "description": "Build robust backend services in Python. Design APIs, model data and ensure code quality through testing and review.",
+    "description": "Build robust backend services in Python; design APIs, model data and ensure quality through testing.",
     "posted_date": "2026-05-15T00:00:00",
     "source_url": "https://kumarijob.com/backend-python",
     "is_synthetic": false
@@ -190,13 +112,12 @@
     ],
     "skills_preferred": [
       "PyTorch",
-      "Transformers",
       "Robotics"
     ],
     "experience_years_min": 2,
     "salary_min_npr": 90000,
     "salary_max_npr": 170000,
-    "description": "Build conversational AI and NLP systems, including for robotics products. Train and deploy models and integrate them into real-time pipelines.",
+    "description": "Build conversational AI and NLP systems, including for robotics products; train and deploy models.",
     "posted_date": "2026-05-22T00:00:00",
     "source_url": "https://kumarijob.com/ai-nlp-engineer",
     "is_synthetic": false

@@ -12,13 +12,12 @@
       "SQL"
     ],
     "skills_preferred": [
-      "Django",
-      "REST APIs"
+      "Django"
     ],
     "experience_years_min": 0,
     "salary_min_npr": 15000,
     "salary_max_npr": 20000,
-    "description": "Three-month internship supporting backend teams. Learn production Python, write tests and contribute to real features under mentorship.",
+    "description": "Three-month internship supporting backend teams; learn production Python and contribute to real features.",
     "posted_date": "2026-05-20T00:00:00",
     "source_url": "https://internsathi.com/python-intern",
     "is_synthetic": false
@@ -37,13 +36,12 @@
       "Git"
     ],
     "skills_preferred": [
-      "React",
-      "Tailwind"
+      "React"
     ],
     "experience_years_min": 0,
     "salary_min_npr": 12000,
     "salary_max_npr": 18000,
-    "description": "Internship building UI components and learning modern frontend workflows including React and responsive design.",
+    "description": "Internship building UI components and learning modern frontend workflows including React.",
     "posted_date": "2026-05-21T00:00:00",
     "source_url": "https://internsathi.com/frontend-intern",
     "is_synthetic": false
@@ -61,38 +59,14 @@
       "Statistics"
     ],
     "skills_preferred": [
-      "PyTorch",
-      "NLP"
+      "PyTorch"
     ],
     "experience_years_min": 0,
     "salary_min_npr": 15000,
     "salary_max_npr": 25000,
-    "description": "Hands-on ML internship: data preparation, model prototyping and evaluation under the guidance of senior ML engineers.",
+    "description": "Hands-on ML internship: data preparation, model prototyping and evaluation under mentorship.",
     "posted_date": "2026-05-22T00:00:00",
     "source_url": "https://internsathi.com/ml-intern",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "in_2026_d8f613",
-    "source": "internsathi",
-    "tier": "nepal",
-    "title": "QA Intern",
-    "employer": "Deerwalk",
-    "location": "Kathmandu",
-    "skills_required": [
-      "Testing",
-      "SQL"
-    ],
-    "skills_preferred": [
-      "Selenium",
-      "Automation"
-    ],
-    "experience_years_min": 0,
-    "salary_min_npr": 12000,
-    "salary_max_npr": 18000,
-    "description": "Learn software testing fundamentals. Write and execute test cases, log defects and support the QA team across releases.",
-    "posted_date": "2026-05-15T00:00:00",
-    "source_url": "https://internsathi.com/qa-intern",
     "is_synthetic": false
   },
   {
@@ -108,8 +82,7 @@
       "Excel"
     ],
     "skills_preferred": [
-      "Statistics",
-      "Power BI"
+      "Statistics"
     ],
     "experience_years_min": 0,
     "salary_min_npr": 12000,
@@ -117,29 +90,6 @@
     "description": "Support analytics projects: clean datasets, build basic dashboards and assist with reporting.",
     "posted_date": "2026-05-17T00:00:00",
     "source_url": "https://internsathi.com/data-analyst-intern",
-    "is_synthetic": false
-  },
-  {
-    "posting_id": "in_2026_5cdedb",
-    "source": "internsathi",
-    "tier": "nepal",
-    "title": "Mobile App Dev Intern",
-    "employer": "Khalti Digital Wallet",
-    "location": "Lalitpur",
-    "skills_required": [
-      "JavaScript",
-      "Git"
-    ],
-    "skills_preferred": [
-      "React Native",
-      "Flutter"
-    ],
-    "experience_years_min": 0,
-    "salary_min_npr": 15000,
-    "salary_max_npr": 22000,
-    "description": "Internship building features for a fintech mobile app. Learn mobile development, API integration and testing.",
-    "posted_date": "2026-05-16T00:00:00",
-    "source_url": "https://internsathi.com/mobile-intern",
     "is_synthetic": false
   }
 ]

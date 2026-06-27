@@ -193,6 +193,7 @@ pytest tests/test_ws7_phase7_eval.py -v  # evaluation harness only
 | Doc | What it covers |
 |---|---|
 | **[`docs/STUDENT_RUNBOOK.md`](docs/STUDENT_RUNBOOK.md)** | **Your operational guide** — data, scripts, Colab, ROS2, timeline |
+| **[`docs/COLAB_TRAINING_GUIDE.md`](docs/COLAB_TRAINING_GUIDE.md)** | **Train the GPU models on Colab/Kaggle**, bring checkpoints back, finalize + simulate |
 | [`docs/architecture.md`](docs/architecture.md) | System design + **mermaid** diagrams |
 | [`docs/phase1_plan.md`](docs/phase1_plan.md) / [`docs/phase2_plan.md`](docs/phase2_plan.md) | Delivered scope vs deferred (hardware + study) |
 | [`docs/data_ethics.md`](docs/data_ethics.md) | PII policy, licensing matrix, scraping prohibitions |

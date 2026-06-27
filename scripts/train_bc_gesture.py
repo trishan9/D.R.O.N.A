@@ -47,8 +47,12 @@ from drona.utils.settings import settings  # noqa: E402
 app = typer.Typer(name="train-bc", help="Train CPU behavior-cloning gesture policies.")
 
 
-def _gesture_samples(dataset: DemonstrationDataset, gesture: str):
-    """Build (X=[state, phase], Y=action) arrays + mean horizon for a gesture."""
+def _gesture_samples(dataset: DemonstrationDataset, gesture: str, closed_loop: bool = False):
+    """Build (X, Y=action) arrays + mean horizon for a gesture.
+
+    open-loop  (default): X = [phase]            — a learned movement primitive
+    closed-loop          : X = [joint_state, phase]
+    """
     xs, ys, lengths = [], [], []
     for ep in dataset.episodes:
         if ep.gesture_label != gesture:
@@ -60,7 +64,9 @@ def _gesture_samples(dataset: DemonstrationDataset, gesture: str):
         lengths.append(n)
         for i, fr in enumerate(frames):
             phase = i / (n - 1)
-            xs.append(np.concatenate([fr.observation_state[:DOF], [phase]]))
+            x = (np.concatenate([fr.observation_state[:DOF], [phase]])
+                 if closed_loop else np.array([phase], dtype=np.float32))
+            xs.append(x)
             ys.append(fr.action[:DOF])
     if not xs:
         return None, None, 0
@@ -99,7 +105,8 @@ def _train_one(
     x_tr, y_tr = torch.from_numpy(feats[tr_idx]), torch.from_numpy(acts[tr_idx])
     x_val, y_val = torch.from_numpy(feats[val_idx]), torch.from_numpy(acts[val_idx])
 
-    model = _build_mlp(DOF + 1, hidden, DOF)
+    input_dim = feats.shape[1]
+    model = _build_mlp(input_dim, hidden, DOF)
     opt = torch.optim.Adam(model.parameters(), lr=lr)
     loss_fn = torch.nn.MSELoss()
     loader = DataLoader(TensorDataset(x_tr, y_tr), batch_size=batch_size, shuffle=True)
@@ -129,7 +136,7 @@ def _train_one(
     (ckpt / "config.json").write_text(
         json.dumps(
             {"model_type": "bc_mlp", "dof": DOF, "hidden": hidden,
-             "horizon": horizon, "input_dim": DOF + 1, "epochs": epochs},
+             "horizon": horizon, "input_dim": input_dim, "epochs": epochs},
             indent=2,
         ),
         encoding="utf-8",
@@ -154,6 +161,10 @@ def main(
     batch_size: int = typer.Option(64, "--batch-size", "-b"),
     val_frac: float = typer.Option(0.15, "--val-frac"),
     seed: int = typer.Option(0, "--seed"),
+    closed_loop: bool = typer.Option(
+        False, "--closed-loop/--open-loop",
+        help="Closed-loop conditions on joint state + phase; open-loop (default) "
+             "is a phase-indexed movement primitive that reaches the apex reliably."),
     evaluate: bool = typer.Option(True, "--evaluate/--no-evaluate", help="Sim-eval vs keyframe"),
     log_level: str = typer.Option("WARNING", "--log-level"),
 ) -> None:
@@ -181,9 +192,10 @@ def main(
 
     typer.secho("\nBehavior-cloning training (CPU)", bold=True)
     typer.echo("─" * 60)
+    typer.echo(f"mode: {'closed-loop (state+phase)' if closed_loop else 'open-loop (phase primitive)'}")
     results = []
     for g in gesture_list:
-        feats, acts, horizon = _gesture_samples(dataset, g)
+        feats, acts, horizon = _gesture_samples(dataset, g, closed_loop=closed_loop)
         if feats is None:
             typer.secho(f"[{g}] no demonstrations — skipping", fg=typer.colors.YELLOW)
             continue

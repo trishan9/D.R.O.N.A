@@ -88,6 +88,7 @@ const config: Config = {
       boxShadow: {
         soft: "0 1px 2px 0 hsl(222 47% 11% / 0.04), 0 1px 3px 0 hsl(222 47% 11% / 0.06)",
         card: "0 1px 3px 0 hsl(222 47% 11% / 0.05), 0 8px 24px -12px hsl(222 47% 11% / 0.12)",
+        glow: "0 0 0 1px hsl(var(--brand) / 0.25), 0 10px 34px -10px hsl(var(--brand) / 0.4)",
       },
       keyframes: {
         "accordion-down": {
@@ -109,12 +110,28 @@ const config: Config = {
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
+        "slide-up": {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
+        aurora: {
+          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+          "50%": { transform: "translate(8%, -6%) scale(1.15)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "pulse-soft": "pulse-soft 1.5s ease-in-out infinite",
         "fade-in": "fade-in 0.3s ease-out both",
+        "slide-up": "slide-up 0.45s ease-out both",
+        float: "float 6s ease-in-out infinite",
+        shimmer: "shimmer 2s linear infinite",
+        aurora: "aurora 14s ease-in-out infinite",
       },
     },
   },

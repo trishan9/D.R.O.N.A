@@ -38,16 +38,19 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Hero */}
-      <Card className="relative overflow-hidden border-brand/20">
+      <Card className="bg-aurora relative overflow-hidden border-brand/20">
         <div className="bg-grid pointer-events-none absolute inset-0 opacity-60" />
-        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand/10 blur-3xl" />
-        <CardContent className="relative flex flex-col gap-5 py-8 lg:flex-row lg:items-center lg:justify-between">
+        <CardContent className="relative z-10 flex flex-col gap-5 py-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-xl space-y-3">
             <Badge variant="secondary" className="gap-1">
               <Sparkles className="h-3 w-3" /> Bias-aware · locally-grounded · embodied
             </Badge>
             <h1 className="text-2xl font-bold tracking-tight text-balance sm:text-3xl">
-              {hydrated && name ? `Welcome back, ${name}.` : "Welcome to D.R.O.N.A."}
+              {hydrated && name ? (
+                <>Welcome back, <span className="gradient-text">{name}</span>.</>
+              ) : (
+                <>Welcome to <span className="gradient-text">D.R.O.N.A.</span></>
+              )}
             </h1>
             <p className="text-sm text-muted-foreground text-balance">
               Your embodied academic advisor for the Nepali computing context. Ask a question and get multiple
@@ -67,7 +70,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="hidden shrink-0 lg:block">
-            <span className="flex h-28 w-28 items-center justify-center rounded-3xl bg-gradient-to-br from-brand to-tier-international text-brand-foreground shadow-card">
+            <span className="flex h-28 w-28 animate-float items-center justify-center rounded-3xl bg-gradient-to-br from-brand to-tier-international text-brand-foreground shadow-glow">
               <Bot className="h-14 w-14" />
             </span>
           </div>
@@ -90,9 +93,9 @@ export default function DashboardPage() {
             const Icon = a.icon;
             return (
               <Link key={a.href} href={a.href} className="group">
-                <Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-card">
+                <Card className="card-interactive h-full">
                   <CardContent className="space-y-3 py-5">
-                    <span className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${a.accent}`}>
+                    <span className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ring-1 ring-inset ring-foreground/5 ${a.accent}`}>
                       <Icon className="h-5 w-5" />
                     </span>
                     <div>

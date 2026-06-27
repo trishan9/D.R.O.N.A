@@ -139,4 +139,51 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Brand gradient ink for headings / emphasis. */
+  .gradient-text {
+    @apply bg-gradient-to-r from-brand via-brand to-tier-international bg-clip-text text-transparent;
+  }
+
+  /* Lift-on-hover surface used by cards and tiles. */
+  .card-interactive {
+    @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card hover:border-brand/30;
+  }
+
+  /* Frosted surface for overlays / floating panels. */
+  .glass {
+    @apply border border-border/60 bg-card/70 backdrop-blur-md;
+  }
+
+  /* Soft animated colour wash for hero / feature surfaces. */
+  .bg-aurora::before,
+  .bg-aurora::after {
+    content: "";
+    @apply pointer-events-none absolute rounded-full blur-3xl;
+    z-index: 0;
+  }
+  .bg-aurora::before {
+    @apply -left-10 -top-16 h-64 w-64 bg-brand/20;
+    animation: aurora 14s ease-in-out infinite;
+  }
+  .bg-aurora::after {
+    @apply -bottom-20 right-0 h-72 w-72 bg-tier-international/15;
+    animation: aurora 18s ease-in-out infinite reverse;
+  }
+
+  /* Thin tier accent bar (data-provenance cue). */
+  .tier-rail {
+    @apply relative before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-slide-up,
+    .animate-float,
+    .animate-aurora,
+    .bg-aurora::before,
+    .bg-aurora::after {
+      animation: none !important;
+    }
+  }
 }

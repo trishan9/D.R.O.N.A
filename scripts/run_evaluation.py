@@ -113,12 +113,15 @@ def main(
     if report.c4:
         typer.secho("\n[C4] Stack / Provenance", bold=True)
         ratio = report.c4.nepal_citation_ratio
+        src = getattr(report.c4, "ratio_source", "response")
         colour = typer.colors.GREEN if report.c4.target_met else typer.colors.YELLOW
         typer.secho(
-            f"  Nepal citation ratio: {ratio:.1%} "
+            f"  Nepal citation ratio ({src}): {ratio:.1%} "
             f"({'✓ target met' if report.c4.target_met else '✗ below 40% target'})",
             fg=colour,
         )
+        if src == "retrieval":
+            typer.echo("    (measured over retrieved citations; run with --llm for response-level)")
         if report.c4.latency:
             lat = report.c4.latency
             note = "(retrieval-only)" if report.c4.latency_skipped else "(full pipeline)"

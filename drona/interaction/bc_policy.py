@@ -68,6 +68,7 @@ class BCGesturePolicy(BasePolicy):
         self._device = device
         self._step = 0
         self._horizon = 60
+        self._input_dim = 1
         self._model = None
         self._dir = Path(checkpoint_dir) / gesture_label
         self._load()
@@ -84,7 +85,10 @@ class BCGesturePolicy(BasePolicy):
         self._horizon = int(cfg.get("horizon", 60))
         hidden = int(cfg.get("hidden", DEFAULT_HIDDEN))
         dof = int(cfg.get("dof", DOF))
-        model = _build_mlp(dof + 1, hidden, dof)
+        # input_dim = 1 → phase-only (open-loop movement primitive);
+        # input_dim = dof+1 → closed-loop (joint state + phase).
+        self._input_dim = int(cfg.get("input_dim", 1))
+        model = _build_mlp(self._input_dim, hidden, dof)
         model.load_state_dict(torch.load(weights_path, map_location=self._device))
         model.eval()
         self._model = model.to(self._device)
@@ -109,7 +113,11 @@ class BCGesturePolicy(BasePolicy):
         import torch
 
         phase = min(self._step / max(self._horizon - 1, 1), 1.0)
-        x = np.concatenate([obs, [phase]]).astype(np.float32)
+        # Open-loop primitive replays the demonstrated trajectory as a function of
+        # gesture phase, so it reaches the apex regardless of env tracking lag.
+        # Closed-loop mode also conditions on the current joint state.
+        x = (np.array([phase], dtype=np.float32) if self._input_dim == 1
+             else np.concatenate([obs, [phase]]).astype(np.float32))
         with torch.no_grad():
             t = torch.from_numpy(x).unsqueeze(0).to(self._device)
             action = self._model(t).squeeze(0).cpu().numpy().astype(np.float32)

@@ -108,6 +108,9 @@ class C4Result:
     target_met:           bool           # ≥ 0.40 for local-preference queries
     latency:              dict[str, float]
     latency_skipped:      bool = False
+    # "response" = measured over full advising responses (needs Ollama);
+    # "retrieval" = measured over the retrieved citations (offline fallback).
+    ratio_source:         str = "response"
 
 
 @dataclass
@@ -394,33 +397,44 @@ class EvaluationHarness:
                 logger.warning(f"C4 LLM eval failed: {exc}")
 
         ratio = nepal_citation_ratio(responses)
+        ratio_source = "response"
         latency = latency_stats(gen_times) if gen_times else {}
 
-        # If we ran without LLM, measure retrieval-only latency as a proxy
+        # Without the LLM there are no response citations, so measure the
+        # Nepal-first ratio over the RETRIEVED citations instead (this directly
+        # reflects the C4 tier-boost) and reuse the loop for retrieval latency.
         if latency_skipped:
             try:
                 from drona.advising.retriever import Retriever
+                from drona.contracts import DataTier
                 retriever = Retriever()
                 times_ms: list[int] = []
+                total = nepal = 0
                 for q in C4_QUERIES:
                     t0 = time.monotonic()
-                    retriever.retrieve(q.query_text)
+                    cits = retriever.retrieve(q.query_text)
                     times_ms.append(int((time.monotonic() - t0) * 1000))
+                    total += len(cits)
+                    nepal += sum(1 for c in cits if c.tier == DataTier.NEPAL)
                 latency = latency_stats(times_ms)
                 latency["note"] = 0.0  # marker: retrieval-only, not full pipeline
+                if not responses and total:
+                    ratio = nepal / total
+                    ratio_source = "retrieval"
             except Exception as exc:
-                logger.warning(f"C4 retrieval latency measurement failed: {exc}")
+                logger.warning(f"C4 retrieval measurement failed: {exc}")
 
         target_met = ratio >= 0.40
         logger.info(
-            f"C4: nepal_ratio={ratio:.3f}, target_met={target_met}, "
-            f"latency_skipped={latency_skipped}"
+            f"C4: nepal_ratio={ratio:.3f} (source={ratio_source}), "
+            f"target_met={target_met}, latency_skipped={latency_skipped}"
         )
         return C4Result(
             nepal_citation_ratio=ratio,
             target_met=target_met,
             latency=latency,
             latency_skipped=latency_skipped,
+            ratio_source=ratio_source,
         )
 
     # ── run_all ────────────────────────────────────────────────────────────────

@@ -23,15 +23,20 @@ const ACCENTS: Record<NonNullable<StatCardProps["accent"]>, string> = {
 
 export function StatCard({ label, value, hint, icon: Icon, accent = "brand", className }: StatCardProps) {
   return (
-    <Card className={cn("flex items-center gap-4 p-4 shadow-soft", className)}>
+    <Card className={cn("card-interactive flex items-center gap-4 p-4 shadow-soft", className)}>
       {Icon && (
-        <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", ACCENTS[accent])}>
+        <span
+          className={cn(
+            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ring-foreground/5",
+            ACCENTS[accent],
+          )}
+        >
           <Icon className="h-5 w-5" />
         </span>
       )}
       <div className="min-w-0">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-        <p className="truncate text-2xl font-bold leading-tight tracking-tight">{value}</p>
+        <p className="truncate text-2xl font-bold leading-tight tracking-tight tabular-nums">{value}</p>
         {hint && <p className="truncate text-xs text-muted-foreground">{hint}</p>}
       </div>
     </Card>

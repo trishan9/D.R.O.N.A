@@ -98,3 +98,8 @@ mlruns/
 
 # Manual collection — keep STRUCTURE in git, raw text gitignored if sensitive
 # data/manual_collection/  # Uncomment if you decide to gitignore
+
+# Derived evaluation artifacts (notebooks embed their own outputs)
+data/evaluation/*.png
+data/evaluation/*.json
+notebooks/data/

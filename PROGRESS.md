@@ -5,11 +5,17 @@
 
 ## Current State
 - **Active phase:** Phase 8 — documentation (COMPLETE). **All phases 0–8 done.**
-  431 tests pass (re-verified 2026-06-13).
-- **Active task:** project build complete. 2026-06-13: migrated ROS2/sim docs from
-  Ubuntu dual-boot → **WSL2 on Windows 11** (`docs/wsl_setup.md`). Remaining
-  real-world work is the student's data/training/recording + Phase-2 (physical
-  SO-100 arm swap + live student user study + multilingual production).
+  431 tests pass (re-verified 2026-06-27).
+- **Active task:** 2026-06-27 — **end-to-end data + training bring-up on real
+  hardware.** Populated the pipeline with placeholder curriculum/jobs + the REAL
+  O*NET 30.3 dataset, ran the real dual-embedding ingest, generated the LoRA SFT
+  dataset, trained the CPU behavior-cloning gesture baseline, and verified the
+  sim + web app run. See the 2026-06-27 "What Shipped" entry. Remaining real-world
+  work: swap placeholder curriculum/jobs for real ones (drop-in), run the GPU
+  notebooks (LoRA nb09 / ACT nb07 / Diffusion nb08) on Colab T4, install Ollama +
+  pull a model for live advising, and record the demo. Phase-2 unchanged.
+- **2026-06-13:** migrated ROS2/sim docs from Ubuntu dual-boot → **WSL2 on
+  Windows 11** (`docs/wsl_setup.md`).
 - **Last commit:** see `git log -1` (Phase 8 commit)
 - **Working tree:** managed per-phase; commit between phases.
 - **User sequencing:** Phase 6 before Phase 5 at user's request; then 7, then 8.
@@ -51,6 +57,51 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
+- 2026-06-27 — **Real data + training bring-up (CPU/Windows).** Brought the whole
+  pipeline to life on the student's box and fixed several real bugs found by
+  actually running it.
+  - **Placeholder data** (clearly marked, drop-in replaceable): 10 Softwarica
+    BSc-Computing module docs (`data/raw/curriculum/*.md` + one real `.pdf` to
+    exercise the pypdf path) and 40 Nepali tech job postings across
+    merojob/jobsnepal/internsathi/kumarijobs/linkedin
+    (`data/manual_collection/*/`). `data/raw/*` is gitignored by design, so the
+    curriculum lives locally; the manual-collection JSONs are tracked.
+  - **Real public dataset:** ran `scripts/download_onet.py` → **O*NET 30.3**
+    (CC BY 4.0). Adapted `onet.py` to the 30.3 schema (renamed files:
+    Essential/Software Skills, Education + Education Categories lookup) with a
+    legacy-filename fallback → **39** computing CareerPathways.
+  - **Real dual-embedding ingest:** `scripts/ingest_data.py` → ChromaDB
+    **curriculum=50 / career=79** docs (bge-small-en-v1.5 + JobBERT). Verified
+    hybrid retrieval returns sensible Nepal-first results for ML / cybersecurity /
+    frontend queries. Fixed two ingest bugs: chromadb ≥1.x rejects `get(ids=[])`
+    (guard added) and parquet NaN optionals were dropping ALL pathways
+    (NaN→None coercion in `_load_career_pathways_parquet`).
+  - **LoRA training data:** `scripts/generate_qa.py` → **450 train / 50 val** SFT
+    examples + 50 gold-review pairs, grounded in the real pathways (bias-balanced
+    across 7 classes). Ready for nb09 on Colab T4.
+  - **Trained a model (CPU):** new `drona/interaction/bc_policy.py`
+    (phase-conditioned behavior-cloning `BasePolicy`) + `scripts/train_bc_gesture.py`.
+    Generated 150 demonstration episodes (5000 frames) and trained 6 per-gesture
+    MLPs to val-MSE ≈ 1e-6. Sim-eval vs keyframe baseline: BC is **smoother**
+    (mean jerk 0.0002 vs 0.0005 — the C3 win) and hits 4/6 gestures; it undershoots
+    the two high-amplitude gestures (greet/farewell) — the textbook BC
+    regression-to-mean limit that motivates ACT's action chunking. Checkpoints +
+    `bc_training_report.json` under `data/checkpoints/bc/` (gitignored).
+  - **Sim demo fixed + verified:** `scripts/run_simulation.py` had drifted from the
+    current APIs — repaired `GestureDispatcher`/`PolicyRouter` construction, the
+    perception import, and the `SessionMachine.context` → `.state`/`session_summary()`
+    refactor; rewired the session loop to walk greet→listen→advise→farewell
+    deterministically. Headless full-session run is green (run with `PYTHONUTF8=1`
+    on Windows to avoid the cp1252 console crash on box-drawing chars).
+  - **Web app verified:** `frontend` typecheck clean, `next build` green (13 routes),
+    prod server serves 200 on /, /advisor, /pathways, /robot, /analytics, /skills,
+    /about.
+  - **ROS2 verified:** all 18 nodes/launch py_compile clean; msgs/srv/action present
+    (`colcon build` still needs WSL2 + ROS2 Humble — `docs/wsl_setup.md`).
+  - **Gated externally:** live LLM advising needs Ollama (pkg installed, server/binary
+    not) — `ollama serve` + pull a model. GPU trainings (LoRA/ACT/Diffusion) run on
+    Colab T4. **Verify:** `pytest -q` → 431 passed, 1 skipped.
+
 - 2026-06-13 — **Frontend v2: multi-page platform + robot web-twin + NVIDIA/WSL
   sim clarity.** Rebuilt `frontend/` from a single dashboard into a 10-page
   sidebar-navigated app (DataCamp-style modern-minimal, light+dark via
@@ -212,15 +263,25 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   `python -c "import drona.utils.settings as s; print(s.settings.vector_backend)"`.
 
 ## Open Blockers (student action — see `docs/STUDENT_RUNBOOK.md`)
-- **Curriculum PDFs not yet provided** — place 3 Softwarica module PDFs in
-  `data/raw/curriculum/` (`.gitkeep` added).
-- **Nepali job postings not yet collected** — manual JSON ~150–200 in
-  `data/manual_collection/<source>/`; template at `_template.json`.
-- **Colab training runs not yet executed** — LoRA (nb 09), ACT (nb 07), Diffusion
-  (nb 08); copy checkpoints to `data/checkpoints/`.
+- **Curriculum / jobs are PLACEHOLDERS (2026-06-27)** — the pipeline is fully
+  populated and run with dummy data so everything works end-to-end. Replace
+  `data/raw/curriculum/*.md|pdf` (10 dummy Softwarica modules) and
+  `data/manual_collection/*/*_placeholder_postings.json` (40 dummy Nepali jobs)
+  with the real materials, then re-run `python scripts/scrape_jobs.py --source manual`
+  + `python scripts/download_onet.py` + `python scripts/ingest_data.py`. O*NET 30.3
+  is already downloaded and ingested (real). Curriculum/jobs are drop-in.
+- **Live LLM advising needs Ollama** — `ollama` python pkg is installed but the
+  server/binary is not. Install Ollama, `ollama serve`, and pull a model
+  (e.g. `qwen2.5:3b`); retrieval (C1) already works without it.
+- **Colab training runs not yet executed** — LoRA (nb 09, SFT data ready),
+  ACT (nb 07), Diffusion (nb 08); copy checkpoints to `data/checkpoints/`. A CPU
+  behavior-cloning baseline IS trained (`scripts/train_bc_gesture.py`).
 - **ROS2/Gazebo demo not yet recorded** — runs in **WSL2 (Ubuntu 22.04) on
-  Windows 11**; no dual-boot needed. See `docs/wsl_setup.md`.
+  Windows 11**; no dual-boot needed. ROS2 not yet installed in WSL. See
+  `docs/wsl_setup.md`.
 - **Demo video not yet recorded** — script at `docs/demo_video_script.md`.
+- **Windows note:** run CLI scripts with `PYTHONUTF8=1` (Python 3.14 isn't UTF-8
+  mode by default; the consoles use cp1252 and crash on box-drawing output).
 
 ## User-Provided Context
 - 2026-06-09 — Strategy = **EXTEND** (keep working code, add missing pieces).

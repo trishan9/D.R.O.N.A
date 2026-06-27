@@ -60,7 +60,12 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*.parquet
 data/processed/*.feather
+data/processed/*.json
 data/cache/
+
+# Derived training/eval artifacts (regenerable from scripts; data cards kept)
+data/demonstrations/
+data/finetune/
 
 # ChromaDB local store
 data/chromadb/

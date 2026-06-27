@@ -210,6 +210,11 @@ class Ingestor:
         metadatas: list[dict],
     ) -> None:
         """Add documents in batches; skip IDs already present in the collection."""
+        if not ids:
+            logger.debug("  No items to add — empty id list")
+            return
+        # chromadb >=1.x rejects get(ids=[]); guarded above. include=[] returns
+        # only the ids of those already present, which we use to skip duplicates.
         existing = set(collection.get(ids=ids, include=[])["ids"])
         new_ids, new_docs, new_metas = [], [], []
         for id_, doc, meta in zip(ids, documents, metadatas):

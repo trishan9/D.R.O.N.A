@@ -52,6 +52,7 @@ def _load_job_postings_json(path: Path) -> list[JobPosting]:
 def _load_career_pathways_parquet(path: Path) -> list[CareerPathway]:
     """Load the O*NET parquet into CareerPathway objects."""
     import ast
+    import math
 
     import pandas as pd
 
@@ -59,7 +60,12 @@ def _load_career_pathways_parquet(path: Path) -> list[CareerPathway]:
     pathways = []
     for _, row in df.iterrows():
         try:
-            d = row.to_dict()
+            # Parquet stores missing optionals (esco_code, salary tuples) as
+            # float NaN. Coerce scalar NaN → None so Pydantic accepts them.
+            d = {
+                k: (None if isinstance(v, float) and math.isnan(v) else v)
+                for k, v in row.to_dict().items()
+            }
             # Parquet stores lists as strings due to our save_parquet() call
             for list_field in ("typical_skills", "typical_education",
                                "related_softwarica_modules", "sample_employers_nepal"):

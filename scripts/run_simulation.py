@@ -75,12 +75,14 @@ def main(
             typer.secho(f"Visualizer unavailable ({exc}) — running headless.", fg=typer.colors.YELLOW)
 
     # ── Policy router ──────────────────────────────────────────────────────────
+    # The PolicyRouter auto-loads a trained ACT/Diffusion checkpoint per gesture
+    # from checkpoint_base_dir when present, else falls back to the keyframe
+    # policy. The viz loop below drives it frame-by-frame (GestureDispatcher wraps
+    # the same router for the headless InteractionAction path).
     from drona.interaction.act_policy import PolicyRouter
-    from drona.interaction.gesture_dispatcher import GestureDispatcher
 
     ckpt = checkpoint_dir or str(settings.data_dir / "checkpoints")
     router = PolicyRouter(checkpoint_base_dir=ckpt, device="cpu")
-    dispatcher = GestureDispatcher(policy_router=router)
 
     def run_gesture(label: str, target=None) -> None:
         from drona.contracts import InteractionAction
@@ -112,11 +114,7 @@ def main(
 
     # ── Full session simulation ────────────────────────────────────────────────
     from drona.orchestrator.session_machine import SessionMachine, SessionState as SS
-    from drona.perception.mediapipe_detector import (
-        DetectionResult,
-        EngagementState,
-        make_detector,
-    )
+    from drona.perception.mediapipe_detector import make_detector
 
     machine = SessionMachine()
     detector = make_detector(prefer_mediapipe=False)  # StubDetector
@@ -125,44 +123,51 @@ def main(
     typer.echo("Engagement sequence: ABSENT → APPROACHING → ENGAGED → DISENGAGING → ABSENT")
     typer.echo()
 
-    prev_state = machine.context.state
-    advising_done = False
+    # State-driven loop with idempotent guards. The StubDetector drives
+    # IDLE→GREETING (on ENGAGED); the lifecycle hooks below then walk the FSM
+    # GREETING→NEEDS_ASSESSMENT→ADVISING→CLOSURE→IDLE deterministically.
+    greeted = advised = closed = False
+    summary = machine.session_summary()
 
-    for step in range(80):
+    for step in range(120):
         detection = detector.detect()
 
-        old = machine.context.state
+        old = machine.state
         machine.feed_detection(detection)
-        new = machine.context.state
+        state = machine.state
 
-        if new != old:
-            typer.secho(f"  [{step:3d}] {old.value:20s} → {new.value}", fg=typer.colors.CYAN)
+        if state != old:
+            typer.secho(f"  [{step:3d}] {old.value:20s} → {state.value}", fg=typer.colors.CYAN)
 
-            if new == SS.GREETING:
-                typer.echo("  → Executing: GREET")
-                run_gesture("greet")
-                machine.mark_greeted()
+        if state == SS.GREETING and not greeted:
+            typer.echo("  → Executing: GREET")
+            run_gesture("greet")
+            machine.mark_greeted()
+            greeted = True
 
-            elif new == SS.NEEDS_ASSESSMENT:
-                typer.echo("  → Executing: LISTEN")
-                run_gesture("listen")
-                if not no_advising and not advising_done:
-                    typer.echo(f"  → Advising query: {query[:60]}")
-                    _do_advising(query, machine, run_gesture, no_advising)
-                    advising_done = True
+        elif state == SS.NEEDS_ASSESSMENT and not advised:
+            typer.echo(f"  → Advising query: {query[:60]}")
+            _do_advising(query, machine, run_gesture, no_advising)
+            advised = True
 
-            elif new == SS.CLOSURE:
-                typer.echo("  → Executing: FAREWELL")
-                run_gesture("farewell")
-                machine.mark_session_closed()
+        elif state == SS.CLOSURE and not closed:
+            typer.echo("  → Executing: FAREWELL")
+            run_gesture("farewell")
+            # Capture the summary BEFORE closing — returning to IDLE starts a
+            # fresh session and resets the per-session query counter.
+            summary = machine.session_summary()
+            machine.mark_session_closed()
+            closed = True
+            break  # session complete
 
-        time.sleep(0.1)
+        time.sleep(0.05)
 
     if viz:
         viz.close()
 
     typer.secho("\nSimulation complete.", fg=typer.colors.GREEN)
-    typer.echo(f"Session queries answered: {machine.context.query_count}")
+    typer.echo(f"Session queries answered: {summary['query_count']}")
+    typer.echo(f"State transitions:        {summary['event_count']}")
 
 
 def _do_advising(
@@ -172,6 +177,9 @@ def _do_advising(
     no_advising: bool,
 ) -> None:
     run_gesture_fn("listen")
+    # NEEDS_ASSESSMENT → ADVISING (must happen before mark_response_delivered,
+    # which advances ADVISING → CLOSURE).
+    machine.submit_query(query_text)
 
     if no_advising:
         typer.echo("  [advising skipped — --no-advising]")
@@ -198,7 +206,6 @@ def _do_advising(
                 typer.secho(f"  Bias flags: {[b.bias_type for b in response.bias_flags]}", fg=typer.colors.CYAN)
 
         run_gesture_fn("nod")
-        machine.submit_query(query_text)
         machine.mark_response_delivered()
 
     except Exception as exc:

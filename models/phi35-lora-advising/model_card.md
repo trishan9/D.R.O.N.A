@@ -3,7 +3,7 @@
 **Base model:** microsoft/Phi-3.5-mini-instruct (Q4_K_M for serving via Ollama)
 **Method:** QLoRA (4-bit NF4) + PEFT LoRA r=16
 **Task:** bias-aware academic/career advising (JSON output)
-**Version:** 0.1.0  **Created:** 2026-06-09
+**Version:** 0.1.0  **Created:** 2026-06-27
 **License:** Base model license applies (MIT for Phi-3.5); adapter MIT
 
 ## Training data

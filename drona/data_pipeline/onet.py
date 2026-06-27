@@ -34,13 +34,26 @@ ONET_DOWNLOAD_URL = f"https://www.onetcenter.org/dl_files/database/db_{ONET_VERS
 RELEVANT_SOC_PREFIXES = ("15-",)
 RELEVANT_SOC_EXTRAS = {"11-3021.00"}  # CIS Managers
 
-# O*NET TSV files we care about (filename inside the zip)
+# O*NET TSV files we care about (filename inside the zip).
+# NOTE: O*NET 30.3 restructured the skills taxonomy. The old single
+# "Skills.txt" / "Technology Skills.txt" / "Education, Training, and
+# Experience.txt" became "Essential Skills.txt" / "Software Skills.txt" /
+# "Education.txt" (+ a separate "Education Categories.txt" lookup).
 _ONET_FILES = {
     "occupations": "Occupation Data.txt",
+    "skills": "Essential Skills.txt",
+    "tech_skills": "Software Skills.txt",
+    "education": "Education.txt",
+    "education_categories": "Education Categories.txt",
+    "tasks": "Task Statements.txt",
+}
+
+# Legacy filenames (pre-30.3). Tried as a fallback so the parser keeps working
+# against older O*NET archives.
+_ONET_FILES_LEGACY = {
     "skills": "Skills.txt",
     "tech_skills": "Technology Skills.txt",
     "education": "Education, Training, and Experience.txt",
-    "tasks": "Task Statements.txt",
 }
 
 # Education level codes in O*NET that map to bachelor's degree equivalent
@@ -88,28 +101,41 @@ def download_zip(dest_path: Path | None = None, force: bool = False) -> Path:
 
 
 def _read_tsv(zf: zipfile.ZipFile, filename: str) -> pd.DataFrame:
-    """Read a TSV file from inside the zip into a DataFrame."""
-    # O*NET zips nest files under a versioned subdirectory
+    """Read a TSV file from inside the zip into a DataFrame.
+
+    Handles the versioned subdirectory prefix that O*NET zips use, and falls
+    back to a no-prefix lookup for archives that differ.
+    """
     prefix = f"db_{ONET_VERSION.replace('.', '_')}_text/"
-    try:
-        return pd.read_csv(
-            io.BytesIO(zf.read(prefix + filename)),
-            sep="\t",
-            encoding="utf-8",
-            dtype=str,
-        )
-    except KeyError:
-        # Fallback: try without prefix (some versions differ)
-        return pd.read_csv(
-            io.BytesIO(zf.read(filename)),
-            sep="\t",
-            encoding="utf-8",
-            dtype=str,
-        )
+    for candidate in (prefix + filename, filename):
+        try:
+            data = zf.read(candidate)
+        except KeyError:
+            continue
+        return pd.read_csv(io.BytesIO(data), sep="\t", encoding="utf-8", dtype=str)
+    raise KeyError(filename)
+
+
+def _read_tsv_any(zf: zipfile.ZipFile, key: str) -> pd.DataFrame:
+    """Read a logical O*NET table, trying the current then the legacy filename."""
+    names = [_ONET_FILES[key]]
+    if key in _ONET_FILES_LEGACY:
+        names.append(_ONET_FILES_LEGACY[key])
+    last_err: Exception | None = None
+    for name in names:
+        try:
+            return _read_tsv(zf, name)
+        except KeyError as e:  # noqa: PERF203
+            last_err = e
+    raise last_err or KeyError(key)
 
 
 def _skills_for_soc(skills_df: pd.DataFrame, soc: str) -> list[str]:
     mask = skills_df["O*NET-SOC Code"] == soc
+    # Filter to the Importance ("IM") scale so each skill is counted once and
+    # ranked by how important it is to the occupation (not the level scale).
+    if "Scale ID" in skills_df.columns:
+        mask &= skills_df["Scale ID"] == "IM"
     subset = skills_df[mask].copy()
     if subset.empty:
         return []
@@ -121,17 +147,34 @@ def _skills_for_soc(skills_df: pd.DataFrame, soc: str) -> list[str]:
 
 def _tech_skills_for_soc(tech_df: pd.DataFrame, soc: str) -> list[str]:
     mask = tech_df["O*NET-SOC Code"] == soc
-    return tech_df[mask]["Example"].dropna().unique().tolist()[:15]
+    # 30.3 uses "Workplace Example" for the concrete tool; legacy used "Example".
+    for col in ("Workplace Example", "Example", "Element Name"):
+        if col in tech_df.columns:
+            return tech_df[mask][col].dropna().unique().tolist()[:15]
+    return []
 
 
-def _edu_for_soc(edu_df: pd.DataFrame, soc: str) -> list[str]:
+def _edu_for_soc(
+    edu_df: pd.DataFrame, soc: str, edu_cat_map: dict[str, str] | None = None
+) -> list[str]:
     mask = (edu_df["O*NET-SOC Code"] == soc) & (edu_df["Scale ID"] == "RL")
     subset = edu_df[mask].copy()
     if subset.empty:
         return ["Bachelor's degree or higher"]
     subset["Data Value"] = pd.to_numeric(subset["Data Value"], errors="coerce")
     top = subset.sort_values("Data Value", ascending=False).head(3)
-    return top["Category Description"].dropna().tolist() if "Category Description" in top.columns else []
+    # 30.3 stores the category as a numeric code; map it via Education Categories.
+    if edu_cat_map and "Category" in top.columns:
+        out = [
+            edu_cat_map[str(c).strip()]
+            for c in top["Category"]
+            if str(c).strip() in edu_cat_map
+        ]
+        if out:
+            return out
+    if "Category Description" in top.columns:
+        return top["Category Description"].dropna().tolist()
+    return ["Bachelor's degree or higher"]
 
 
 def parse(zip_path: Path) -> list[CareerPathway]:
@@ -147,14 +190,26 @@ def parse(zip_path: Path) -> list[CareerPathway]:
 
     with zipfile.ZipFile(zip_path) as zf:
         occ_df = _read_tsv(zf, _ONET_FILES["occupations"])
-        skills_df = _read_tsv(zf, _ONET_FILES["skills"])
-        tech_df = _read_tsv(zf, _ONET_FILES["tech_skills"])
+        skills_df = _read_tsv_any(zf, "skills")
+        tech_df = _read_tsv_any(zf, "tech_skills")
 
         # Education file might not exist in all versions
         try:
-            edu_df = _read_tsv(zf, _ONET_FILES["education"])
+            edu_df = _read_tsv_any(zf, "education")
         except Exception:
             edu_df = pd.DataFrame()
+
+        # 30.3 keeps human-readable education levels in a separate lookup table.
+        edu_cat_map: dict[str, str] = {}
+        try:
+            edu_cat_df = _read_tsv(zf, _ONET_FILES["education_categories"])
+            rl = edu_cat_df[edu_cat_df["Scale ID"] == "RL"]
+            edu_cat_map = {
+                str(r["Category"]).strip(): str(r["Category Description"]).strip()
+                for _, r in rl.iterrows()
+            }
+        except Exception:
+            edu_cat_map = {}
 
     # Filter to relevant SOC codes
     relevant = occ_df[occ_df["O*NET-SOC Code"].apply(_is_relevant_soc)].copy()
@@ -173,7 +228,11 @@ def parse(zip_path: Path) -> list[CareerPathway]:
             _skills_for_soc(skills_df, soc) + _tech_skills_for_soc(tech_df, soc)
         ))
 
-        typical_edu = _edu_for_soc(edu_df, soc) if not edu_df.empty else ["Bachelor's degree or higher"]
+        typical_edu = (
+            _edu_for_soc(edu_df, soc, edu_cat_map)
+            if not edu_df.empty
+            else ["Bachelor's degree or higher"]
+        )
 
         pathway = CareerPathway(
             pathway_id=pathway_id,

@@ -1,0 +1,41 @@
+name: onet_career_pathways
+version: '30.3'
+created_at: '2026-06-27T15:14:47.323020'
+source_name: O*NET 30.3 Database
+source_url: https://www.onetcenter.org/database.html
+license: CC BY 4.0
+tier: international
+collection_method: automated_bulk_download
+collection_date: '2026-06-27T15:14:47.323028'
+collector: Trisan Wagle
+record_count: 39
+fields:
+- pathway_id
+- title
+- tier
+- onet_soc_code
+- esco_code
+- description
+- typical_skills
+- typical_education
+- local_salary_range_npr
+- international_salary_range_usd
+- related_softwarica_modules
+- sample_employers_nepal
+description: Computing and technology occupations (SOC 15-xxxx + CIS Managers) parsed
+  from O*NET 30.3. Includes titles, descriptions, skill profiles, and technology skill
+  examples. Used as international-tier anchor for career pathway recommendations.
+known_limitations:
+- US labour market only — salaries not included (US context)
+- SOC taxonomy may not perfectly map to Nepal job market titles
+- Technology skills list is indicative, not exhaustive
+contains_synthetic: false
+synthetic_fraction: null
+robots_txt_verified: true
+robots_txt_allows_crawl: true
+rate_limit_applied: N/A (single bulk download)
+derived_from: []
+output_files:
+- data\processed\onet_career_pathways.parquet
+notes: 'Downloaded from https://www.onetcenter.org/dl_files/database/db_30_3_text.zip.
+  Zip SHA256: 7758ec966fd91895'

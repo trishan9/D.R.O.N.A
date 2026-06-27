@@ -1,6 +1,6 @@
 name: phi35-lora-advising
 version: 0.1.0
-created_at: '2026-06-09T14:17:27.257150'
+created_at: '2026-06-27T15:22:02.258826'
 base_model: microsoft/Phi-3.5-mini-instruct (Q4_K_M for serving via Ollama)
 method: QLoRA (4-bit NF4) + PEFT LoRA r=16
 task: bias-aware academic/career advising (JSON output)

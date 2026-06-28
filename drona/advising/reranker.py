@@ -33,6 +33,12 @@ from drona.utils.settings import settings
 if TYPE_CHECKING:
     from drona.advising.retriever import _Doc
 
+# bge-reranker returns ~[0,1] relevance probabilities. If even the best pair
+# scores below this, the cross-encoder found nothing clearly relevant (e.g.
+# heavy typos crush the scores, or the model failed to load) — in that case we
+# keep the retriever's ordering/scores instead of overwriting them with ~0.
+_RERANK_MIN_SIGNAL = 0.01
+
 
 class Reranker:
     """Cross-encoder reranker (lazy-loaded to avoid import-time model download)."""
@@ -71,6 +77,14 @@ class Reranker:
         pairs = [(query, d.text) for d in docs]
         scores = self._model.predict(pairs)  # type: ignore[union-attr]
         elapsed_ms = int((time.monotonic() - t0) * 1000)
+
+        # Degenerate-output guard: keep retrieval order/scores if the cross-encoder
+        # found nothing clearly relevant (typos / model-load issue).
+        if max((float(s) for s in scores), default=0.0) < _RERANK_MIN_SIGNAL:
+            logger.debug(
+                f"Reranker signal weak (<{_RERANK_MIN_SIGNAL}); keeping retrieval order"
+            )
+            return docs[:n]
 
         # Apply tier boost on top of cross-encoder scores (C4: Nepal first)
         boosted = [

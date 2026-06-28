@@ -9,9 +9,12 @@ Wraps the Ollama Python SDK with:
   - Graceful fallback: if Ollama is unreachable, return a refusal response
     rather than crashing the advising session
 
-Model default: phi3.5 (Phi-3.5-mini-instruct Q4_K_M via Ollama tag "phi3.5")
-  ~3.8B parameters, 4-bit quantized. Fits in 4GB VRAM or runs fast on CPU.
-  For reasoning-heavy queries, any Ollama model works — just change DRONA_OLLAMA_MODEL.
+Model default: qwen2.5:3b-instruct-q4_K_M (3B, 4-bit). Chosen as primary for
+  speed on modest hardware, robustness to typos/spelling, and strong multilingual
+  (Nepali / code-switch) handling. Fallback: phi3.5:3.8b-mini-instruct-q4_K_M.
+  Both run locally via Ollama (no API cost). Change via OLLAMA_MODEL in .env.
+  The model is kept warm between requests (settings.ollama_keep_alive) and
+  generation is bounded (settings.llm_max_tokens) so only the first call is slow.
 
 Parsing strategy:
   The LLM is instructed to return a bare JSON object. We attempt json.loads()
@@ -186,7 +189,14 @@ class LLMClient:
                     response = self._client.chat(
                         model=model,
                         messages=messages,
-                        options={"temperature": 0.2, "num_ctx": 4096},
+                        # keep_alive holds the model in memory between requests
+                        # so only the FIRST query pays the cold-load cost.
+                        keep_alive=settings.ollama_keep_alive,
+                        options={
+                            "temperature": settings.llm_temperature,
+                            "num_ctx": settings.ollama_num_ctx,
+                            "num_predict": settings.llm_max_tokens,
+                        },
                     )
                     elapsed_ms = int((time.monotonic() - t0) * 1000)
                     raw_text: str = response.message.content or ""

@@ -38,13 +38,19 @@ class DronaSettings(BaseSettings):
 
     # --- LLM (Ollama) ---
     ollama_host: str = Field("http://localhost:11434")
-    ollama_model: str = Field("phi3.5:3.8b-mini-instruct-q4_K_M")
+    # Primary = Qwen2.5-3B: faster on modest hardware, robust to typos/spelling,
+    # and strong multilingual (Nepali/code-switch). Still local, no API cost.
+    ollama_model: str = Field("qwen2.5:3b-instruct-q4_K_M")
     ollama_fallback_model: str = Field(
-        "qwen2.5:3b-instruct-q4_K_M",
-        description="Multilingual fallback; still local, no API cost.",
+        "phi3.5:3.8b-mini-instruct-q4_K_M",
+        description="Fallback if the primary model isn't loaded; still local, no API cost.",
     )
-    llm_max_tokens: int = Field(600, ge=64, le=4096)
+    llm_max_tokens: int = Field(1024, ge=64, le=4096)  # = Ollama num_predict cap
     llm_temperature: float = Field(0.3, ge=0.0, le=2.0)
+    # "Fast mode" knobs: keep the model resident between requests (avoids the
+    # multi-second cold reload) and bound the KV-cache context window.
+    ollama_keep_alive: str = Field("30m", description="How long Ollama keeps the model loaded.")
+    ollama_num_ctx: int = Field(4096, ge=512, le=32768)
 
     # --- Embeddings ---
     curriculum_embed_model: str = Field("BAAI/bge-small-en-v1.5")

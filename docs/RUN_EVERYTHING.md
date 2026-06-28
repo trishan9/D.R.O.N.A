@@ -158,18 +158,21 @@ Pick **A** (recommended) or **B**. You only need one.
 
 **A2. Pull the model DRONA defaults to** (no `.env` edit needed)
 ```bash
-ollama pull phi3.5:3.8b-mini-instruct-q4_K_M
-ollama pull qwen2.5:3b-instruct-q4_K_M     # multilingual fallback (optional)
+ollama pull qwen2.5:3b-instruct-q4_K_M          # primary: fast, typo-robust, multilingual
+ollama pull phi3.5:3.8b-mini-instruct-q4_K_M    # fallback (optional)
 ```
 
 **A3. Test it**
 ```bash
-ollama run phi3.5:3.8b-mini-instruct-q4_K_M "Say hello in one sentence."
+ollama run qwen2.5:3b-instruct-q4_K_M "Say hello in one sentence."
 ```
 If it replies, you're done. (Leave Ollama running; on Windows it stays in the tray.)
 
-> Too slow? Use the smaller/faster `qwen2.5:3b` as the primary by setting
-> `OLLAMA_MODEL=qwen2.5:3b-instruct-q4_K_M` in `.env`, **or** switch to Option B.
+> **About speed:** the **first** query loads the model (slow, one-time). DRONA keeps
+> it warm (`OLLAMA_KEEP_ALIVE=30m`) so later queries are much faster. If it's still
+> slow, free GPU memory (close Chrome) so the 3B model fits in your 4 GB card, try
+> an even smaller model (`ollama pull llama3.2:1b` then set `OLLAMA_MODEL=llama3.2:1b`),
+> or use **Option B**.
 
 ➡️ **Skip Option B — go to [Part 5](#5-train-the-gpu-models-on-colabkaggle).**
 

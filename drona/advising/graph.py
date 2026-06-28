@@ -97,10 +97,13 @@ def node_detect_bias(comp: GraphComponents, state: AdvisingState) -> AdvisingSta
 def node_retrieve(comp: GraphComponents, state: AdvisingState) -> AdvisingState:
     query = state["query"]
     raw = comp.retriever.retrieve_raw(query.query_text, top_k=settings.retrieval_top_k)
+    # Gate on the typo-tolerant embedding-retrieval scores; the cross-encoder
+    # reranker only re-orders (it scores misspelled queries very low, so gating
+    # on its scores would wrongly refuse answerable questions).
+    good_raw = [d for d in raw if getattr(d, "rrf_score", 0.0) >= _MIN_CITATION_SCORE]
     reranked = comp.reranker.rerank_docs(query.query_text, raw, top_n=settings.rerank_top_k)
     citations = [_build_citation(d) for d in reranked]
-    good = [c for c in citations if c.relevance_score >= _MIN_CITATION_SCORE]
-    return {"citations": citations, "coverage_ok": len(good) >= 2}
+    return {"citations": citations, "coverage_ok": len(good_raw) >= 2}
 
 
 def node_generate(comp: GraphComponents, state: AdvisingState) -> AdvisingState:

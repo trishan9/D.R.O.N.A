@@ -105,7 +105,7 @@ class TestLLMFallback:
     def test_generate_falls_back_to_qwen_on_primary_failure(self) -> None:
         client, mock = self._client_with(["phi3.5:latest", "qwen2.5:3b"])
 
-        def chat(model, messages, options):
+        def chat(model, messages, options, keep_alive=None):
             if model == "phi3.5:x":
                 raise RuntimeError("primary down")
             return SimpleNamespace(

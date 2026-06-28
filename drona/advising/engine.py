@@ -77,23 +77,17 @@ class AdvisingEngine:
             top_k=settings.retrieval_top_k,
         )
 
-        # Stage 2: Rerank
-        reranked_docs = self._reranker.rerank_docs(
-            query.query_text,
-            raw_docs,
-            top_n=settings.rerank_top_k,
-        )
-
-        # Convert docs to citations for the rest of the pipeline
-        from drona.advising.retriever import _build_citation
-        citations: list[RetrievalCitation] = [_build_citation(d) for d in reranked_docs]
-
-        # Coverage check: refuse if no meaningful retrieval
-        good_citations = [c for c in citations if c.relevance_score >= _MIN_CITATION_SCORE]
-        if len(good_citations) < 2:
+        # Coverage gate on the EMBEDDING-retrieval scores (RRF), which are robust
+        # to typos/misspellings. The cross-encoder reranker below only RE-ORDERS;
+        # it must not gate, because cross-encoders score misspelled queries very
+        # low and would otherwise wrongly refuse a perfectly answerable question.
+        good_raw = [
+            d for d in raw_docs if getattr(d, "rrf_score", 0.0) >= _MIN_CITATION_SCORE
+        ]
+        if len(good_raw) < 2:
             elapsed_ms = int((time.monotonic() - t_total) * 1000)
             logger.warning(
-                f"Insufficient citation coverage ({len(good_citations)} docs) "
+                f"Insufficient retrieval coverage ({len(good_raw)} docs) "
                 f"for query [{query.query_id}]"
             )
             return self._build_refusal(
@@ -105,6 +99,15 @@ class AdvisingEngine:
                 ),
                 generation_time_ms=elapsed_ms,
             )
+
+        # Stage 2: Rerank (re-orders the retrieved docs; does not gate)
+        reranked_docs = self._reranker.rerank_docs(
+            query.query_text,
+            raw_docs,
+            top_n=settings.rerank_top_k,
+        )
+        from drona.advising.retriever import _build_citation
+        citations: list[RetrievalCitation] = [_build_citation(d) for d in reranked_docs]
 
         # Stage 3: Bias detection
         bias_flags: list[BiasFlag] = self._detector.detect(

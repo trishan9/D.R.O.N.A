@@ -4,9 +4,13 @@
 BSc Computing individual project — Softwarica College of IT & E-Commerce / Coventry University  
 Author: Trisan Wagle
 
-> **Start here if you are Trisan:** [`docs/STUDENT_RUNBOOK.md`](docs/STUDENT_RUNBOOK.md) —
-> complete step-by-step guide: what data to collect, where to put files, which scripts
-> to run in order, local vs Colab vs Ubuntu, time estimates, and what's left for you.
+> **▶ START HERE:** [`docs/RUN_EVERYTHING.md`](docs/RUN_EVERYTHING.md) — the single
+> complete guide from a fresh machine to a fully working system: data → embeddings →
+> the LLM (local **or** cloud Ollama, with a recommendation) → the GPU models on
+> Colab/Kaggle → web app → simulation, with every command and a troubleshooting table.
+>
+> Also: [`docs/STUDENT_RUNBOOK.md`](docs/STUDENT_RUNBOOK.md) (data-collection runbook)
+> and [`docs/COLAB_TRAINING_GUIDE.md`](docs/COLAB_TRAINING_GUIDE.md) (GPU training deep-dive).
 
 **Build status:** Phases 0–8 complete · `pytest` 431 pass · software ready · your data +
 Colab training runs + demo recording remain.
@@ -192,6 +196,7 @@ pytest tests/test_ws7_phase7_eval.py -v  # evaluation harness only
 
 | Doc | What it covers |
 |---|---|
+| **[`docs/RUN_EVERYTHING.md`](docs/RUN_EVERYTHING.md)** | **▶ THE complete guide** — fresh machine → working system; both LLM options; every step |
 | **[`docs/STUDENT_RUNBOOK.md`](docs/STUDENT_RUNBOOK.md)** | **Your operational guide** — data, scripts, Colab, ROS2, timeline |
 | **[`docs/COLAB_TRAINING_GUIDE.md`](docs/COLAB_TRAINING_GUIDE.md)** | **Train the GPU models on Colab/Kaggle**, bring checkpoints back, finalize + simulate |
 | [`docs/architecture.md`](docs/architecture.md) | System design + **mermaid** diagrams |

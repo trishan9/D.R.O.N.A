@@ -24,7 +24,7 @@ import { CONTRIBUTIONS } from "@/lib/analytics";
 
 const ACTIONS = [
   { href: "/advisor", icon: Bot, title: "Ask the Advisor", desc: "Bias-aware, evidence-backed pathways from a local LLM", accent: "from-brand/15 to-brand/5 text-brand" },
-  { href: "/robot", icon: CircuitBoard, title: "Robot Control", desc: "Drive the 6-DOF gesture robot — sim or live ROS2", accent: "from-tier-international/15 to-tier-international/5 text-tier-international" },
+  { href: "/robot", icon: CircuitBoard, title: "Robot Control", desc: "Drive the 6-DOF gesture robot - sim or live ROS2", accent: "from-tier-international/15 to-tier-international/5 text-tier-international" },
   { href: "/pathways", icon: Route, title: "Explore Pathways", desc: "Compare options with citation drill-down", accent: "from-tier-regional/15 to-tier-regional/5 text-tier-regional" },
   { href: "/analytics", icon: BarChart3, title: "Analytics", desc: "Retrieval, bias, and contribution metrics", accent: "from-tier-synthetic/15 to-tier-synthetic/5 text-tier-synthetic" },
 ];
@@ -54,7 +54,7 @@ export default function DashboardPage() {
             </h1>
             <p className="text-sm text-muted-foreground text-balance">
               Your embodied academic advisor for the Nepali computing context. Ask a question and get multiple
-              evidence-backed pathways — with the cognitive biases hiding in the question surfaced, not exploited.
+              evidence-backed pathways - with the cognitive biases hiding in the question surfaced, not exploited.
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
               <Button asChild>
@@ -81,7 +81,7 @@ export default function DashboardPage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Questions asked" value={exploration.queriesAsked} icon={MessageSquare} accent="brand" />
         <StatCard label="Badges earned" value={`${badges}/6`} icon={Trophy} accent="regional" />
-        <StatCard label="Last diversity" value={diversity ?? "—"} hint={diversity ? "0–100, higher is broader" : "ask a question"} icon={Gauge} accent="international" />
+        <StatCard label="Last diversity" value={diversity ?? "-"} hint={diversity ? "0–100, higher is broader" : "ask a question"} icon={Gauge} accent="international" />
         <StatCard label="Pathways available" value={response?.pathways.length ?? 0} icon={Route} accent="synthetic" />
       </div>
 
@@ -131,7 +131,7 @@ export default function DashboardPage() {
                   <MessageSquare className="h-6 w-6" />
                 </span>
                 <p className="text-sm text-muted-foreground">
-                  No questions yet — ask the advisor your first one to see it here.
+                  No questions yet - ask the advisor your first one to see it here.
                 </p>
                 <Button asChild size="sm">
                   <Link href="/advisor"><Bot className="h-4 w-4" /> Open the Advisor</Link>

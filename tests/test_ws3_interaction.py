@@ -1,5 +1,5 @@
 """
-WS3 smoke tests — interaction policy layer.
+WS3 smoke tests - interaction policy layer.
 
 Tests run without MuJoCo, LeRobot, or any robotics hardware.
 The StubEnv and KeyframePolicy paths are exercised; MuJoCo/ACT paths

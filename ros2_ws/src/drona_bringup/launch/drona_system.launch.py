@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. full-system launch — the single entry point for an end-to-end demo.
+D.R.O.N.A. full-system launch - the single entry point for an end-to-end demo.
 
 Brings up the complete embodied advising stack:
     - robot_state_publisher (humanoid URDF)  → TF for RViz / sim
@@ -116,7 +116,7 @@ def generate_launch_description() -> LaunchDescription:
         output="screen",
     )
 
-    # rosbridge websocket — bridges the ROS2 graph to the browser (Robot Control
+    # rosbridge websocket - bridges the ROS2 graph to the browser (Robot Control
     # page). Requires `sudo apt install ros-humble-rosbridge-suite`.
     rosbridge_node = Node(
         package="rosbridge_server",

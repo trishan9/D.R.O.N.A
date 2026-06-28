@@ -3,7 +3,7 @@ PostgreSQL + pgvector ingestion path for D.R.O.N.A.
 
 This is the production-grade parallel to the local ChromaDB ingestor
 (drona.data_pipeline.ingest). It embeds the same dual-embedding scheme
-(contribution C1) — bge for curriculum, JobBERT-v3 for career — and upserts
+(contribution C1) - bge for curriculum, JobBERT-v3 for career - and upserts
 into the pgvector tables defined in drona.db.models (migration 0001).
 
 All heavy imports (SQLAlchemy, pgvector, sentence-transformers) are LAZY so the

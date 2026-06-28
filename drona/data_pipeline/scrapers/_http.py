@@ -6,7 +6,7 @@ Key properties:
 - Respects robots.txt (verified manually; this client does NOT re-check at runtime)
 - Custom User-Agent that identifies the research bot and provides a contact address
 - Exponential backoff on transient errors (429 / 5xx)
-- All network calls go through `get()` or `get_xml()` — never call httpx directly
+- All network calls go through `get()` or `get_xml()` - never call httpx directly
 """
 
 from __future__ import annotations
@@ -103,5 +103,5 @@ class PoliteScraper:
         self.close()
 
 
-# Module-level default instance — importable directly
+# Module-level default instance - importable directly
 default_scraper = PoliteScraper()

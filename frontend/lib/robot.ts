@@ -1,5 +1,5 @@
 /**
- * Robot kinematics + gesture model — a faithful TypeScript port of
+ * Robot kinematics + gesture model - a faithful TypeScript port of
  * `drona/interaction/demonstration.py`.
  *
  * The joint convention, limits, rest pose, and keyframe trajectories below are
@@ -8,12 +8,12 @@
  * 6-DOF arm. When the page is connected to a live ROS2 graph (rosbridge), the
  * same joint vector arrives over /drona/joint_states and drives the same render.
  *
- *   j0 — base rotation (yaw)        ±π
- *   j1 — shoulder pitch             ±π/2
- *   j2 — elbow pitch                ±π
- *   j3 — wrist pitch                ±π/2
- *   j4 — wrist roll                 ±π
- *   j5 — gripper (0 open .. 1 closed)
+ *   j0 - base rotation (yaw)        ±π
+ *   j1 - shoulder pitch             ±π/2
+ *   j2 - elbow pitch                ±π
+ *   j3 - wrist pitch                ±π/2
+ *   j4 - wrist roll                 ±π
+ *   j5 - gripper (0 open .. 1 closed)
  */
 
 export const DOF = 6;
@@ -32,7 +32,7 @@ export const JOINT_SHORT = ["Base yaw", "Shoulder", "Elbow", "Wrist pitch", "Wri
 export const JOINT_LIMITS_LOW = [-Math.PI, -Math.PI / 2, -Math.PI, -Math.PI / 2, -Math.PI, 0.0];
 export const JOINT_LIMITS_HIGH = [Math.PI, Math.PI / 2, Math.PI, Math.PI / 2, Math.PI, 1.0];
 
-/** Rest pose — arm hanging naturally at side. */
+/** Rest pose - arm hanging naturally at side. */
 export const REST_POSE = [0.0, -0.3, 0.5, -0.2, 0.0, 0.0];
 
 export type GestureName = "greet" | "nod" | "point" | "idle" | "listen" | "farewell";
@@ -43,17 +43,17 @@ export const GESTURE_META: Record<
   GestureName,
   { label: string; icon: string; blurb: string }
 > = {
-  greet: { label: "Greet", icon: "👋", blurb: "Raise and wave — opens a session" },
+  greet: { label: "Greet", icon: "👋", blurb: "Raise and wave - opens a session" },
   nod: { label: "Nod", icon: "🙂", blurb: "Acknowledge / affirm while listening" },
   point: { label: "Point", icon: "👉", blurb: "Direct attention to a pathway" },
   listen: { label: "Listen", icon: "👂", blurb: "Open, attentive posture" },
-  farewell: { label: "Farewell", icon: "🫡", blurb: "Wave goodbye — closes a session" },
+  farewell: { label: "Farewell", icon: "🫡", blurb: "Wave goodbye - closes a session" },
   idle: { label: "Idle", icon: "⏸️", blurb: "Neutral rest pose" },
 };
 
 type Keyframe = [number[], number]; // [jointAngles(6), holdSeconds]
 
-/** Pre-programmed gesture keyframes — identical to GESTURE_KEYFRAMES in Python. */
+/** Pre-programmed gesture keyframes - identical to GESTURE_KEYFRAMES in Python. */
 export const GESTURE_KEYFRAMES: Record<GestureName, Keyframe[]> = {
   greet: [
     [[0.0, -0.3, 0.5, -0.2, 0.0, 0.0], 0.3],
@@ -102,7 +102,7 @@ export interface TrajFrame {
   t: number;
 }
 
-/** Linear interpolation between keyframes — mirrors interpolate_keyframes(). */
+/** Linear interpolation between keyframes - mirrors interpolate_keyframes(). */
 export function interpolateKeyframes(keyframes: Keyframe[], dt = 0.05): TrajFrame[] {
   if (keyframes.length === 0) return [];
   const frames: TrajFrame[] = [];
@@ -184,7 +184,7 @@ export function forwardKinematics(joints: number[]): ArmPose {
   };
 }
 
-/** Mean absolute jerk of a trajectory (rad/s³) — the C3 smoothness proxy. */
+/** Mean absolute jerk of a trajectory (rad/s³) - the C3 smoothness proxy. */
 export function meanAbsJerk(traj: TrajFrame[], dt = 0.05): number {
   if (traj.length < 4) return 0;
   let total = 0;

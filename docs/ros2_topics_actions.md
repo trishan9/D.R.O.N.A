@@ -1,4 +1,4 @@
-# D.R.O.N.A. ROS2 Interface Reference — Topics, Services, Actions
+# D.R.O.N.A. ROS2 Interface Reference - Topics, Services, Actions
 
 This is the authoritative interface contract for the D.R.O.N.A. ROS2 graph
 (`ros2_ws/`). Custom interfaces live in **`drona_msgs`** and mirror the Pydantic

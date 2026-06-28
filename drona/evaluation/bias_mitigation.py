@@ -4,7 +4,7 @@ Custom bias-MITIGATION metrics for D.R.O.N.A. (proposal §Cognitive Biases).
 These are distinct from the bias *detection* P/R/F1 in ``metrics.py``: detection
 measures "did we spot the bias in the question?", whereas these measure "did the
 RESPONSE actually counter it?". They operationalise the proposal's claim that
-D.R.O.N.A. mitigates — not just flags — cognitive bias.
+D.R.O.N.A. mitigates - not just flags - cognitive bias.
 
 All functions are pure and operate on ``AdvisingResponse`` objects (or anything
 duck-typed with the same fields), so they work identically on live responses, on
@@ -26,7 +26,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Iterable
 
 # Hedging language signals calibrated uncertainty rather than false confidence.
-# Grounded in Tversky & Kahneman 1974 (overconfidence) — the response should not
+# Grounded in Tversky & Kahneman 1974 (overconfidence) - the response should not
 # assert single-answer certainty.
 _HEDGE_TERMS = (
     "may", "might", "could", "consider", "depends", "one option", "alternatively",

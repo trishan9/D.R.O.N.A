@@ -1,25 +1,25 @@
 """
-Cognitive bias detector for D.R.O.N.A. — Research Contribution C2.
+Cognitive bias detector for D.R.O.N.A. - Research Contribution C2.
 
 Operationalises six cognitive biases identified in academic advising contexts:
 
-  1. availability_heuristic — student over-weights a salient recent example
+  1. availability_heuristic - student over-weights a salient recent example
      ("my friend got a job at X", "I heard AI pays well")
-  2. anchoring — fixation on a specific number, company, or role to the
+  2. anchoring - fixation on a specific number, company, or role to the
      exclusion of alternatives ("only Google", "exactly Rs 80,000")
-  3. confirmation — seeks validation of a pre-formed belief rather than
+  3. confirmation - seeks validation of a pre-formed belief rather than
      open exploration ("isn't Python the best?", "AI is the future right?")
-  4. dunning_kruger — over- or under-estimates competence relative to
+  4. dunning_kruger - over- or under-estimates competence relative to
      observable evidence (self-rated 5/5 on a skill they have one module in,
      or blanket self-deprecation)
-  5. loss_aversion — frames the query around avoiding negatives rather than
+  5. loss_aversion - frames the query around avoiding negatives rather than
      pursuing positives ("I'm scared of being unemployed")
-  6. consistency — commits to a path because of prior public declarations or
+  6. consistency - commits to a path because of prior public declarations or
      sunk cost ("I've told everyone I'll be a data scientist")
 
 Design:
   Pattern matching is intentionally conservative (high precision, lower recall).
-  A false positive — telling a student their question shows bias when it doesn't —
+  A false positive - telling a student their question shows bias when it doesn't -
   is more harmful than a false negative. We flag only when multiple signals align.
 
   The module is query-only. No training. No ML model. This is deliberate:

@@ -1,5 +1,5 @@
 """
-Hybrid retriever for D.R.O.N.A. — Research Contribution C1.
+Hybrid retriever for D.R.O.N.A. - Research Contribution C1.
 
 Architecture:
   1. Dense retrieval from two ChromaDB collections (curriculum + career),
@@ -107,7 +107,7 @@ class Retriever:
         self._bm25_docs: list[_Doc] = []
 
         logger.info(
-            f"Retriever ready — "
+            f"Retriever ready - "
             f"curriculum={self._coll_curriculum.count()} docs, "
             f"career={self._coll_career.count()} docs"
         )

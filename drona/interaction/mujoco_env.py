@@ -4,12 +4,12 @@ MuJoCo simulation environment for D.R.O.N.A. robot gestures.
 Phase 1 strategy:
   We provide two execution backends for the same interface:
 
-  1. StubEnv (always available) — tracks joint state as a pure Python/NumPy
+  1. StubEnv (always available) - tracks joint state as a pure Python/NumPy
      state machine. No physics. Useful for unit tests, CI, and machines without
      MuJoCo. The ACT policy trains against recorded trajectories, so physics
      fidelity during inference is less important than interface consistency.
 
-  2. MuJoCoEnv (optional) — wraps a minimal MuJoCo XML model of a 6-DOF arm.
+  2. MuJoCoEnv (optional) - wraps a minimal MuJoCo XML model of a 6-DOF arm.
      Loaded only when `mujoco` is importable. For WS3 evaluation, this is the
      target environment. The XML model is embedded as a string to avoid asset
      file dependencies.
@@ -44,7 +44,7 @@ from drona.interaction.demonstration import (
 #
 # Minimal 6-DOF arm for gesture simulation. Masses and inertia are approximate
 # for a SO-100-class manipulator (~500g per link). The goal is behavioural
-# fidelity for gesture timing — not kinematic accuracy.
+# fidelity for gesture timing - not kinematic accuracy.
 
 _MUJOCO_XML = """
 <mujoco model="drona_arm">
@@ -132,7 +132,7 @@ class BaseEnv(ABC):
 # ── Stub backend (always available) ───────────────────────────────────────────
 
 class StubEnv(BaseEnv):
-    """Pure NumPy environment — no physics, no external dependencies.
+    """Pure NumPy environment - no physics, no external dependencies.
 
     Joint state evolves via first-order exponential tracking:
         q(t+dt) = q(t) + gain * (action - q(t))
@@ -181,7 +181,7 @@ class StubEnv(BaseEnv):
 class MuJoCoEnv(BaseEnv):
     """MuJoCo-backed environment. Loaded lazily; falls back to StubEnv.
 
-    Uses position actuators (PD control) which match what ACT outputs —
+    Uses position actuators (PD control) which match what ACT outputs -
     joint position targets, not torques.
     """
 
@@ -252,9 +252,9 @@ def make_env(prefer_mujoco: bool = True, dt: float = 0.05) -> BaseEnv:
             logger.info("Using MuJoCo physics backend")
             return env
         except ImportError:
-            logger.info("MuJoCo not available — using StubEnv (no physics)")
+            logger.info("MuJoCo not available - using StubEnv (no physics)")
         except Exception as exc:
-            logger.warning(f"MuJoCo init failed ({exc}) — using StubEnv")
+            logger.warning(f"MuJoCo init failed ({exc}) - using StubEnv")
     return StubEnv(dt=dt)
 
 

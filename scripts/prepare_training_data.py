@@ -59,7 +59,7 @@ def main(
         mpd._write_curriculum()
         mpd._write_jobs()
     else:
-        typer.secho("\n[1/6] placeholder data — skipped", fg=typer.colors.YELLOW)
+        typer.secho("\n[1/6] placeholder data - skipped", fg=typer.colors.YELLOW)
 
     # ── 2. O*NET ─────────────────────────────────────────────────────────────
     typer.secho("\n[2/6] O*NET 30.3 career pathways", bold=True)

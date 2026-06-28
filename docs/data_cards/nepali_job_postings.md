@@ -1,10 +1,10 @@
-# Data Card — Nepali Job Postings (manual collection)
+# Data Card - Nepali Job Postings (manual collection)
 
 - **Source:** Nepali job portals (MeroJob, JobsNepal, Internsathi, Kumari Jobs)
 - **License / ToS:** **Scraping prohibited** (MeroJob ToS §3.E and equivalents).
   Data is **manually collected** by the student under fair, individual review.
 - **Tier:** `nepal`
-- **Collection method:** **MANUAL ONLY** — curated into a JSON template
+- **Collection method:** **MANUAL ONLY** - curated into a JSON template
   (`data/manual_collection/`) and loaded via
   `drona/data_pipeline/scrapers/manual_loader.py`
 - **Target volume:** ~150–200 postings
@@ -23,9 +23,9 @@ market (C4) and validates the bias-mitigation framing.
 source, tier=nepal, is_synthetic=False`
 
 ## Collection ethics (critical)
-- **No automated scraping** of any portal — ToS-compliant, see `../data_ethics.md` §3.
+- **No automated scraping** of any portal - ToS-compliant, see `../data_ethics.md` §3.
 - Per-source scraper modules are **disabled stubs** documenting the prohibition.
-- No PII about applicants is collected — only public posting content.
+- No PII about applicants is collected - only public posting content.
 
 ## Limitations
 - Manual collection → modest volume and possible selection bias; documented as a

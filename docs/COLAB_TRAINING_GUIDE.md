@@ -1,4 +1,4 @@
-# D.R.O.N.A. — Colab / Kaggle Training & Finalization Guide
+# D.R.O.N.A. - Colab / Kaggle Training & Finalization Guide
 
 Every step to train the GPU-only models on **Google Colab or Kaggle**, bring the
 checkpoints back, and run the **full system + simulation** on your PC.
@@ -24,7 +24,7 @@ The notebooks need two things: the **code** (the `drona` package) and the
 **training data**. The data regenerates itself from `scripts/prepare_training_data.py`,
 so you only have to deliver the code. Pick **one** of these:
 
-### Option A — GitHub (recommended)
+### Option A - GitHub (recommended)
 1. Create a repo (private is fine) and push:
    ```bash
    git remote add origin https://github.com/<your-username>/D.R.O.N.A.git
@@ -37,7 +37,7 @@ so you only have to deliver the code. Pick **one** of these:
    Private repo? Use a fine-grained **read** token:
    `https://<TOKEN>@github.com/<your-username>/D.R.O.N.A.git`
 
-### Option B — Zip upload (no GitHub)
+### Option B - Zip upload (no GitHub)
 1. On your PC, zip the project (exclude big/local folders):
    ```bash
    cd ..
@@ -47,7 +47,7 @@ so you only have to deliver the code. Pick **one** of these:
 2. **Colab:** Files panel (left) → upload `drona.zip` → add a cell before setup:
    `!unzip -q drona.zip`. **Kaggle:** create a **Dataset** from `drona.zip`
    (it mounts under `/kaggle/input/drona/`).
-3. Leave `REPO_URL` unchanged — the setup cell auto-finds the unzipped/attached repo.
+3. Leave `REPO_URL` unchanged - the setup cell auto-finds the unzipped/attached repo.
 
 ### Real data vs placeholders
 The repo ships with **placeholder** curriculum + jobs so everything runs today.
@@ -61,13 +61,13 @@ gitignored, so for GitHub either force-add your curriculum
 
 ---
 
-## 1. Notebook 09 — LoRA fine-tune of Phi-3.5 (advising brain, C2/C3)
+## 1. Notebook 09 - LoRA fine-tune of Phi-3.5 (advising brain, C2/C3)
 
 **GPU required.** Colab: `Runtime ▸ Change runtime type ▸ T4 GPU`.
 Kaggle: `Settings ▸ Accelerator ▸ GPU T4 x2`.
 
 1. Open `notebooks/09_lora_finetune_phi35.ipynb` in Colab/Kaggle.
-2. **Cell 1 (Setup):** edit `REPO_URL` (Option A) or rely on your upload (Option B). Run it — it prints the GPU and `repo:` path.
+2. **Cell 1 (Setup):** edit `REPO_URL` (Option A) or rely on your upload (Option B). Run it - it prints the GPU and `repo:` path.
 3. **Cell 2:** installs transformers/peft/trl/accelerate/datasets/bitsandbytes.
 4. **Cell 3:** runs `prepare_training_data.py` → builds `data/finetune/sft_train.jsonl` (≈450) + `sft_val.jsonl` (≈50) and prints a sample.
 5. **Cells 4–6:** load Phi-3.5 in 4-bit and **train** (`trainer.train()`). ~30–60 min on T4.
@@ -83,7 +83,7 @@ unzip drona_phi35_lora_adapter.zip -d models/phi35-lora-advising
 
 ---
 
-## 2. Notebook 07 — ACT gesture policy (C3)
+## 2. Notebook 07 - ACT gesture policy (C3)
 
 **GPU required.**
 1. Open `notebooks/07_lerobot_act_training.ipynb`.
@@ -99,11 +99,11 @@ unzip drona_phi35_lora_adapter.zip -d models/phi35-lora-advising
 unzip drona_act_checkpoints.zip -d data/checkpoints/act
 ```
 The `PolicyRouter` auto-loads a per-gesture checkpoint from `data/checkpoints/<gesture>/`
-when present — see notebook 11 / `STUDENT_RUNBOOK.md` for the exact layout if you
+when present - see notebook 11 / `STUDENT_RUNBOOK.md` for the exact layout if you
 split per gesture.
 
-## 3. Notebook 08 — Diffusion policy ablation (C3)
-Same flow as nb07 (you can run it in the **same session** right after — the dataset
+## 3. Notebook 08 - Diffusion policy ablation (C3)
+Same flow as nb07 (you can run it in the **same session** right after - the dataset
 is reused). Output → `drona_diffusion_checkpoints.zip` → `data/checkpoints/diffusion`.
 Cell 5 prints the three-way **keyframe vs ACT vs Diffusion** comparison for the thesis.
 
@@ -117,7 +117,7 @@ Retrieval (C1) works without any LLM, but the spoken advice (C2) needs a local m
    ```bash
    ollama serve            # leave running (or it runs as a service)
    ```
-2. **Easiest path — pull the model DRONA already defaults to** (no `.env` edit needed):
+2. **Easiest path - pull the model DRONA already defaults to** (no `.env` edit needed):
    ```bash
    ollama pull phi3.5:3.8b-mini-instruct-q4_K_M    # = the default OLLAMA_MODEL
    ollama pull qwen2.5:3b-instruct-q4_K_M          # the multilingual fallback (optional)
@@ -137,10 +137,10 @@ Retrieval (C1) works without any LLM, but the spoken advice (C2) needs a local m
 
 ---
 
-## 5. Finalize on your PC — ingest, advise, web, simulate
+## 5. Finalize on your PC - ingest, advise, web, simulate
 
 > Windows note: prefix CLI commands with `PYTHONUTF8=1` (Git Bash) or
-> `$env:PYTHONUTF8=1` (PowerShell) — Python 3.14 + cp1252 consoles crash on the
+> `$env:PYTHONUTF8=1` (PowerShell) - Python 3.14 + cp1252 consoles crash on the
 > box-drawing characters these scripts print.
 
 ### 5a. Build the knowledge base (real embeddings)
@@ -176,7 +176,7 @@ PYTHONUTF8=1 python scripts/run_simulation.py --no-viz --gestures greet,nod,poin
 PYTHONUTF8=1 python scripts/run_simulation.py \
     --query "What careers suit a student who enjoys Python and data in Nepal?"
 
-# CPU behavior-cloning baseline (no GPU/Colab) — trains + evaluates locally:
+# CPU behavior-cloning baseline (no GPU/Colab) - trains + evaluates locally:
 python scripts/collect_demonstrations.py --episodes 25
 python scripts/train_bc_gesture.py
 ```
@@ -227,7 +227,7 @@ mirrors the real joint stream.
 |---|---|
 | `No GPU` in cell 1 | Switch the runtime/accelerator to a T4 GPU and re-run. |
 | `Repo not found` assert | Set `REPO_URL`, or upload the zip / attach the Kaggle dataset, then re-run cell 1. |
-| `bitsandbytes` / CUDA error (LoRA) | You're on CPU — select a GPU runtime. bitsandbytes is GPU-only. |
+| `bitsandbytes` / CUDA error (LoRA) | You're on CPU - select a GPU runtime. bitsandbytes is GPU-only. |
 | LeRobot CLI flag errors | LeRobot's API drifts; `pip install -U git+...lerobot.git` and check `python -m lerobot.scripts.train --help`. |
 | Colab session disconnects mid-train | Lower `--steps` / epochs, or save to Google Drive (`drive.mount`) and resume. |
 | `UnicodeEncodeError` on Windows CLI | Prefix with `PYTHONUTF8=1` (Git Bash) / `$env:PYTHONUTF8=1` (PowerShell). |

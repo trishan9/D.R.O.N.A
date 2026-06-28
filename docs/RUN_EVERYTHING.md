@@ -1,4 +1,4 @@
-# D.R.O.N.A. — RUN EVERYTHING (the one complete guide)
+# D.R.O.N.A. - RUN EVERYTHING (the one complete guide)
 
 This is the **single, self-contained guide** that takes the project from a fresh
 machine to a fully working system: data → knowledge base → the LLM → the trained
@@ -17,7 +17,7 @@ is copy-paste ready, with **Git Bash** and **PowerShell** variants where they di
 - [1. One-time local setup](#1-one-time-local-setup)
 - [2. Prepare the data](#2-prepare-the-data)
 - [3. Build the knowledge base (embeddings)](#3-build-the-knowledge-base)
-- [4. The LLM — TWO OPTIONS (pick one)](#4-the-llm--two-options)
+- [4. The LLM - TWO OPTIONS (pick one)](#4-the-llm--two-options)
 - [5. Train the GPU models on Colab/Kaggle](#5-train-the-gpu-models-on-colabkaggle)
 - [6. Train the CPU gesture model (optional, already done)](#6-train-the-cpu-gesture-model)
 - [7. Run the whole system (API + web + sim)](#7-run-the-whole-system)
@@ -40,18 +40,18 @@ is copy-paste ready, with **Git Bash** and **PowerShell** variants where they di
 | The advising LLM | **Local Ollama** *or* **cloud Ollama** | see below |
 | Gazebo / RViz robot sim | **WSL2 (Ubuntu)** | one-time install |
 
-### The LLM — will it run on your device?
+### The LLM - will it run on your device?
 
 **Yes.** The advisor uses a **3-billion-parameter, 4-bit quantized** model
 (`phi3.5:3.8b-mini-instruct-q4_K_M`, ~2.2 GB). That runs on **CPU with ~4 GB RAM**,
 and your GTX 1650 (4 GB) offloads some layers to speed it up. It is **slower** than
 a data-center GPU (expect a short pause per answer), but it works and it is **free,
-private, and offline** — which is the entire point of your **C4 contribution
+private, and offline** - which is the entire point of your **C4 contribution
 (Nepal-local, open-source, no paid APIs)**.
 
 So you have two options:
 
-| | **Option A — Local Ollama** ⭐ recommended | **Option B — Cloud-GPU Ollama** |
+| | **Option A - Local Ollama** ⭐ recommended | **Option B - Cloud-GPU Ollama** |
 |---|---|---|
 | Runs on | your PC (CPU + GTX 1650) | a free Colab/Kaggle GPU you expose to your PC |
 | Speed | slower (seconds per answer) | fast |
@@ -62,16 +62,16 @@ So you have two options:
 **Recommendation: use Option A (local Ollama).** It is genuinely fine on your
 hardware and it *is* the contribution. Keep **Option B** in your back pocket only if
 you want snappy responses while screen-recording the demo. Both use the same
-open-source Ollama — **never** a paid API (that would break C4; the repo enforces it).
+open-source Ollama - **never** a paid API (that would break C4; the repo enforces it).
 
 ---
 
 ## 1. One-time local setup
 
 ### 1.1 Prerequisites (install once)
-- **Python 3.10+** (you have 3.14) — <https://www.python.org/downloads/>
-- **Node.js 18+** (you have v25) — <https://nodejs.org/>
-- **Git** — <https://git-scm.com/>
+- **Python 3.10+** (you have 3.14) - <https://www.python.org/downloads/>
+- **Node.js 18+** (you have v25) - <https://nodejs.org/>
+- **Git** - <https://git-scm.com/>
 
 ### 1.2 Get the project + Python dependencies
 ```bash
@@ -143,11 +143,11 @@ Expected: `curriculum collection: 50 documents`, `career collection: 79 document
 
 ---
 
-## 4. The LLM — TWO OPTIONS
+## 4. The LLM - TWO OPTIONS
 
 Pick **A** (recommended) or **B**. You only need one.
 
-### Option A ⭐ — Local Ollama (recommended)
+### Option A ⭐ - Local Ollama (recommended)
 
 **A1. Install Ollama**
 - Windows: download + run the installer from <https://ollama.com/download>.
@@ -174,11 +174,11 @@ If it replies, you're done. (Leave Ollama running; on Windows it stays in the tr
 > an even smaller model (`ollama pull llama3.2:1b` then set `OLLAMA_MODEL=llama3.2:1b`),
 > or use **Option B**.
 
-➡️ **Skip Option B — go to [Part 5](#5-train-the-gpu-models-on-colabkaggle).**
+➡️ **Skip Option B - go to [Part 5](#5-train-the-gpu-models-on-colabkaggle).**
 
 ---
 
-### Option B — Cloud-GPU Ollama (only if local is too slow)
+### Option B - Cloud-GPU Ollama (only if local is too slow)
 
 You run Ollama on a **free Kaggle/Colab GPU** and expose it to your PC through a
 secure tunnel. Your PC's API then talks to that URL. Still open-source Ollama, no
@@ -188,7 +188,7 @@ you're actively using/recording, not 24/7.
 **B1. In a Kaggle or Colab notebook** (GPU runtime on), run these cells:
 
 ```python
-# Cell 1 — install Ollama and start the server bound to all interfaces
+# Cell 1 - install Ollama and start the server bound to all interfaces
 import os, subprocess, time
 subprocess.run("curl -fsSL https://ollama.com/install.sh | sh", shell=True, check=True)
 os.environ["OLLAMA_HOST"] = "0.0.0.0:11434"          # so the tunnel can reach it
@@ -199,11 +199,11 @@ print("ollama ready")
 ```
 
 ```python
-# Cell 2 — open a public tunnel to port 11434 (cloudflared, no signup)
+# Cell 2 - open a public tunnel to port 11434 (cloudflared, no signup)
 subprocess.run("wget -q https://github.com/cloudflare/cloudflared/releases/latest/"
                "download/cloudflared-linux-amd64 -O cloudflared && chmod +x cloudflared",
                shell=True, check=True)
-# This prints a https://<random>.trycloudflare.com URL — COPY IT.
+# This prints a https://<random>.trycloudflare.com URL - COPY IT.
 # It keeps running; leave this cell running while you use DRONA.
 get_ipython().system_raw("./cloudflared tunnel --url http://localhost:11434 "
                          "> cloudflared.log 2>&1 &")
@@ -217,7 +217,7 @@ Copy the printed `https://<something>.trycloudflare.com` URL.
 OLLAMA_HOST=https://<something>.trycloudflare.com
 OLLAMA_MODEL=phi3.5:3.8b-mini-instruct-q4_K_M
 ```
-That's it — the backend now sends advising requests to the cloud GPU. When the
+That's it - the backend now sends advising requests to the cloud GPU. When the
 cloud session ends, re-run B1–B2 and update the URL (or switch back to Option A).
 
 ---
@@ -228,14 +228,14 @@ Three models need a GPU. The notebooks are ready; you just deliver the code and 
 
 ### 5.1 Get the repo onto Colab/Kaggle (do this once)
 
-**Easiest — GitHub:**
+**Easiest - GitHub:**
 ```bash
 # create an empty repo on github.com first (private is fine), then:
 git push -u origin feat/data-training-bringup
 ```
 You'll set this URL inside each notebook's first cell.
 
-**No GitHub? — zip upload:**
+**No GitHub? - zip upload:**
 ```bash
 cd ..
 zip -r drona.zip D.R.O.N.A -x "*/node_modules/*" "*/.git/*" "*/.next/*" \
@@ -244,7 +244,7 @@ zip -r drona.zip D.R.O.N.A -x "*/node_modules/*" "*/.git/*" "*/.next/*" \
 Colab: upload `drona.zip` (Files panel) and add a first cell `!unzip -q drona.zip`.
 Kaggle: make a **Dataset** from `drona.zip` (mounts under `/kaggle/input/`).
 
-### 5.2 Notebook 09 — LoRA fine-tune of Phi-3.5 (the advising brain)
+### 5.2 Notebook 09 - LoRA fine-tune of Phi-3.5 (the advising brain)
 1. Set the GPU: Colab `Runtime ▸ Change runtime type ▸ T4 GPU`; Kaggle `Settings ▸ Accelerator ▸ GPU T4 x2`.
 2. Open `notebooks/09_lora_finetune_phi35.ipynb`.
 3. **Cell 1:** set `REPO_URL = "https://github.com/<you>/D.R.O.N.A.git"` (or rely on your upload). Run it.
@@ -254,13 +254,13 @@ Kaggle: make a **Dataset** from `drona.zip` (mounts under `/kaggle/input/`).
    unzip drona_phi35_lora_adapter.zip -d models/phi35-lora-advising
    ```
 
-### 5.3 Notebook 07 — ACT gesture policy
+### 5.3 Notebook 07 - ACT gesture policy
 Same pattern. Output → `drona_act_checkpoints.zip` →
 ```bash
 unzip drona_act_checkpoints.zip -d data/checkpoints/act
 ```
 
-### 5.4 Notebook 08 — Diffusion policy (ablation)
+### 5.4 Notebook 08 - Diffusion policy (ablation)
 You can run it in the same session right after 07. Output → `drona_diffusion_checkpoints.zip` →
 ```bash
 unzip drona_diffusion_checkpoints.zip -d data/checkpoints/diffusion
@@ -289,12 +289,12 @@ Checkpoints land in `data/checkpoints/bc/`.
 
 Open **three terminals** (or run the API + web, then the sim).
 
-**Terminal 1 — advising API** (needs the LLM from Part 4 running):
+**Terminal 1 - advising API** (needs the LLM from Part 4 running):
 ```bash
 PYTHONUTF8=1 python scripts/run_api.py        # http://localhost:8000  (docs at /docs)
 ```
 
-**Terminal 2 — web app:**
+**Terminal 2 - web app:**
 ```bash
 cd frontend
 npm run dev                                   # http://localhost:3000
@@ -305,7 +305,7 @@ Profile, Achievements, Preferences, About.
 > If the API isn't on port 8000, create `frontend/.env.local` with
 > `NEXT_PUBLIC_DRONA_API_URL=http://localhost:8000`.
 
-**Terminal 3 — embodied simulation** (no ROS2 needed):
+**Terminal 3 - embodied simulation** (no ROS2 needed):
 ```bash
 # gesture playback (uses your trained ACT checkpoints if present, else keyframe):
 PYTHONUTF8=1 python scripts/run_simulation.py --no-viz --gestures greet,nod,point,farewell
@@ -376,10 +376,10 @@ Analytics. Use **Option B** for the LLM if you want snappy responses on camera.
 | Advisor returns a refusal / "could not generate" | The LLM isn't reachable. Option A: is Ollama running + model pulled? Option B: is the tunnel cell still running + `OLLAMA_HOST` correct in `.env`? |
 | Ollama answers very slowly | Use `qwen2.5:3b` as `OLLAMA_MODEL`, close other apps, or use Option B. |
 | Retrieval empty / advisor has no evidence | Run `python scripts/ingest_data.py` (Part 3) first. |
-| `bitsandbytes` / CUDA error in a notebook | You're on CPU — select a **GPU** runtime (Part 5.2 step 1). |
+| `bitsandbytes` / CUDA error in a notebook | You're on CPU - select a **GPU** runtime (Part 5.2 step 1). |
 | Notebook 07/08 LeRobot flag errors | `pip install -U git+https://github.com/huggingface/lerobot.git`; check `python -m lerobot.scripts.train --help`. |
 | Colab/Kaggle session disconnected mid-train | Lower `--steps`/epochs, or save to Google Drive and resume. |
-| `cloudflared` URL stopped working | The cloud session ended — re-run B1–B2 and update `OLLAMA_HOST`. |
+| `cloudflared` URL stopped working | The cloud session ended - re-run B1–B2 and update `OLLAMA_HOST`. |
 | Web app can't reach API | API not running, or set `NEXT_PUBLIC_DRONA_API_URL` in `frontend/.env.local`. |
 | `colcon`/`ros2` not found | That's a WSL2 step (Part 8 / `docs/wsl_setup.md`), not Windows. |
 

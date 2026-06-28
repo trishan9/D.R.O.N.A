@@ -1,4 +1,4 @@
-# Hardware Setup Guide — SO-100 Arm
+# Hardware Setup Guide - SO-100 Arm
 
 This guide covers wiring, calibration, and software configuration for the SO-100 6-DOF robotic arm used in D.R.O.N.A. Phase 2.
 
@@ -27,7 +27,7 @@ U2D2 USB ─── PC USB port
 U2D2 data ─── SO-100 Dynamixel bus (daisy-chained: ID 1→2→3→4→5→6)
 ```
 
-Servo IDs are assigned 1–6 from base to gripper. Factory default baud rate is 57600. The D.R.O.N.A. implementation uses 57600 — do not change it without updating `SO100ArmInterface`.
+Servo IDs are assigned 1–6 from base to gripper. Factory default baud rate is 57600. The D.R.O.N.A. implementation uses 57600 - do not change it without updating `SO100ArmInterface`.
 
 ---
 
@@ -55,7 +55,7 @@ Before launching the hardware nodes:
    ```bash
    python scripts/ingest_data.py --check
    ```
-6. **Verify ACT checkpoint** exists (optional — KeyframePolicy fallback activates if absent):
+6. **Verify ACT checkpoint** exists (optional - KeyframePolicy fallback activates if absent):
    ```bash
    ls data/checkpoints/
    # expect: greet/ nod/ point/ idle/ listen/ farewell/
@@ -66,7 +66,7 @@ Before launching the hardware nodes:
 ## Launch Hardware Mode
 
 ```bash
-# On Ubuntu 22.04 + ROS2 Humble (native or WSL2 — see docs/wsl_setup.md).
+# On Ubuntu 22.04 + ROS2 Humble (native or WSL2 - see docs/wsl_setup.md).
 # Real hardware over USB in WSL2 needs usbipd-win (wsl_setup.md §8).
 source /opt/ros/humble/setup.bash
 source ~/D.R.O.N.A/ros2_ws/install/setup.bash
@@ -79,7 +79,7 @@ ros2 launch drona_bringup drona_hardware.launch.py arm_port:=/dev/ttyUSB1
 
 ---
 
-## SO-100 Arm Interface — Implementation Notes
+## SO-100 Arm Interface - Implementation Notes
 
 The arm is controlled via `drona.interaction.arm_interface.SO100ArmInterface`:
 

@@ -1,12 +1,12 @@
 """
-Evaluation harness for D.R.O.N.A. — runs all C1–C4 evaluations.
+Evaluation harness for D.R.O.N.A. - runs all C1–C4 evaluations.
 
 Each eval method runs one contribution's evaluation and returns a structured
 results dict. `run_all()` combines them into a single JSON-serializable report.
 
 Evaluation design (no human-labelled data needed):
 
-  C1 — Retrieval quality
+  C1 - Retrieval quality
     For each eval query, we check which ChromaDB collections the top-K results
     come from and whether the tier distribution matches expectations. Without a
     labelled document set, we use collection membership as a relevance proxy:
@@ -16,19 +16,19 @@ Evaluation design (no human-labelled data needed):
     We also compare hybrid (BM25 + dense + RRF) vs dense-only retrieval to
     demonstrate the C1 contribution empirically.
 
-  C2 — Bias detection
+  C2 - Bias detection
     Run the BiasDetector on each C2_QUERIES entry and compare predicted bias
     types against the ground-truth labels. Compute precision, recall, F1 per
     bias type and macro average. The query bank labels are ground-truth by
     construction (they were written to trigger specific patterns).
 
-  C3 — Gesture smoothness
+  C3 - Gesture smoothness
     Execute each gesture with KeyframePolicy in StubEnv and measure jerk score,
     path length, and duration. These form the "scripted baseline" against which
     ACT-trained policies will be compared. Spec: all gestures must be within
     frame count bounds and jerk below threshold.
 
-  C4 — Stack / provenance
+  C4 - Stack / provenance
     Query with C4_QUERIES, measure Nepal citation ratio and generation latency.
     Target: ≥ 40% Nepal citations for queries that prefer local data.
 
@@ -230,7 +230,7 @@ class EvaluationHarness:
             return C1Result(
                 hybrid_metrics={}, dense_only_metrics={}, improvement={},
                 collection_balance={}, n_queries=0,
-                skipped=True, skip_reason="ChromaDB appears empty — run ingest_data.py first.",
+                skipped=True, skip_reason="ChromaDB appears empty - run ingest_data.py first.",
             )
 
         h_mean = mean_metrics(hybrid_all)
@@ -241,7 +241,7 @@ class EvaluationHarness:
         balance = {k: v / total_docs for k, v in collection_counts.items()}
 
         logger.info(
-            f"C1: {n_processed} queries — "
+            f"C1: {n_processed} queries - "
             f"hybrid NDCG@{top_k}={h_mean.get(f'ndcg@{top_k}', 0):.3f}, "
             f"dense NDCG@{top_k}={d_mean.get(f'ndcg@{top_k}', 0):.3f}"
         )
@@ -273,7 +273,7 @@ class EvaluationHarness:
         n_clean = len(C2_QUERIES) - n_with_bias
 
         logger.info(
-            f"C2: {len(C2_QUERIES)} queries — "
+            f"C2: {len(C2_QUERIES)} queries - "
             f"macro P={macro['precision']:.3f} R={macro['recall']:.3f} F1={macro['f1']:.3f}"
         )
         return C2Result(
@@ -347,7 +347,7 @@ class EvaluationHarness:
 
             except Exception as exc:
                 logger.warning(f"C3 gesture '{spec.gesture_label}' failed: {exc}")
-                spec_failures.append(f"{spec.gesture_label}: exception — {exc}")
+                spec_failures.append(f"{spec.gesture_label}: exception - {exc}")
 
         env.close()
         mean_jerk = float(np.mean(all_jerks)) if all_jerks else 0.0
@@ -392,7 +392,7 @@ class EvaluationHarness:
                             gen_times.append(resp.generation_time_ms)
                     latency_skipped = False
                 else:
-                    logger.info("C4: Ollama not available — skipping latency measurement")
+                    logger.info("C4: Ollama not available - skipping latency measurement")
             except Exception as exc:
                 logger.warning(f"C4 LLM eval failed: {exc}")
 

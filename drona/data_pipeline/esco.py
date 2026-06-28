@@ -12,12 +12,12 @@ Source:  https://esco.ec.europa.eu/en/use-esco/download (CSV bulk, v1.2.1)
          API: https://ec.europa.eu/esco/api (optional, see fetch_via_api)
 
 Two ingestion paths:
-  1. CSV bulk (PRIMARY, offline, reproducible) — expects the unzipped CSV
+  1. CSV bulk (PRIMARY, offline, reproducible) - expects the unzipped CSV
      distribution in a directory (occupations_en.csv, skills_en.csv,
      occupationSkillRelations_en.csv).
-  2. API fallback (fetch_via_api) — for spot lookups when CSVs aren't present.
+  2. API fallback (fetch_via_api) - for spot lookups when CSVs aren't present.
 
-We filter to ICT occupations (ISCO unit group 25 — "Information and
+We filter to ICT occupations (ISCO unit group 25 - "Information and
 communications technology professionals") so the dataset stays relevant to
 Softwarica computing graduates.
 """
@@ -72,7 +72,7 @@ def parse_csv_dir(csv_dir: Path) -> list[CareerPathway]:
     logger.info(f"Parsing ESCO occupations from {occ_path}")
     occ = pd.read_csv(occ_path, dtype=str).fillna("")
 
-    # Skill relations are optional — without them, pathways have empty skills.
+    # Skill relations are optional - without them, pathways have empty skills.
     skill_label: dict[str, str] = {}
     relations: dict[str, list[str]] = {}
     rel_path = csv_dir / _F_RELATIONS
@@ -85,7 +85,7 @@ def parse_csv_dir(csv_dir: Path) -> list[CareerPathway]:
             relations[occ_uri] = grp["skillUri"].tolist()
         logger.info(f"  Loaded {len(skill_label)} skills, relations for {len(relations)} occupations")
     else:
-        logger.warning("  Skill/relation CSVs absent — pathways will have empty skill lists")
+        logger.warning("  Skill/relation CSVs absent - pathways will have empty skill lists")
 
     pathways: list[CareerPathway] = []
     for _, row in occ.iterrows():

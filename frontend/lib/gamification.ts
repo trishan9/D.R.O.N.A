@@ -183,7 +183,7 @@ export function buildSkillTree(
 // ── Counter-recommendation (anti-confirmation) ────────────────────────────────
 
 /**
- * Pick the pathway LEAST aligned with the student's declared interests — the
+ * Pick the pathway LEAST aligned with the student's declared interests - the
  * one a confirmation-biased reader would skip. Returns null if <2 pathways.
  */
 export function selectCounterRecommendation(

@@ -2,11 +2,11 @@
   "card_version": "1.0",
   "dataset_id": "drona_synthetic_advisory",
   "display_name": "Synthetic Career Advisory Q&A Pairs",
-  "description": "Synthetically generated student queries and reference advisory responses created by the research team for training bias-detection rules and evaluating the advising pipeline. All data is fabricated — no real student statements are used. Synthetic origin is flagged explicitly in every record's metadata.",
+  "description": "Synthetically generated student queries and reference advisory responses created by the research team for training bias-detection rules and evaluating the advising pipeline. All data is fabricated - no real student statements are used. Synthetic origin is flagged explicitly in every record's metadata.",
   "source": {
     "type": "synthetic",
     "generation_method": "human_authored",
-    "authors": ["Research team — D.R.O.N.A. project, Softwarica College"],
+    "authors": ["Research team - D.R.O.N.A. project, Softwarica College"],
     "generation_date": "2025-10",
     "seed_biases_modelled": [
       "anchoring (single employer fixation)",
@@ -18,14 +18,14 @@
   },
   "data_tier": "synthetic",
   "schema": {
-    "id": "string — 'syn_NNNN'",
-    "text": "string — the synthetic student query text",
+    "id": "string - 'syn_NNNN'",
+    "text": "string - the synthetic student query text",
     "metadata": {
       "source_type": "synthetic",
       "tier": "synthetic",
-      "bias_type": "string or null — the target bias label, e.g. 'anchoring'",
-      "expected_flags": "list[string] — bias_type values the detector should produce",
-      "is_clean": "boolean — true when the query contains no bias (negative examples)",
+      "bias_type": "string or null - the target bias label, e.g. 'anchoring'",
+      "expected_flags": "list[string] - bias_type values the detector should produce",
+      "is_clean": "boolean - true when the query contains no bias (negative examples)",
       "author_note": "string or null"
     }
   },
@@ -41,7 +41,7 @@
   },
   "labelling": {
     "method": "human_authored",
-    "inter_rater_agreement": "N/A — single author team",
+    "inter_rater_agreement": "N/A - single author team",
     "notes": "Each record specifies the intended bias type; used as ground truth for C2 evaluation"
   },
   "known_limitations": [

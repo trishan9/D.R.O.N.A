@@ -3,7 +3,7 @@ Model card schema + Markdown writer for D.R.O.N.A. trained models.
 
 Mirrors data_pipeline.DataCard: every trained model (e.g. the advising LoRA
 adapter) gets a model_card.md documenting base model, training data provenance,
-hyperparameters, intended use, evaluation, and limitations — the thesis's
+hyperparameters, intended use, evaluation, and limitations - the thesis's
 evidence of responsible model engineering.
 """
 
@@ -56,7 +56,7 @@ class ModelCard(BaseModel):
 
         return "\n".join(
             [
-                f"# Model Card — `{self.name}`",
+                f"# Model Card - `{self.name}`",
                 "",
                 f"**Base model:** {self.base_model}",
                 f"**Method:** {self.method}",

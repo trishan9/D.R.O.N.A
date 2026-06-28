@@ -1,5 +1,5 @@
 """
-Integration tests — full Phase 1 pipeline end-to-end.
+Integration tests - full Phase 1 pipeline end-to-end.
 
 No ROS2, no ChromaDB, no Ollama required. Uses mocks for external services
 so the entire data flow from student query to gesture dispatch can be verified

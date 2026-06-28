@@ -1,11 +1,11 @@
 """
-Advising engine for D.R.O.N.A. — end-to-end AdvisingQuery → AdvisingResponse.
+Advising engine for D.R.O.N.A. - end-to-end AdvisingQuery → AdvisingResponse.
 
 Pipeline (four stages, each independently testable):
-  1. Retrieval  — hybrid dense+BM25 → top-20 raw docs (Retriever)
-  2. Reranking  — cross-encoder → top-5 docs (Reranker)
-  3. Bias detection — rule-based query analysis (BiasDetector)
-  4. Generation — bias-aware prompt → local LLM → structured parse (LLMClient)
+  1. Retrieval  - hybrid dense+BM25 → top-20 raw docs (Retriever)
+  2. Reranking  - cross-encoder → top-5 docs (Reranker)
+  3. Bias detection - rule-based query analysis (BiasDetector)
+  4. Generation - bias-aware prompt → local LLM → structured parse (LLMClient)
 
 Fallback chain:
   If the LLM is unavailable or generation fails, the engine returns a refusal
@@ -124,7 +124,7 @@ class AdvisingEngine:
 
         if not self._llm.is_available():
             elapsed_ms = int((time.monotonic() - t_total) * 1000)
-            logger.error("Ollama unavailable — returning refusal response")
+            logger.error("Ollama unavailable - returning refusal response")
             return self._build_refusal(
                 query,
                 reason=(
@@ -146,7 +146,7 @@ class AdvisingEngine:
 
         elapsed_ms = int((time.monotonic() - t_total) * 1000)
         logger.info(
-            f"Advising [{query.query_id}] complete in {elapsed_ms}ms — "
+            f"Advising [{query.query_id}] complete in {elapsed_ms}ms - "
             f"{len(pathways)} pathways, {len(bias_flags)} bias flags, "
             f"refusal={refusal}"
         )

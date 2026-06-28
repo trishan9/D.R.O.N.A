@@ -1,1 +1,1 @@
-"""advising module — see docs/architecture.md"""
+"""advising module - see docs/architecture.md"""

@@ -1,4 +1,4 @@
-# Model Card — `phi35-lora-advising`
+# Model Card - `phi35-lora-advising`
 
 **Base model:** microsoft/Phi-3.5-mini-instruct (Q4_K_M for serving via Ollama)
 **Method:** QLoRA (4-bit NF4) + PEFT LoRA r=16

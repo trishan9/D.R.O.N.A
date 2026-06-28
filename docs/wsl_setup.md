@@ -2,12 +2,12 @@
 
 **This is the recommended ROS2 path now that there is no Ubuntu dual-boot.**
 
-ROS2 Humble only runs on Ubuntu 22.04 — it does **not** run natively on Windows.
+ROS2 Humble only runs on Ubuntu 22.04 - it does **not** run natively on Windows.
 But you do **not** need a dual-boot partition. **WSL2 (Windows Subsystem for Linux
 2)** runs a real Ubuntu 22.04 kernel inside Windows 11, and **WSLg** (bundled with
 Windows 11, all editions including Home) gives Linux GUI apps a window on your
 Windows desktop. That means **RViz2 and the Gazebo GUI just open as normal
-windows** — no VcXsrv / X-server fiddling required.
+windows** - no VcXsrv / X-server fiddling required.
 
 > **Your machine:** Windows 11 Home (build 26200), GTX 1650 4 GB. WSLg + the
 > NVIDIA WSL GPU driver cover everything in this guide **except Isaac Sim** (still
@@ -41,9 +41,9 @@ wsl --install -d Ubuntu-22.04
 
 This installs WSL2 and Ubuntu 22.04. Reboot if prompted. On first launch Ubuntu
 asks you to create a Linux username + password (this is separate from your
-Windows login — remember it; `sudo` needs it).
+Windows login - remember it; `sudo` needs it).
 
-Confirm you are on WSL **2** (not 1 — ROS2/Gazebo need 2) and that WSLg is present:
+Confirm you are on WSL **2** (not 1 - ROS2/Gazebo need 2) and that WSLg is present:
 
 ```powershell
 wsl --list --verbose          # VERSION column must say 2 for Ubuntu-22.04
@@ -57,13 +57,13 @@ wsl --set-version Ubuntu-22.04 2
 ```
 
 From here on, **open the "Ubuntu 22.04" app** from the Start menu (or run `wsl` in
-any terminal) — that drops you into the Linux shell where all ROS2 commands run.
+any terminal) - that drops you into the Linux shell where all ROS2 commands run.
 
 ---
 
 ## 2. GPU in WSL2 (one-time check)
 
-WSL2 uses the **Windows** NVIDIA driver — do **not** install a Linux NVIDIA driver
+WSL2 uses the **Windows** NVIDIA driver - do **not** install a Linux NVIDIA driver
 inside Ubuntu (that breaks the WSL GPU bridge). Just keep your Windows GeForce
 driver up to date (any recent Game Ready / Studio driver supports WSL).
 
@@ -98,7 +98,7 @@ cd /mnt/c/Users/trish/Documents/Developer/D.R.O.N.A/ros2_ws
 >
 > Either works. Use `/mnt/c` if you want one shared copy with your Windows editing;
 > use `~` (native) if `colcon build` feels slow. The Python/advising side can stay
-> on Windows — only the ROS2 workspace needs to build in Linux.
+> on Windows - only the ROS2 workspace needs to build in Linux.
 
 ---
 
@@ -167,7 +167,7 @@ ros2 launch drona_bringup drona_system.launch.py use_rviz:=true record:=true bag
 ros2 launch drona_bringup drona_gazebo.launch.py
 ```
 
-In a **second** Ubuntu terminal (sourced — open it and run `source
+In a **second** Ubuntu terminal (sourced - open it and run `source
 install/setup.bash` or rely on `~/.bashrc`), drive a gesture:
 
 ```bash
@@ -176,7 +176,7 @@ ros2 action send_goal /drona/execute_gesture_action \
 ```
 
 The Gazebo / RViz window opens like any Windows app (you will see it in the
-taskbar). Record this for your demo video — see `docs/demo_video_script.md`.
+taskbar). Record this for your demo video - see `docs/demo_video_script.md`.
 
 > **If a GUI window does not appear or rendering is broken**, jump to §7. The
 > reliable fallback is `headless:=true` (no GUI; the gesture action + rosbag still
@@ -189,7 +189,7 @@ taskbar). Record this for your demo video — see `docs/demo_video_script.md`.
 | Symptom | Fix |
 |---|---|
 | No GUI window opens at all | `wsl --update` on the Windows side, then restart the WSL shell (`wsl --shutdown` in PowerShell, reopen Ubuntu). WSLg needs an up-to-date WSL. |
-| Gazebo opens then crashes / black screen | GL issue. Try `export LIBGL_ALWAYS_SOFTWARE=1` then relaunch (software rendering — slower but always works on a GTX 1650 under WSL). |
+| Gazebo opens then crashes / black screen | GL issue. Try `export LIBGL_ALWAYS_SOFTWARE=1` then relaunch (software rendering - slower but always works on a GTX 1650 under WSL). |
 | `gz sim` GL3+ / Ogre2 errors | `export QT_QPA_PLATFORM=xcb` and `export LIBGL_ALWAYS_SOFTWARE=1`, relaunch. Or use `headless:=true` and view via RViz/rosbag. |
 | `nvidia-smi: command not found` in WSL | Update the **Windows** GeForce driver; do **not** apt-install a Linux GPU driver inside WSL. |
 | `colcon build` very slow / file-watcher errors | You are on `/mnt/c`. Clone into the native WSL home (`~`) per §3, or raise `fs.inotify.max_user_watches`. |
@@ -212,7 +212,7 @@ usbipd attach --wsl --busid <id> # device now appears as /dev/ttyUSB0 in WSL
 ```
 
 Then in WSL the arm is `/dev/ttyUSB0` exactly as the `hardware.yaml` params expect.
-This is Phase-2 work — the simulation demo above needs no USB.
+This is Phase-2 work - the simulation demo above needs no USB.
 
 ---
 
@@ -243,8 +243,8 @@ stream. With nothing connected, the page stays in its local-simulation mode.
 
 ## See also
 
-- `docs/ros2_setup.md` — full ROS2 install + node/topic reference
-- `docs/sim_setup_gazebo.md` — Gazebo launch details + actuation note
-- `docs/sim_setup_isaac.md` — Isaac Sim (cloud GPU; your GTX 1650 can't run it)
-- `docs/ros2_topics_actions.md` — every topic / action / service
-- `docs/STUDENT_RUNBOOK.md` Part G — where this fits in the overall plan
+- `docs/ros2_setup.md` - full ROS2 install + node/topic reference
+- `docs/sim_setup_gazebo.md` - Gazebo launch details + actuation note
+- `docs/sim_setup_isaac.md` - Isaac Sim (cloud GPU; your GTX 1650 can't run it)
+- `docs/ros2_topics_actions.md` - every topic / action / service
+- `docs/STUDENT_RUNBOOK.md` Part G - where this fits in the overall plan

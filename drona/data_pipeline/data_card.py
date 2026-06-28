@@ -39,7 +39,7 @@ class DataCard(BaseModel):
     # Provenance
     source_name: str = Field(description="Human-readable source name")
     source_url: str | None = Field(default=None)
-    license: str = Field(description="SPDX identifier or 'custom — see notes'")
+    license: str = Field(description="SPDX identifier or 'custom - see notes'")
     tier: Literal["nepal", "regional", "international", "synthetic"] = Field(
         description="Data provenance tier (see contracts.DataTier)"
     )
@@ -98,7 +98,7 @@ class DataCard(BaseModel):
 
         Also emits a sibling ``<name>_data_card.md`` by default, because the
         build prompt mandates a Markdown ``data_card.md`` per dataset while the
-        pipeline standard is YAML — we keep both, generated from one source.
+        pipeline standard is YAML - we keep both, generated from one source.
         """
         path.parent.mkdir(parents=True, exist_ok=True)
         data = self.model_dump(mode="json")
@@ -122,7 +122,7 @@ class DataCard(BaseModel):
             return "\n".join(f"- {x}" for x in items) if items else "- (none)"
 
         lines = [
-            f"# Data Card — `{self.name}`",
+            f"# Data Card - `{self.name}`",
             "",
             f"**Source:** {self.source_name}"
             + (f" ([link]({self.source_url}))" if self.source_url else ""),

@@ -14,7 +14,7 @@ interface BiasFlagsProps {
 /**
  * Transparent display of which cognitive biases the backend detected in the
  * student's question and how the answer was shaped to counter them. This makes
- * the bias-mitigation explicit rather than silent — a core proposal claim.
+ * the bias-mitigation explicit rather than silent - a core proposal claim.
  */
 export function BiasFlags({ flags }: BiasFlagsProps) {
   if (flags.length === 0) {

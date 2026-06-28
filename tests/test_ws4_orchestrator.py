@@ -1,5 +1,5 @@
 """
-WS4 smoke tests — perception + session state machine + orchestrator.
+WS4 smoke tests - perception + session state machine + orchestrator.
 
 No camera, no MediaPipe, no real advising engine or gesture dispatcher.
 StubDetector drives perception; all heavy subsystems are mocked.

@@ -10,7 +10,7 @@ eggs/
 # NOTE: these Python build-artifact dirs are anchored to the repo root with a
 # leading slash so they do NOT clobber the frontend's source dirs
 # (frontend/lib/, frontend/build/, etc.). The bare `lib/` rule previously made
-# frontend/lib/ untracked — fixed 2026-06-13.
+# frontend/lib/ untracked - fixed 2026-06-13.
 /build/
 /dist/
 /downloads/
@@ -55,7 +55,7 @@ htmlcov/
 *.env
 
 # D.R.O.N.A. specific
-# Raw data is too large for git — store on disk + document in data_cards
+# Raw data is too large for git - store on disk + document in data_cards
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*.parquet
@@ -96,7 +96,7 @@ checkpoints/
 wandb/
 mlruns/
 
-# Manual collection — keep STRUCTURE in git, raw text gitignored if sensitive
+# Manual collection - keep STRUCTURE in git, raw text gitignored if sensitive
 # data/manual_collection/  # Uncomment if you decide to gitignore
 
 # Derived evaluation artifacts (notebooks embed their own outputs)

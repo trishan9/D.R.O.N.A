@@ -1,15 +1,15 @@
 """
-D.R.O.N.A. evaluation launch — runs all four nodes then triggers evaluation.
+D.R.O.N.A. evaluation launch - runs all four nodes then triggers evaluation.
 
 Usage:
     ros2 launch drona_bringup drona_evaluation.launch.py
     ros2 launch drona_bringup drona_evaluation.launch.py contributions:=c2,c3
 
 Contributions:
-    c1 — retrieval quality (needs populated ChromaDB)
-    c2 — bias detection
-    c3 — gesture smoothness
-    c4 — Nepal citation ratio (needs Ollama)
+    c1 - retrieval quality (needs populated ChromaDB)
+    c2 - bias detection
+    c3 - gesture smoothness
+    c4 - Nepal citation ratio (needs Ollama)
 """
 
 from __future__ import annotations

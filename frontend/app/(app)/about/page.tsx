@@ -27,7 +27,7 @@ export default function AboutPage() {
             <h2 className="text-lg font-bold tracking-tight">D.R.O.N.A.</h2>
             <p className="text-sm text-muted-foreground">
               <strong>D</strong>emonstration-learned <strong>R</strong>obotic <strong>O</strong>racle for{" "}
-              <strong>N</strong>urturing <strong>A</strong>spirations — an embodied, bias-aware, locally-grounded
+              <strong>N</strong>urturing <strong>A</strong>spirations - an embodied, bias-aware, locally-grounded
               academic and career advising system for Nepali computing students. BSc (Hons) Computing thesis,
               Softwarica College / Coventry University.
             </p>
@@ -88,7 +88,7 @@ export default function AboutPage() {
           <div className="space-y-1 text-sm">
             <p className="font-semibold">Ethics &amp; data policy</p>
             <p className="text-muted-foreground">
-              Zero PII is collected, stored, or transmitted. Advising runs on a local LLM only — no paid cloud APIs in
+              Zero PII is collected, stored, or transmitted. Advising runs on a local LLM only - no paid cloud APIs in
               the request path, preserving the local-only claim. Synthetic data is always labelled and never silently
               mixed with real data. Job postings are manually collected within each portal&apos;s terms of service;
               LinkedIn and ToS-restricted portals are never scraped.

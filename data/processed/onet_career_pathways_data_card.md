@@ -1,11 +1,11 @@
-# Data Card — `onet_career_pathways`
+# Data Card - `onet_career_pathways`
 
 **Source:** O*NET 30.3 Database ([link](https://www.onetcenter.org/database.html))
 **License:** CC BY 4.0
 **Provenance tier:** `international`
-**Collection method:** `automated_bulk_download`  **Collected:** 2026-06-27  **By:** Trisan Wagle
+**Collection method:** `automated_bulk_download`  **Collected:** 2026-06-28  **By:** Trisan Wagle
 **Records:** 39
-**Version:** 30.3  **Created:** 2026-06-27
+**Version:** 30.3  **Created:** 2026-06-28
 
 ## Description
 Computing and technology occupations (SOC 15-xxxx + CIS Managers) parsed from O*NET 30.3. Includes titles, descriptions, skill profiles, and technology skill examples. Used as international-tier anchor for career pathway recommendations.
@@ -25,7 +25,7 @@ Computing and technology occupations (SOC 15-xxxx + CIS Managers) parsed from O*
 - sample_employers_nepal
 
 ## Known limitations
-- US labour market only — salaries not included (US context)
+- US labour market only - salaries not included (US context)
 - SOC taxonomy may not perfectly map to Nepal job market titles
 - Technology skills list is indicative, not exhaustive
 
@@ -39,7 +39,7 @@ Computing and technology occupations (SOC 15-xxxx + CIS Managers) parsed from O*
 - rate limit applied: N/A (single bulk download)
 
 ## Outputs
-- data\processed\onet_career_pathways.parquet
+- C:\Users\trish\Documents\Developer\D.R.O.N.A\data\processed\onet_career_pathways.parquet
 
 ## Notes
 Downloaded from https://www.onetcenter.org/dl_files/database/db_30_3_text.zip. Zip SHA256: 7758ec966fd91895

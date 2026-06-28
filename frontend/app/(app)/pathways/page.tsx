@@ -35,7 +35,7 @@ export default function PathwaysPage() {
         <EmptyState
           icon={Route}
           title="No pathways yet"
-          description="Ask D.R.O.N.A. a question and it will surface multiple evidence-backed pathways here — always more than one, by design, to counter anchoring."
+          description="Ask D.R.O.N.A. a question and it will surface multiple evidence-backed pathways here - always more than one, by design, to counter anchoring."
           actionLabel="Go to the Advisor"
           actionHref="/advisor"
         />
@@ -87,7 +87,7 @@ export default function PathwaysPage() {
             <EmptyState
               icon={GitCompare}
               title="Pick pathways to compare"
-              description="Use the Compare toggle on any pathway card to line them up side-by-side and weigh them on the same evidence — a deliberate counter to confirmation bias."
+              description="Use the Compare toggle on any pathway card to line them up side-by-side and weigh them on the same evidence - a deliberate counter to confirmation bias."
             />
           ) : (
             <PathwayComparison pathways={comparePathways} />

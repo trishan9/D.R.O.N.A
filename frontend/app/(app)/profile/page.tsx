@@ -34,7 +34,7 @@ export default function ProfilePage() {
                 id="nickname"
                 value={prefs.displayName}
                 onChange={(e) => setPrefs({ displayName: e.target.value })}
-                placeholder="A nickname for this device — not your real name"
+                placeholder="A nickname for this device - not your real name"
                 maxLength={40}
               />
               <p className="text-xs text-muted-foreground">

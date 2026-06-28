@@ -2,7 +2,7 @@
 D.R.O.N.A. environment verification.
 
 Run this after `pip install -e ".[dev]"` to confirm your dev environment is ready.
-It does NOT require ROS2, LeRobot, or a GPU — those are Ubuntu/Colab steps (see
+It does NOT require ROS2, LeRobot, or a GPU - those are Ubuntu/Colab steps (see
 `docs/STUDENT_RUNBOOK.md`).
 
 Usage:
@@ -88,7 +88,7 @@ def check_disk_space() -> tuple[bool, str]:
 
 
 def main() -> int:
-    console.rule("[bold cyan]D.R.O.N.A. — Environment Verification[/bold cyan]")
+    console.rule("[bold cyan]D.R.O.N.A. - Environment Verification[/bold cyan]")
 
     table = Table(title="Core environment", show_lines=False)
     table.add_column("Check", style="cyan")

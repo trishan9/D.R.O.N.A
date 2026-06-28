@@ -7,7 +7,7 @@
     "type": "career_pathway",
     "provider": "O*NET Resource Center, US Department of Labor / Employment and Training Administration",
     "url": "https://www.onetcenter.org/database.html",
-    "license": "Public domain (US federal government work) — no redistribution restrictions",
+    "license": "Public domain (US federal government work) - no redistribution restrictions",
     "robots_txt_compliant": true,
     "collection_method": "bulk_database_download",
     "onet_version": "29.0",
@@ -21,8 +21,8 @@
   },
   "data_tier": "international",
   "schema": {
-    "id": "string — 'onet_SOCCODE_occupationtitle_slug'",
-    "text": "string — occupation title, summary, tasks, and skills concatenated",
+    "id": "string - 'onet_SOCCODE_occupationtitle_slug'",
+    "text": "string - occupation title, summary, tasks, and skills concatenated",
     "metadata": {
       "source_type": "career_pathway",
       "tier": "international",

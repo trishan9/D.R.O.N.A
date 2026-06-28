@@ -1,4 +1,4 @@
-"""Train phase-conditioned behavior-cloning gesture policies on CPU — C3 baseline.
+"""Train phase-conditioned behavior-cloning gesture policies on CPU - C3 baseline.
 
 This is the *runs-anywhere* training path for the demonstration-learned
 interaction contribution. It needs no GPU and no LeRobot: it trains one small
@@ -50,7 +50,7 @@ app = typer.Typer(name="train-bc", help="Train CPU behavior-cloning gesture poli
 def _gesture_samples(dataset: DemonstrationDataset, gesture: str, closed_loop: bool = False):
     """Build (X, Y=action) arrays + mean horizon for a gesture.
 
-    open-loop  (default): X = [phase]            — a learned movement primitive
+    open-loop  (default): X = [phase]            - a learned movement primitive
     closed-loop          : X = [joint_state, phase]
     """
     xs, ys, lengths = [], [], []
@@ -197,7 +197,7 @@ def main(
     for g in gesture_list:
         feats, acts, horizon = _gesture_samples(dataset, g, closed_loop=closed_loop)
         if feats is None:
-            typer.secho(f"[{g}] no demonstrations — skipping", fg=typer.colors.YELLOW)
+            typer.secho(f"[{g}] no demonstrations - skipping", fg=typer.colors.YELLOW)
             continue
         typer.secho(f"\n[{g}]  {len(feats)} samples, horizon≈{horizon}", bold=True)
         stats = _train_one(

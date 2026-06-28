@@ -2,7 +2,7 @@
 D.R.O.N.A. ROS2 side for NVIDIA Isaac Sim integration.
 
 Isaac Sim runs in its OWN Python environment (Omniverse Kit), so it is launched
-SEPARATELY — see docs/sim_setup_isaac.md and the standalone stage builder at
+SEPARATELY - see docs/sim_setup_isaac.md and the standalone stage builder at
 drona_bringup/isaac/drona_isaac_stage.py. This launch file starts the ROS2-side
 nodes that talk to Isaac over the Isaac ROS2 bridge:
 
@@ -66,7 +66,7 @@ def generate_launch_description() -> LaunchDescription:
     return LaunchDescription([
         log_level_arg,
         LogInfo(msg="Starting D.R.O.N.A. ROS2 side for Isaac Sim (use_sim_time=true). "
-                    "Launch the Isaac stage separately — see docs/sim_setup_isaac.md."),
+                    "Launch the Isaac stage separately - see docs/sim_setup_isaac.md."),
         rsp,
         perception,
         policy,

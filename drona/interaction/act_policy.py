@@ -1,5 +1,5 @@
 """
-ACT policy wrapper for D.R.O.N.A. — Research Contribution C3.
+ACT policy wrapper for D.R.O.N.A. - Research Contribution C3.
 
 ACT (Action Chunking with Transformers) is an imitation learning policy that
 predicts a chunk of future actions from the current observation, trained on
@@ -8,7 +8,7 @@ algorithm in the HuggingFace LeRobot framework.
 
 Why ACT for robotic advising gestures?
   ACT's action chunking significantly reduces compounding error compared to
-  step-by-step prediction — critical for long, smooth gestures like waves and
+  step-by-step prediction - critical for long, smooth gestures like waves and
   greetings. Its Transformer architecture also naturally handles the temporal
   structure of gesture execution (Zhao et al., 2023, §4).
 
@@ -70,7 +70,7 @@ class BasePolicy(ABC):
             obs_dict: Must contain "observation.state" (ndarray, shape DOF).
 
         Returns:
-            action: shape (DOF,) — joint position targets.
+            action: shape (DOF,) - joint position targets.
         """
 
     @property
@@ -84,13 +84,13 @@ class BasePolicy(ABC):
 class KeyframePolicy(BasePolicy):
     """Deterministic policy that replays pre-programmed keyframe trajectories.
 
-    This is the Phase 1 baseline — it does not learn from data. It exists to:
+    This is the Phase 1 baseline - it does not learn from data. It exists to:
       a) Make the system functional before ACT training is complete
       b) Serve as the "scripted baseline" in the C3 evaluation comparison
       c) Generate initial demonstration data for ACT training bootstrap
 
     When a gesture is requested, the trajectory is pre-computed from keyframes
-    and replayed frame-by-frame. `select_action()` is stateful — it advances
+    and replayed frame-by-frame. `select_action()` is stateful - it advances
     through the trajectory on each call.
     """
 
@@ -115,7 +115,7 @@ class KeyframePolicy(BasePolicy):
 
     def select_action(self, obs_dict: dict[str, Any]) -> np.ndarray:
         if self._frame_idx >= len(self._trajectory):
-            # Gesture complete — hold rest pose
+            # Gesture complete - hold rest pose
             return REST_POSE.copy()
         action, _ = self._trajectory[self._frame_idx]
         self._frame_idx += 1
@@ -144,7 +144,7 @@ class LeRobotACTPolicy(BasePolicy):
     model weights (the standard LeRobot save format).
 
     Observation keys expected by LeRobot ACT:
-        "observation.state" — shape (DOF,), dtype float32
+        "observation.state" - shape (DOF,), dtype float32
 
     The policy outputs an action chunk of shape (chunk_size, DOF).
     We return the first action in the chunk (standard single-step rollout);

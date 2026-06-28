@@ -1,4 +1,4 @@
-# Manual Job Posting Collection — Template
+# Manual Job Posting Collection - Template
 
 You collect job postings **manually** (as a normal user reading the site) and paste them into JSON files using this schema. This protects you legally: no automated scraping, no ToS violation, no anti-bot games.
 
@@ -60,15 +60,15 @@ Create a file like `data/manual_collection/merojob/postings_001-050.json` contai
 
 - **posting_id**: `<source_prefix>_<year>_<sequence>`. Prefixes: `mj` (merojob), `jn` (jobsnepal), `is` (internsathi), `kj` (kumarijobs), `li` (linkedin_manual).
 - **salary_min_npr / salary_max_npr**: leave as `null` if not stated. Don't guess.
-- **skills_required / skills_preferred**: use the exact terms in the posting where possible. Don't normalize yet — the pipeline does that.
-- **description**: 2-4 sentences capturing role essence. Don't copy the full posting — that's potentially infringing. Paraphrase or extract the critical 2-3 sentences.
+- **skills_required / skills_preferred**: use the exact terms in the posting where possible. Don't normalize yet - the pipeline does that.
+- **description**: 2-4 sentences capturing role essence. Don't copy the full posting - that's potentially infringing. Paraphrase or extract the critical 2-3 sentences.
 - **source_url**: critical for provenance. If you forget this, the entry is academically less defensible.
 - **is_synthetic**: always `false` for manually collected entries. Synthetic entries are generated separately by the pipeline.
 
 ## What NOT to collect
 
 - Postings that require login to view (those aren't truly public)
-- Postings with personal contact info (phone numbers, personal emails) — strip these
+- Postings with personal contact info (phone numbers, personal emails) - strip these
 - Postings that look like spam, scams, or MLM
 - Duplicates across portals (note in `description` if the same role appears on multiple sites)
 
@@ -79,4 +79,4 @@ This manual dataset is a **named research artifact**: *"Curated open dataset of 
 - Released alongside the thesis (with portal sites' permission, or in anonymized form)
 - Used as a benchmark by future researchers
 
-You're not just collecting data — you're *creating* a dataset that didn't exist before in machine-readable form. That's a real contribution. Document it carefully.
+You're not just collecting data - you're *creating* a dataset that didn't exist before in machine-readable form. That's a real contribution. Document it carefully.

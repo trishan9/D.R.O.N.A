@@ -1,7 +1,7 @@
 [project]
 name = "drona"
 version = "0.1.0"
-description = "D.R.O.N.A. — Robotic Academic Student Advising System"
+description = "D.R.O.N.A. - Robotic Academic Student Advising System"
 authors = [{name = "Trisan Wagle", email = "trisan.wagle@softwarica.edu.np"}]
 requires-python = ">=3.10"
 readme = "README.md"
@@ -95,7 +95,7 @@ eval = [
     "datasets>=2.18.0",
 ]
 
-# --- LoRA fine-tuning (Phase 3, Colab T4 only — NOT for the 4GB local GPU) ---
+# --- LoRA fine-tuning (Phase 3, Colab T4 only - NOT for the 4GB local GPU) ---
 finetune = [
     "transformers>=4.44.0",
     "peft>=0.12.0",

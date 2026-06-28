@@ -1,4 +1,4 @@
-# D.R.O.N.A. — Student Runbook
+# D.R.O.N.A. - Student Runbook
 
 **Your step-by-step guide** for everything the codebase cannot do for you: data
 collection, where to put files, what to run locally vs Colab/Kaggle, ROS2/simulation
@@ -47,14 +47,14 @@ Everything else (code, tests, docs, harness, notebooks, ROS2 packages, frontend)
 | Gazebo Harmonic sim | ❌ | ✅ **required** (WSLg GUI) | ❌ | ❌ |
 | Isaac Sim | ❌ | ○ if ≥8 GB VRAM | ○ cloud GPU | ○ |
 
-**Your machine:** Windows 11 + GTX 1650 4 GB, 16 GB RAM. **No Ubuntu dual-boot —
+**Your machine:** Windows 11 + GTX 1650 4 GB, 16 GB RAM. **No Ubuntu dual-boot -
 ROS2 runs in WSL2** (real Ubuntu 22.04 inside Windows; WSLg shows the Gazebo/RViz
 windows). Local = **inference** only; all **training** on Colab T4 (or Kaggle);
 Isaac Sim = cloud only. Full WSL setup: **`docs/wsl_setup.md`**.
 
 ---
 
-## Directory map — where every file goes
+## Directory map - where every file goes
 
 ```
 D.R.O.N.A/
@@ -78,7 +78,7 @@ D.R.O.N.A/
 │   └── evaluation/                   # eval reports saved here (auto)
 ├── .env                              # copy from .env.example, add API keys
 ├── frontend/                         # Next.js dashboard
-├── ros2_ws/                          # ROS2 — build/run inside WSL2 (see docs/wsl_setup.md)
+├── ros2_ws/                          # ROS2 - build/run inside WSL2 (see docs/wsl_setup.md)
 └── notebooks/                        # 01–11 canonical analysis + Colab training
 ```
 
@@ -87,7 +87,7 @@ downloaded model weights.
 
 ---
 
-## Part A — One-time environment setup
+## Part A - One-time environment setup
 
 ### A1. Python (Windows or Ubuntu)
 
@@ -119,13 +119,13 @@ copy .env.example .env
 
 ```powershell
 docker compose up -d db            # Postgres + pgvector only
-# Default vector backend is ChromaDB — you do NOT need Postgres for the thesis demo
+# Default vector backend is ChromaDB - you do NOT need Postgres for the thesis demo
 ```
 
-### A4. Ollama (local LLM — required for live advising)
+### A4. Ollama (local LLM - required for live advising)
 
 ```powershell
-# Install from https://ollama.com — then:
+# Install from https://ollama.com - then:
 ollama pull phi3.5:3.8b-mini-instruct-q4_K_M
 ollama pull qwen2.5:3b-instruct-q4_K_M
 ollama serve                       # keep running in a terminal
@@ -148,14 +148,14 @@ cd ..
 |---|---|
 | npm install | 2–5 min |
 
-### A6. ROS2 via WSL2 (do once — you no longer need a dual-boot)
+### A6. ROS2 via WSL2 (do once - you no longer need a dual-boot)
 
 You have Windows + WSL, not a dual-boot. ROS2 runs in **WSL2 (Ubuntu 22.04)** and
 WSLg displays the Gazebo/RViz windows. **Full guide: `docs/wsl_setup.md`.** Short
 version:
 
 ```powershell
-# Windows PowerShell (admin) — one time:
+# Windows PowerShell (admin) - one time:
 wsl --install -d Ubuntu-22.04
 wsl --update
 ```
@@ -177,7 +177,7 @@ colcon build --symlink-install && source install/setup.bash
 
 ---
 
-## Part B — Data collection (YOUR work)
+## Part B - Data collection (YOUR work)
 
 ### B1. Curriculum (required for Nepal-grounded advising)
 
@@ -198,7 +198,7 @@ data/raw/curriculum/
 
 ---
 
-### B2. Nepali job postings (required — your main dataset contribution)
+### B2. Nepali job postings (required - your main dataset contribution)
 
 **What:** ~150–200 junior/graduate tech job postings from Nepal.
 
@@ -218,7 +218,7 @@ data/raw/curriculum/
 - Paraphrase descriptions (2–4 sentences); do not paste full postings.
 - Always include `source_url` and `is_synthetic: false`.
 - No applicant PII (phone numbers, personal emails).
-- Salary: use `null` if not stated — never guess.
+- Salary: use `null` if not stated - never guess.
 
 **Time:** ~2–3 min/posting × 180 ≈ **6–9 hours** over 3–4 days.
 
@@ -229,9 +229,9 @@ data/raw/curriculum/
 | Dataset | You download? | Script | Output |
 |---|---|---|---|
 | O\*NET 30.3 | No (script fetches) | `scripts/download_onet.py` | `data/processed/onet_career_pathways.parquet` |
-| ESCO v1.2.1 | **Yes** — CSV zip from esco.ec.europa.eu | `scripts/ingest_sources.py esco --csv-dir data/raw/esco` | `data/processed/esco_career_pathways.json` |
-| BLS OEWS May 2025 | **Yes** — national .xlsx from bls.gov/oes | `scripts/ingest_sources.py bls --oews <file>` | `data/processed/bls_oews_wages.json` |
-| NLFS 2017/18 | **Yes** — PDF from NSO Nepal open data | `scripts/ingest_sources.py nlfs --pdf data/raw/nlfs_2017_18.pdf` | `data/processed/nlfs_indicators.json` |
+| ESCO v1.2.1 | **Yes** - CSV zip from esco.ec.europa.eu | `scripts/ingest_sources.py esco --csv-dir data/raw/esco` | `data/processed/esco_career_pathways.json` |
+| BLS OEWS May 2025 | **Yes** - national .xlsx from bls.gov/oes | `scripts/ingest_sources.py bls --oews <file>` | `data/processed/bls_oews_wages.json` |
+| NLFS 2017/18 | **Yes** - PDF from NSO Nepal open data | `scripts/ingest_sources.py nlfs --pdf data/raw/nlfs_2017_18.pdf` | `data/processed/nlfs_indicators.json` |
 
 **ESCO download:** https://esco.ec.europa.eu/en/use-esco/download → CSV package → unzip to `data/raw/esco/`.
 
@@ -241,11 +241,11 @@ data/raw/curriculum/
 
 ---
 
-## Part C — Data pipeline (run in THIS order)
+## Part C - Data pipeline (run in THIS order)
 
 Run from repo root with venv activated.
 
-### Step C1 — O\*NET (automated)
+### Step C1 - O\*NET (automated)
 
 ```powershell
 python scripts/download_onet.py
@@ -257,7 +257,7 @@ python scripts/download_onet.py
 | **Needs network** | Yes |
 | **Output** | `data/processed/onet_career_pathways.parquet` |
 
-### Step C2 — ESCO, BLS, NLFS (after you place raw files)
+### Step C2 - ESCO, BLS, NLFS (after you place raw files)
 
 ```powershell
 python scripts/ingest_sources.py esco --csv-dir data/raw/esco
@@ -270,7 +270,7 @@ python scripts/ingest_sources.py nlfs --pdf data/raw/nlfs_2017_18.pdf
 | **Time** | 2–10 min each |
 | **Skip if** | raw file not yet downloaded (pipeline still runs without them) |
 
-### Step C3 — Job postings (after manual collection OR scrape)
+### Step C3 - Job postings (after manual collection OR scrape)
 
 ```powershell
 # Option A: load manual JSON + limited automated scrape
@@ -285,7 +285,7 @@ python scripts/scrape_jobs.py --source manual
 | **Time** | seconds (manual) to 30+ min (full scrape with limits) |
 | **Output** | `data/processed/*_postings.json` |
 
-### Step C4 — Build vector index (ChromaDB)
+### Step C4 - Build vector index (ChromaDB)
 
 ```powershell
 python scripts/ingest_data.py
@@ -300,7 +300,7 @@ python scripts/ingest_data.py --stats-only
 | **Output** | `data/chromadb/` populated |
 | **Prerequisite** | Steps C1–C3 + curriculum PDFs for best results |
 
-### Step C5 — Explore data (notebook)
+### Step C5 - Explore data (notebook)
 
 ```powershell
 jupyter notebook notebooks/01_data_eda.ipynb
@@ -313,20 +313,20 @@ jupyter notebook notebooks/01_data_eda.ipynb
 
 ---
 
-## Part D — Run the advising system (demo path)
+## Part D - Run the advising system (demo path)
 
-### D1 — Start backend
+### D1 - Start backend
 
 ```powershell
-# Terminal 1 — Ollama (if not already running)
+# Terminal 1 - Ollama (if not already running)
 ollama serve
 
-# Terminal 2 — API
+# Terminal 2 - API
 python scripts/run_api.py
 # Open http://127.0.0.1:8000/docs
 ```
 
-### D2 — Start frontend
+### D2 - Start frontend
 
 ```powershell
 # Terminal 3
@@ -335,7 +335,7 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### D3 — Quick CLI test (no browser)
+### D3 - Quick CLI test (no browser)
 
 ```powershell
 python scripts/advise.py "What software jobs exist in Kathmandu for new graduates?"
@@ -350,9 +350,9 @@ python scripts/advise.py "What software jobs exist in Kathmandu for new graduate
 
 ---
 
-## Part E — Training (Colab / Kaggle only)
+## Part E - Training (Colab / Kaggle only)
 
-### E1 — Synthetic Q&A + LoRA (Phase 3)
+### E1 - Synthetic Q&A + LoRA (Phase 3)
 
 **Local first** (generates training files):
 
@@ -365,7 +365,7 @@ python scripts/generate_qa.py --pathways data/processed/onet_career_pathways.par
 | **Time** | 10–30 min (uses local Ollama or falls back to template) |
 | **Output** | `data/processed/sft_train.jsonl`, gold review file |
 
-**Then Colab** — open `notebooks/09_lora_finetune_phi35.ipynb`:
+**Then Colab** - open `notebooks/09_lora_finetune_phi35.ipynb`:
 
 1. Upload repo or clone from GitHub.
 2. Runtime → T4 GPU.
@@ -379,7 +379,7 @@ python scripts/generate_qa.py --pathways data/processed/onet_career_pathways.par
 
 ---
 
-### E2 — Gesture demonstrations (local)
+### E2 - Gesture demonstrations (local)
 
 ```powershell
 python scripts/collect_demonstrations.py --output data/cards/gesture_demonstrations.json
@@ -391,7 +391,7 @@ python scripts/collect_demonstrations.py --output data/cards/gesture_demonstrati
 | **Time** | 30–60 min |
 | **Where** | Local (StubEnv / no GPU) |
 
-### E3 — ACT policy (Colab)
+### E3 - ACT policy (Colab)
 
 Open `notebooks/07_lerobot_act_training.ipynb` on **Colab T4**.
 
@@ -403,15 +403,15 @@ Open `notebooks/07_lerobot_act_training.ipynb` on **Colab T4**.
 |---|---|
 | **Colab time** | **3–5 hours** |
 
-### E4 — Diffusion policy ablation (Colab)
+### E4 - Diffusion policy ablation (Colab)
 
-Open `notebooks/08_lerobot_diffusion_policy.ipynb` — same flow as E3.
+Open `notebooks/08_lerobot_diffusion_policy.ipynb` - same flow as E3.
 
 | | |
 |---|---|
 | **Colab time** | **3–6 hours** |
 
-### E5 — Verify policies locally (after copying checkpoints)
+### E5 - Verify policies locally (after copying checkpoints)
 
 ```powershell
 python scripts/run_simulation.py
@@ -420,15 +420,15 @@ jupyter notebook notebooks/11_sim_to_real_handoff.ipynb
 
 ---
 
-## Part F — Evaluation (thesis numbers)
+## Part F - Evaluation (thesis numbers)
 
-### F1 — Quick eval (no Ollama/ChromaDB)
+### F1 - Quick eval (no Ollama/ChromaDB)
 
 ```powershell
 python scripts/run_evaluation.py --c2 --c3
 ```
 
-### F2 — Full eval (needs ChromaDB + optionally Ollama)
+### F2 - Full eval (needs ChromaDB + optionally Ollama)
 
 ```powershell
 python scripts/run_evaluation.py --all --llm
@@ -439,7 +439,7 @@ python scripts/run_evaluation.py --all --llm
 | **Time** | 1–5 min (no LLM) to 15–30 min (with LLM) |
 | **Output** | `data/evaluation/report_<timestamp>.json` |
 
-### F3 — Notebooks (run in order for thesis chapter)
+### F3 - Notebooks (run in order for thesis chapter)
 
 | # | Notebook | Needs | Time |
 |---|---|---|---|
@@ -457,15 +457,15 @@ python scripts/run_evaluation.py --all --llm
 
 ---
 
-## Part G — ROS2 + simulation (WSL2 on Windows)
+## Part G - ROS2 + simulation (WSL2 on Windows)
 
 **When:** After Python advising works and (optionally) after Colab policy training.
 
-**Where:** Inside the **WSL2 Ubuntu 22.04 shell** — not the Windows PowerShell, and
+**Where:** Inside the **WSL2 Ubuntu 22.04 shell** - not the Windows PowerShell, and
 no dual-boot needed. One-time WSL/ROS2 install is in Part A6 and **`docs/wsl_setup.md`**.
 WSLg shows the Gazebo/RViz windows on your Windows desktop automatically.
 
-### G1 — Build workspace (in the Ubuntu/WSL shell)
+### G1 - Build workspace (in the Ubuntu/WSL shell)
 
 ```bash
 # repo on the Windows drive is reachable from WSL at /mnt/c:
@@ -476,9 +476,9 @@ source install/setup.bash
 ```
 
 > If `colcon build` is slow on `/mnt/c`, clone a copy into the native WSL home
-> (`~/drona`) and build there — see `docs/wsl_setup.md` §3.
+> (`~/drona`) and build there - see `docs/wsl_setup.md` §3.
 
-### G2 — Gazebo Harmonic (recommended on GTX 1650)
+### G2 - Gazebo Harmonic (recommended on GTX 1650)
 
 ```bash
 ros2 launch drona_bringup drona_gazebo.launch.py
@@ -491,20 +491,20 @@ Setup details: `docs/sim_setup_gazebo.md`
 | **First-time setup** | 1–2 hours (install Gazebo Harmonic + bridges) |
 | **Each launch** | 1–2 min |
 
-### G3 — Full system + RViz + record demo bag
+### G3 - Full system + RViz + record demo bag
 
 ```bash
 ros2 launch drona_bringup drona_system.launch.py use_rviz:=true record:=true bag_path:=demo_run
 ```
 
-### G4 — Send a gesture (second terminal)
+### G4 - Send a gesture (second terminal)
 
 ```bash
 ros2 action send_goal /drona/execute_gesture_action \
   drona_msgs/action/ExecuteGesture "{gesture_label: 'greet'}" --feedback
 ```
 
-### G5 — Isaac Sim (optional — needs ≥8 GB VRAM or cloud)
+### G5 - Isaac Sim (optional - needs ≥8 GB VRAM or cloud)
 
 See `docs/sim_setup_isaac.md` and `ros2_ws/src/drona_bringup/isaac/drona_isaac_stage.py`.
 
@@ -512,7 +512,7 @@ See `docs/sim_setup_isaac.md` and `ros2_ws/src/drona_bringup/isaac/drona_isaac_s
 
 ---
 
-## Part H — Recommended master timeline
+## Part H - Recommended master timeline
 
 | Week | Focus | Hours |
 |---|---|---|
@@ -521,17 +521,17 @@ See `docs/sim_setup_isaac.md` and `ros2_ws/src/drona_bringup/isaac/drona_isaac_s
 | **3** | Colab: LoRA (E1) + ACT (E3) | 6–10 (mostly Colab waiting) |
 | **4** | Colab: Diffusion (E4) + evaluation notebooks (F) | 8–12 |
 | **5** | WSL2: ROS2 + Gazebo demo (G) + record video | 8–12 |
-| **6** | Viva prep (`docs/viva_prep.md`) + thesis writing | — |
+| **6** | Viva prep (`docs/viva_prep.md`) + thesis writing | - |
 
 **Minimum viable demo (if short on time):**
 1. Skip ESCO/BLS/NLFS (O\*NET + 50 manual MeroJob postings still works).
-2. Skip LoRA/ACT training — use keyframe gestures (already work).
+2. Skip LoRA/ACT training - use keyframe gestures (already work).
 3. Run advising on Windows without ROS2; show Next.js + evaluation JSON.
    (ROS2/Gazebo in WSL2 is a bonus demo, not required for the core advising story.)
 
 ---
 
-## Part I — Troubleshooting
+## Part I - Troubleshooting
 
 | Problem | Fix |
 |---|---|
@@ -547,7 +547,7 @@ See `docs/sim_setup_isaac.md` and `ros2_ws/src/drona_bringup/isaac/drona_isaac_s
 
 ---
 
-## Part J — Checklist before viva
+## Part J - Checklist before viva
 
 - [ ] `pytest -q` → 431 passed
 - [ ] `data/raw/curriculum/` has your 3 module PDFs
@@ -556,7 +556,7 @@ See `docs/sim_setup_isaac.md` and `ros2_ws/src/drona_bringup/isaac/drona_isaac_s
 - [ ] Live demo: API + Next.js answers a biased query with flags + citations
 - [ ] `data/evaluation/report_*.json` exists with C1–C4 numbers
 - [ ] At least one Colab training artifact OR documented keyframe-only C3 baseline
-- [ ] WSL2: one Gazebo or RViz gesture recording (video/bag) — see `docs/wsl_setup.md`
+- [ ] WSL2: one Gazebo or RViz gesture recording (video/bag) - see `docs/wsl_setup.md`
 - [ ] Demo video recorded per `docs/demo_video_script.md`
 - [ ] Read `docs/viva_prep.md`
 

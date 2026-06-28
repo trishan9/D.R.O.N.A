@@ -195,7 +195,7 @@ class Ingestor:
         )
 
         logger.info(
-            f"Ingestor ready — chroma_dir={path} | "
+            f"Ingestor ready - chroma_dir={path} | "
             f"curriculum_model={settings.curriculum_embed_model} | "
             f"career_model={settings.career_embed_model}"
         )
@@ -211,7 +211,7 @@ class Ingestor:
     ) -> None:
         """Add documents in batches; skip IDs already present in the collection."""
         if not ids:
-            logger.debug("  No items to add — empty id list")
+            logger.debug("  No items to add - empty id list")
             return
         # chromadb >=1.x rejects get(ids=[]); guarded above. include=[] returns
         # only the ids of those already present, which we use to skip duplicates.
@@ -224,7 +224,7 @@ class Ingestor:
                 new_metas.append(meta)
 
         if not new_ids:
-            logger.debug(f"  All {len(ids)} items already present — nothing to add")
+            logger.debug(f"  All {len(ids)} items already present - nothing to add")
             return
 
         for i in range(0, len(new_ids), _BATCH_SIZE):

@@ -1,4 +1,4 @@
-# Model Card — `diffusion-gesture-policy`
+# Model Card - `diffusion-gesture-policy`
 
 **Architecture:** Diffusion Policy (visuomotor action diffusion) via LeRobot
 **Task:** upper-body social gesture generation for a 6-DOF arm (C3 **ablation** vs ACT)
@@ -12,7 +12,7 @@ Same `LeRobotDataset` v2 demonstrations as `act-gesture-policy`
 controlled (identical data, different policy class).
 
 ## Intended use
-Serve as the **ablation comparison** to ACT for the C3 contribution — does the
+Serve as the **ablation comparison** to ACT for the C3 contribution - does the
 policy-learning choice matter, and which is smoother on this small-demonstration
 regime? Exposed via `drona.interaction.diffusion_policy` behind `BasePolicy`, and
 selectable through `make_diffusion_or_keyframe`.
@@ -33,7 +33,7 @@ selectable through `make_diffusion_or_keyframe`.
 - **Status:** train on Colab T4 (`notebooks/08`), copy checkpoint, run `sim_eval`.
 
 ## Known limitations
-- Diffusion sampling is slower at inference than ACT — relevant for real-time
+- Diffusion sampling is slower at inference than ACT - relevant for real-time
   gesture latency; quantified in the ablation.
 - Simulation-trained; Colab-only training (exceeds 4 GB VRAM).
 

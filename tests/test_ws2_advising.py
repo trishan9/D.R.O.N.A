@@ -1,5 +1,5 @@
 """
-WS2 smoke tests — advising intelligence layer.
+WS2 smoke tests - advising intelligence layer.
 
 These tests do NOT load ML models, hit Ollama, or touch ChromaDB.
 They verify the logic, contracts, and schema validation using stubs and
@@ -345,7 +345,7 @@ class TestAdvisingEngine:
             "My friend got into Google. I'm scared of not making it. Tell me I'm good enough."
         )
         response = engine.advise(query)
-        # Multiple biases present in query — at least one should be detected
+        # Multiple biases present in query - at least one should be detected
         assert len(response.bias_flags) >= 1
 
 

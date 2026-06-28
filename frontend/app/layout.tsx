@@ -9,11 +9,11 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", displ
 
 export const metadata: Metadata = {
   title: {
-    default: "D.R.O.N.A. — Robotic Academic Advising",
+    default: "D.R.O.N.A. - Robotic Academic Advising",
     template: "%s · D.R.O.N.A.",
   },
   description:
-    "Demonstration-learned Robotic Oracle for Nurturing Aspirations — a bias-aware, locally-grounded academic and career advising platform with an embodied robot interface.",
+    "Demonstration-learned Robotic Oracle for Nurturing Aspirations - a bias-aware, locally-grounded academic and career advising platform with an embodied robot interface.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

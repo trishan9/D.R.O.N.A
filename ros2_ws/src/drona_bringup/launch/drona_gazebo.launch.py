@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. in Gazebo Harmonic (gz sim) — locally-runnable simulation.
+D.R.O.N.A. in Gazebo Harmonic (gz sim) - locally-runnable simulation.
 
 This is the low-VRAM alternative to Isaac Sim: Gazebo Harmonic runs on CPU/iGPU
 and is the recommended sim for the student's GTX-1650 dev box.

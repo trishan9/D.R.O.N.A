@@ -1,4 +1,4 @@
-# Research Papers — Grounding for Every Design Choice
+# Research Papers - Grounding for Every Design Choice
 
 Each architectural decision in D.R.O.N.A. is grounded in a cited paper. This table
 maps **paper → where it is used → why**. It is maintained as the system is built
@@ -19,7 +19,7 @@ maps **paper → where it is used → why**. It is maintained as the system is b
 | 7 | **Capuano et al. 2025**, "Robot Learning: A Tutorial", arXiv:2510.12403 | LeRobot dataset/training conventions (`lerobot_dataset.py`) | Canonical reference for the LeRobot ACT/Diffusion stack and `LeRobotDataset` v2 format |
 | 8 | **Mower et al. 2026**, "A robot operating system framework for using large language models in embodied AI", *Nature Machine Intelligence* | ROS2 LLM-in-the-loop architecture (`ros2_ws/`, `policy_node.py`) | Upgraded citation (replaces proposal's arXiv:2406.19741) for LLM↔ROS2 embodied integration |
 | 9 | **Macenski et al. 2022**, "Robot Operating System 2", *Science Robotics* | ROS2 Humble node/action/topic design (`docs/ros2_topics_actions.md`) | Foundational justification for ROS2 as the deployment middleware |
-| 10 | **Belpaeme et al. 2018**, "Social robots for education: A review", *Science Robotics* | Embodied advising rationale; gesture vocabulary (greet/nod/point/listen) | Evidence that social-robot embodiment improves educational engagement — the project's premise |
+| 10 | **Belpaeme et al. 2018**, "Social robots for education: A review", *Science Robotics* | Embodied advising rationale; gesture vocabulary (greet/nod/point/listen) | Evidence that social-robot embodiment improves educational engagement - the project's premise |
 | 11 | **Iatrellis et al. 2024**, "Leveraging Generative AI for Sustainable Academic Advising", *Sustainability* 16(17):7829 | Advising-engine framing; sustainability/local-stack argument (C4) | Direct precedent for GenAI academic advising; supports the low-cost local-stack design |
 | 12 | **Es et al. 2023**, "RAGAS: Automated Evaluation of RAG" | `drona/evaluation/ragas_harness.py` | Faithfulness / answer-relevancy / context-precision-recall metrics for RAG quality |
 

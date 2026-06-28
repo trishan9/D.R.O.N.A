@@ -21,7 +21,7 @@ Results are written to JSON files in the output directory. A human-readable summ
 
 ---
 
-## C1 — Retrieval Quality
+## C1 - Retrieval Quality
 
 **Claim:** The dual-collection ChromaDB retriever (dense + BM25 + RRF fusion) achieves MRR@10 ≥ 0.6 and nDCG@10 ≥ 0.55 on a held-out relevance-graded query set.
 
@@ -47,7 +47,7 @@ Results are written to JSON files in the output directory. A human-readable summ
 
 ---
 
-## C2 — Bias Detection Accuracy
+## C2 - Bias Detection Accuracy
 
 **Claim:** The rule-based `BiasDetector` achieves ≥ 85% F1 on five cognitive bias archetypes: anchoring, availability, status quo, overconfidence, and consistency.
 
@@ -57,7 +57,7 @@ Results are written to JSON files in the output directory. A human-readable summ
 3. Predicted labels are compared against ground-truth `bias_type` metadata
 4. Precision, recall, and F1 are computed per bias type and macro-averaged
 
-**No external services required** — bias detection is pure Python rule-based logic.
+**No external services required** - bias detection is pure Python rule-based logic.
 
 **Output file:** `data/evaluation/c2_bias_detection.json`
 
@@ -79,7 +79,7 @@ Results are written to JSON files in the output directory. A human-readable summ
 
 ---
 
-## C3 — Gesture Smoothness
+## C3 - Gesture Smoothness
 
 **Claim:** ACT-trained gesture policies produce lower peak jerk (≤ 30 rad/s³) than the keyframe interpolation baseline.
 
@@ -109,7 +109,7 @@ Results are written to JSON files in the output directory. A human-readable summ
 
 ---
 
-## C4 — Nepal Citation Ratio
+## C4 - Nepal Citation Ratio
 
 **Claim:** ≥ 60% of citations in advising responses are sourced from Nepal-tier data (`DataTier.NEPAL`).
 

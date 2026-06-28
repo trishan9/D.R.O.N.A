@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface RobotArmProps {
   joints: number[];
-  /** 0..1 engagement — widens the eyes / brightens the halo. */
+  /** 0..1 engagement - widens the eyes / brightens the halo. */
   engagement?: number;
   active?: boolean;
   className?: string;

@@ -25,7 +25,7 @@ export default function SkillsPage() {
               <Sparkles className="h-4 w-4 text-brand" /> Curriculum skill map
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              A graph of skills you have versus those the recommended pathways draw on — shown as a web,
+              A graph of skills you have versus those the recommended pathways draw on - shown as a web,
               not a ladder, so no single track looks like the &ldquo;top&rdquo;.
             </p>
           </CardHeader>
@@ -45,7 +45,7 @@ export default function SkillsPage() {
                 <ShieldQuestion className="h-4 w-4 text-brand" /> Next steps by reversibility
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Low-stakes, reversible steps are inviting; the few high-commitment ones are flagged — a
+                Low-stakes, reversible steps are inviting; the few high-commitment ones are flagged - a
                 counter to loss aversion.
               </p>
             </CardHeader>
@@ -66,7 +66,7 @@ export default function SkillsPage() {
           <CardContent className="pt-4">
             {interests.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                None yet — add interests on your <strong>Profile</strong> so advising can weigh them
+                None yet - add interests on your <strong>Profile</strong> so advising can weigh them
                 (and deliberately challenge them).
               </p>
             ) : (
@@ -89,7 +89,7 @@ export default function SkillsPage() {
             {skillLevels.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Rate a few skills on your Profile to see them here. Self-ratings are a known
-                Dunning–Kruger trap — advising treats them as hints, not facts.
+                Dunning–Kruger trap - advising treats them as hints, not facts.
               </p>
             ) : (
               skillLevels.map(([skill, level]) => (

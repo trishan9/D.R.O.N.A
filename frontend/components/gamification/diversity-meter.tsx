@@ -33,7 +33,7 @@ export function DiversityMeter({ response }: DiversityMeterProps) {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base">
-          <Compass className="h-4 w-4 text-tier-nepal" /> Evidence diversity
+          <Compass className="h-4 w-4 text-brand" /> Evidence diversity
         </CardTitle>
         <CardDescription>
           How wide a net this answer casts across sources. Broader = less anchored on one

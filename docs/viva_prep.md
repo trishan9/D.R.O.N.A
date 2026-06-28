@@ -1,4 +1,4 @@
-# Viva Prep — Anticipated Examiner Questions & Answers
+# Viva Prep - Anticipated Examiner Questions & Answers
 
 Practice answers for the BSc final-project defence. Grouped by theme. Each answer
 points to where the claim is evidenced in the repo.
@@ -35,11 +35,11 @@ quantifies the NDCG@5/MRR gain.
 **Q4. Why two embedding models?**
 bge-small for curriculum (general semantic) and JobBERT-v3 for jobs (domain-tuned,
 Decorte et al. 2025). `notebooks/03_embedding_quality.ipynb` shows JobBERT-v3
-separates career queries better — justifying the dual index.
+separates career queries better - justifying the dual index.
 
 **Q5. How do you know retrieval is relevant without labelled data?**
 Synthetic labelled queries (`evaluation/queries.py`) with collection-membership as
-a relevance proxy — standard IR practice (TREC/BEIR) when human labels need ethics
+a relevance proxy - standard IR practice (TREC/BEIR) when human labels need ethics
 approval. This is documented as a limitation, not hidden.
 
 ---
@@ -49,7 +49,7 @@ approval. This is documented as a limitation, not hidden.
 **Q6. Why rule-based bias detection instead of an LLM classifier?**
 **Transparency and falsifiability.** Every detection is a named keyword/regex
 pattern an examiner can inspect and challenge; an LLM judge would be a black box and
-could itself hallucinate bias. Trade-off: lower recall on paraphrases — measured in
+could itself hallucinate bias. Trade-off: lower recall on paraphrases - measured in
 `notebooks/05_bias_detection_eval.ipynb`.
 
 **Q7. How do you *mitigate* bias, not just detect it?**
@@ -59,7 +59,7 @@ hedged language (anti-overconfidence), and transparent bias flags shown in the U
 Measured by `drona/evaluation/bias_mitigation.py`.
 
 **Q8. Which biases and why those six?**
-Availability, anchoring, confirmation, Dunning–Kruger, loss-aversion, consistency —
+Availability, anchoring, confirmation, Dunning–Kruger, loss-aversion, consistency -
 drawn from Tversky & Kahneman 1974 and chosen because they are the ones that most
 distort *career* decisions (e.g. "my friend earns X", "I already told my parents").
 
@@ -67,7 +67,7 @@ distort *career* decisions (e.g. "my friend earns X", "I already told my parents
 
 ## D. Robotics (C3)
 
-**Q9. You have no physical robot — how is C3 valid?**
+**Q9. You have no physical robot - how is C3 valid?**
 C3 is a *simulation* contribution in Phase 1 (explicit in the proposal). We measure
 jerk, path length, and apex accuracy in MuJoCo/Gazebo and compare ACT vs keyframe
 (`sim_eval.py`, `notebooks/07,10`). The ROS2 action interface swaps to the SO-100
@@ -96,11 +96,11 @@ enforced at startup (`api/app.py`). This is the C4 contribution.
 Zero PII: random session UUID, in-memory only, no persistence, no analytics,
 contract-enforced (`extra="forbid"`). See `data_ethics.md`.
 
-**Q14. The MeroJob data — did you scrape it?**
+**Q14. The MeroJob data - did you scrape it?**
 No. MeroJob ToS §3.E prohibits scraping. Data is **manually collected** into a JSON
 template; scraper stubs are disabled and document the prohibition. See `data_ethics.md` §3.
 
-**Q15. Synthetic data — isn't that circular for fine-tuning?**
+**Q15. Synthetic data - isn't that circular for fine-tuning?**
 It's labelled (`is_synthetic=True`), anchored to real entries, human-reviewed into a
 gold set, used only for fine-tune/eval, and never presented to students as evidence.
 The base-vs-LoRA ablation (`finetune/ablation.py`) checks it actually helps.
@@ -125,7 +125,7 @@ documented in the cards and notebooks.
 
 **Q18. Why Pydantic contracts everywhere?**
 Single source of truth, runtime validation, and they mirror cleanly to ROS2
-`.msg/.action/.srv` — so Phase 2 is a transport change, not a rewrite.
+`.msg/.action/.srv` - so Phase 2 is a transport change, not a rewrite.
 
 **Q19. How is it reproducible?**
 Pinned deps (`pyproject.toml`), Docker Compose for Postgres/Ollama, seeded

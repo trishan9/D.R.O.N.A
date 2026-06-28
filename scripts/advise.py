@@ -76,7 +76,7 @@ def main(
             typer.echo(f"  • {bf.bias_type}: {bf.detected_signal[:80]}")
 
     for i, pw in enumerate(response.pathways, 1):
-        typer.secho(f"\n[{i}] {pw.pathway_title} — confidence: {pw.confidence}", bold=True)
+        typer.secho(f"\n[{i}] {pw.pathway_title} - confidence: {pw.confidence}", bold=True)
         typer.echo(f"    {pw.rationale}")
         if pw.local_market_evidence:
             typer.echo(f"    Nepal market: {pw.local_market_evidence[:120]}")

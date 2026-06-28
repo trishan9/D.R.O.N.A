@@ -11,7 +11,7 @@
  * PRIVACY: everything here is DEVICE-LOCAL (browser localStorage) and never sent
  * anywhere except the PII-free AdviseRequest the user explicitly submits. There
  * is no server-side account or persistence. A nickname/avatar is an optional,
- * self-chosen label — not identity, never transmitted.
+ * self-chosen label - not identity, never transmitted.
  */
 
 import * as React from "react";
@@ -148,7 +148,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(shape));
     } catch {
-      /* quota / private mode — non-fatal */
+      /* quota / private mode - non-fatal */
     }
   }, [profile, response, exploration, history, prefs, hydrated]);
 

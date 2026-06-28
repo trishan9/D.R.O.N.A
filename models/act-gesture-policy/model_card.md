@@ -1,4 +1,4 @@
-# Model Card — `act-gesture-policy`
+# Model Card - `act-gesture-policy`
 
 **Architecture:** ACT (Action Chunking Transformer) via LeRobot
 **Task:** upper-body social gesture generation for a 6-DOF arm (greet, nod, point, listen, farewell, idle)
@@ -31,7 +31,7 @@ Drop-in for `KeyframePolicy` via the `BasePolicy` interface.
 - **Metrics:** success rate (apex/rest tolerance), mean **jerk** (smoothness),
   path length, apex error.
 - **Baseline:** `KeyframePolicy` (linear interpolation). ACT is expected to achieve
-  **lower jerk** than the keyframe baseline — the C3 claim.
+  **lower jerk** than the keyframe baseline - the C3 claim.
 - **Status:** train on Colab T4 (`notebooks/07_lerobot_act_training.ipynb`), then
   copy the checkpoint to `data/checkpoints/` and run `sim_eval` to fill numbers.
 

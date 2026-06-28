@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. orchestrator — top-level session coordinator.
+D.R.O.N.A. orchestrator - top-level session coordinator.
 
 Connects all Phase 1 subsystems into a single run loop:
 
@@ -23,7 +23,7 @@ Query intake (Phase 1):
 Phase 2 upgrade path:
   In Phase 2, ticks become ROS2 subscription callbacks (one per sensor topic).
   submit_query() becomes a ROS2 service call. The orchestrator's internal
-  structure stays the same — only the transport layer changes.
+  structure stays the same - only the transport layer changes.
 
 Thread safety:
   submit_query() is safe to call from a different thread (e.g. Streamlit).
@@ -184,7 +184,7 @@ class Orchestrator:
             self._session_start = time.monotonic()
             self._session_responses = []
             logger.info(
-                f"New session [{self._machine.session_id[:8]}] — "
+                f"New session [{self._machine.session_id[:8]}] - "
                 f"student at {detection.estimated_distance_m:.1f}m"
                 if detection.estimated_distance_m else
                 f"New session [{self._machine.session_id[:8]}]"
@@ -208,7 +208,7 @@ class Orchestrator:
         # Advance to ADVISING
         self._machine.submit_query(query_text)
         if self._machine.state != SessionState.ADVISING:
-            logger.warning("State did not advance to ADVISING — skipping")
+            logger.warning("State did not advance to ADVISING - skipping")
             return
 
         # LISTEN gesture during processing
@@ -257,7 +257,7 @@ class Orchestrator:
         )
         self._completed_sessions.append(record)
         logger.info(
-            f"Session [{record.session_id[:8]}] complete — "
+            f"Session [{record.session_id[:8]}] complete - "
             f"{record.query_count} queries in {duration:.1f}s"
         )
 

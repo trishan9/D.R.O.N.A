@@ -3,7 +3,7 @@ Reusable UI component helpers for the D.R.O.N.A. dashboard.
 
 Two layers:
 
-  Pure data functions (no Streamlit imports) — safe to call in unit tests:
+  Pure data functions (no Streamlit imports) - safe to call in unit tests:
     format_bias_summary()
     format_pathway_markdown()
     format_citation_text()
@@ -11,7 +11,7 @@ Two layers:
     tier_label()
     bias_colour()
 
-  Streamlit rendering functions (import streamlit) — not testable in CI:
+  Streamlit rendering functions (import streamlit) - not testable in CI:
     render_bias_flags()
     render_pathway_columns()
     render_citation_expander()
@@ -41,10 +41,10 @@ _TIER_LABELS: dict[str, str] = {
 }
 
 _TIER_COLOURS: dict[str, str] = {
-    "nepal": "#1a7f37",        # green — local data prioritised
+    "nepal": "#1a7f37",        # green - local data prioritised
     "regional": "#0969da",     # blue
     "international": "#6e7781", # grey
-    "synthetic": "#cf222e",    # red — always flagged
+    "synthetic": "#cf222e",    # red - always flagged
 }
 
 _BIAS_COLOURS: dict[str, str] = {
@@ -116,7 +116,7 @@ def format_pathway_markdown(pathway: PathwayRecommendation, index: int) -> str:
 
     Args:
         pathway: PathwayRecommendation to render.
-        index: 1-based index for display (not used for ranking — anti-anchoring).
+        index: 1-based index for display (not used for ranking - anti-anchoring).
 
     Returns:
         Markdown string.
@@ -152,7 +152,7 @@ def format_pathway_markdown(pathway: PathwayRecommendation, index: int) -> str:
 def format_citation_text(citation: RetrievalCitation) -> str:
     """Render a citation as a short text block."""
     label = tier_label(citation.tier.value)
-    return f"[{label}] {citation.source_type} — {citation.excerpt[:180]}…"
+    return f"[{label}] {citation.source_type} - {citation.excerpt[:180]}…"
 
 
 def pathway_columns_layout(n_pathways: int) -> list[int]:
@@ -252,7 +252,7 @@ def render_citation_expander(
     """Render citations in a collapsible expander."""
     import streamlit as st  # type: ignore[import]
 
-    label = f"Sources ({len(citations)})" + (f" — {context_label}" if context_label else "")
+    label = f"Sources ({len(citations)})" + (f" - {context_label}" if context_label else "")
     with st.expander(label, expanded=False):
         # Sort: Nepal first
         tier_order = {"nepal": 0, "regional": 1, "international": 2, "synthetic": 3}

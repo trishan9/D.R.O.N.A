@@ -1,12 +1,12 @@
-# D.R.O.N.A. — Build Progress Ledger
+# D.R.O.N.A. - Build Progress Ledger
 
 > Cross-session handoff. Read this FIRST every session (see SESSION START
 > PROTOCOL in `DRONA_BUILD_PROMPT.md`). Format defined in `PROGRESS_TEMPLATE.md`.
 
 ## Current State
-- **Active phase:** Phase 8 — documentation (COMPLETE). **All phases 0–8 done.**
+- **Active phase:** Phase 8 - documentation (COMPLETE). **All phases 0–8 done.**
   431 tests pass (re-verified 2026-06-27).
-- **Active task:** 2026-06-27 — **end-to-end data + training bring-up on real
+- **Active task:** 2026-06-27 - **end-to-end data + training bring-up on real
   hardware.** Populated the pipeline with placeholder curriculum/jobs + the REAL
   O*NET 30.3 dataset, ran the real dual-embedding ingest, generated the LoRA SFT
   dataset, trained the CPU behavior-cloning gesture baseline, and verified the
@@ -34,7 +34,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 | 0 Bootstrap | pyproject, .env.example, .gitignore, README, tests | ✅ filled: deps groups, docker-compose, Alembic, CI, PROGRESS.md, db pkg |
 | 1 Data pipeline | contracts, O*NET loader, ChromaDB ingest, manual loader, DataTier | ESCO/BLS/NLFS ingest, synthetic gen, pgvector schema, Pinecone, data_cards |
 | 2 Advising | retriever (BM25+dense RRF), bias_detector (6), prompt_builder, llm_client, engine | LangChain RAG chain, LangGraph graph, reranker, FastAPI+websocket, Qwen fallback |
-| 3 LoRA | — | all (synthetic Q&A, gold set, LoRA notebook, ablation, model_card) |
+| 3 LoRA | - | all (synthetic Q&A, gold set, LoRA notebook, ablation, model_card) |
 | 4 LeRobot | demonstration, mujoco_env, act_policy, gesture_dispatcher, train_act.py | MuJoCo upper-body env, dataset conversion, ACT+Diffusion notebooks, SmolVLA, sim eval |
 | 5 ROS2/sim | ros2_ws (msgs, srvs, 5 nodes, launch) | .action defs + action server, URDF, Isaac Sim, Gazebo Harmonic, rosbag, topics doc |
 | 6 Frontend | Streamlit dashboard (legacy) | Next.js 14 + Tailwind + shadcn/ui + streaming + gamification |
@@ -57,7 +57,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
 (☐ not started · ◐ in progress · ☑ complete)
 
 ## What Shipped (most recent first)
-- 2026-06-27 — **Real data + training bring-up (CPU/Windows).** Brought the whole
+- 2026-06-27 - **Real data + training bring-up (CPU/Windows).** Brought the whole
   pipeline to life on the student's box and fixed several real bugs found by
   actually running it.
   - **Placeholder data** (clearly marked, drop-in replaceable): 10 Softwarica
@@ -83,12 +83,12 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
     (phase-conditioned behavior-cloning `BasePolicy`) + `scripts/train_bc_gesture.py`.
     Generated 150 demonstration episodes (5000 frames) and trained 6 per-gesture
     MLPs to val-MSE ≈ 1e-6. Sim-eval vs keyframe baseline: BC is **smoother**
-    (mean jerk 0.0002 vs 0.0005 — the C3 win) and hits 4/6 gestures; it undershoots
-    the two high-amplitude gestures (greet/farewell) — the textbook BC
+    (mean jerk 0.0002 vs 0.0005 - the C3 win) and hits 4/6 gestures; it undershoots
+    the two high-amplitude gestures (greet/farewell) - the textbook BC
     regression-to-mean limit that motivates ACT's action chunking. Checkpoints +
     `bc_training_report.json` under `data/checkpoints/bc/` (gitignored).
   - **Sim demo fixed + verified:** `scripts/run_simulation.py` had drifted from the
-    current APIs — repaired `GestureDispatcher`/`PolicyRouter` construction, the
+    current APIs - repaired `GestureDispatcher`/`PolicyRouter` construction, the
     perception import, and the `SessionMachine.context` → `.state`/`session_summary()`
     refactor; rewired the session loop to walk greet→listen→advise→farewell
     deterministically. Headless full-session run is green (run with `PYTHONUTF8=1`
@@ -97,18 +97,18 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
     prod server serves 200 on /, /advisor, /pathways, /robot, /analytics, /skills,
     /about.
   - **ROS2 verified:** all 18 nodes/launch py_compile clean; msgs/srv/action present
-    (`colcon build` still needs WSL2 + ROS2 Humble — `docs/wsl_setup.md`).
+    (`colcon build` still needs WSL2 + ROS2 Humble - `docs/wsl_setup.md`).
   - **Gated externally:** live LLM advising needs Ollama (pkg installed, server/binary
-    not) — `ollama serve` + pull a model. GPU trainings (LoRA/ACT/Diffusion) run on
+    not) - `ollama serve` + pull a model. GPU trainings (LoRA/ACT/Diffusion) run on
     Colab T4. **Verify:** `pytest -q` → 431 passed, 1 skipped.
 
-- 2026-06-13 — **Frontend v2: multi-page platform + robot web-twin + NVIDIA/WSL
+- 2026-06-13 - **Frontend v2: multi-page platform + robot web-twin + NVIDIA/WSL
   sim clarity.** Rebuilt `frontend/` from a single dashboard into a 10-page
   sidebar-navigated app (DataCamp-style modern-minimal, light+dark via
   next-themes). New app shell (`components/layout/`: sidebar, topbar, user menu,
   mobile sheet). Pages under `app/(app)/`: Dashboard, Advisor (real WS streaming),
   Pathways, Skills, Analytics, **Robot Control**, Profile, Achievements,
-  Preferences, About. New libs: `store.tsx` (localStorage session store — profile/
+  Preferences, About. New libs: `store.tsx` (localStorage session store - profile/
   response/exploration/history/prefs, zero PII), `robot.ts` (1:1 TS port of
   `demonstration.py` keyframes + FK), `rosbridge.ts` (dependency-free rosbridge v2
   client), `analytics.ts` (live + clearly-labelled reference metrics), `nav.ts`.
@@ -117,13 +117,13 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   mode: subscribes `/drona/joint_states`, calls `/drona/execute_gesture`. Added
   `rosbridge:=true` arg to `drona_system.launch.py` + `docs/wsl_setup.md` §9.
   Clarified Isaac Sim story (`sim_setup_isaac.md`): WSL2 is supported but Isaac
-  needs an **RTX** GPU — the GTX 1650 is GTX (no RTX cores) → cloud-only; Gazebo +
+  needs an **RTX** GPU - the GTX 1650 is GTX (no RTX cores) → cloud-only; Gazebo +
   web twin are the local embodied demo. Added shadcn primitives (avatar,
   dropdown-menu, switch, select, scroll-area, sheet, skeleton); deps next-themes +
   5 radix pkgs. Reused all existing components (chat/pathways/gamification).
   **Verify:** `cd frontend && npm run build` (✓ 11 routes) + `npm run typecheck`
   (✓ clean); runtime SSR 200 on all routes.
-- 2026-06-13 — **WSL2 migration** (student dropped Ubuntu dual-boot; now Windows 11
+- 2026-06-13 - **WSL2 migration** (student dropped Ubuntu dual-boot; now Windows 11
   + WSL only). New `docs/wsl_setup.md` (WSL2 install, WSLg GUI, NVIDIA WSL GPU,
   `/mnt/c` vs native repo, ROS2 Humble + Gazebo Harmonic install, build/run, GL
   software-fallback troubleshooting, usbipd-win for Phase-2 USB arm). Re-pointed
@@ -132,17 +132,17 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   (sim section + docs index), `ros2_setup.md` (WSL2 promoted to primary path),
   `sim_setup_gazebo.md` (platform note + WSL GL troubleshooting rows),
   `phase1_plan.md`, `hardware_setup.md`, and the `drona_gazebo.launch.py` docstring.
-  No ROS2 *code* change needed — Humble runs unchanged inside WSL2; only setup/docs
+  No ROS2 *code* change needed - Humble runs unchanged inside WSL2; only setup/docs
   differ. Also committed prior session's polish (STUDENT_RUNBOOK, README/verify_env
   edits, PROGRESS_TEMPLATE removal). **Verify:** `pytest -q` → 431 passed, 1
   skipped (re-confirmed this session); docs render; ROS2 build is a WSL step.
-- 2026-06-09 — Student operational guide + final polish — `docs/STUDENT_RUNBOOK.md`
+- 2026-06-09 - Student operational guide + final polish - `docs/STUDENT_RUNBOOK.md`
   (complete runbook: data collection paths, script order, local/Colab/Ubuntu matrix,
   time estimates, master timeline, troubleshooting, viva checklist). Added
   `data/raw/curriculum/`, `data/raw/esco/`, `data/checkpoints/` gitkeeps.
   Updated `README.md` (prominent runbook link + build status), `verify_env.py`
   (current phase messaging). Confirmed canonical 11 notebooks only.
-- 2026-06-09 — Phase 8 documentation (PROJECT COMPLETE) — `docs/data_ethics.md`
+- 2026-06-09 - Phase 8 documentation (PROJECT COMPLETE) - `docs/data_ethics.md`
   (PII policy + full licensing matrix + scraping prohibitions + cloud-LLM boundary);
   `docs/phase1_plan.md` + `docs/phase2_plan.md` (delivered vs deferred); 
   `docs/research_papers.md` (paper → design-choice mapping, 12 core + supporting);
@@ -154,13 +154,13 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   `models/diffusion-gesture-policy/model_card.md` (phi35-lora card already existed);
   README documentation index + Running updates (Next.js + ROS2). **Verify:** all docs
   render; `rg "```mermaid" docs/architecture.md` → 4.
-- 2026-06-09 — Phase 7 evaluation harness — new `drona/evaluation/` modules:
+- 2026-06-09 - Phase 7 evaluation harness - new `drona/evaluation/` modules:
   `bias_mitigation.py` (pathway diversity, hedge frequency, counter-recommendation
   rate, refusal rate, tier-citation distribution, nepal-first rate, bias-flag
-  coverage — the response-level *mitigation* metrics, distinct from detection
+  coverage - the response-level *mitigation* metrics, distinct from detection
   P/R/F1); `stats.py` (scipy.stats comparison harness: Welch t, Mann-Whitney U,
   Cohen's d, rank-biserial, bootstrap 95% CI, Shapiro normality, paired
-  t/Wilcoxon — for robot-vs-traditional and ACT-vs-keyframe); `ragas_harness.py`
+  t/Wilcoxon - for robot-vs-traditional and ACT-vs-keyframe); `ragas_harness.py`
   (Ragas when installed + offline judge, else a transparent lexical proxy clearly
   labelled as such); `citation_eval.py` (aggregate grounding / hallucination rate
   over response sets, reusing `advising.verify`). Exported via `evaluation/__init__`.
@@ -170,9 +170,9 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   non-canonical duplicates). All notebooks degrade gracefully (no ChromaDB/Ollama/
   GPU needed to run). **Verify:** `pytest tests/test_ws7_phase7_eval.py` (16 pass;
   431 total) ; `python scripts/run_evaluation.py --c2 --c3`.
-- 2026-06-09 — Phase 5 ROS2 + simulation — `drona_msgs/action/ExecuteGesture.action`
+- 2026-06-09 - Phase 5 ROS2 + simulation - `drona_msgs/action/ExecuteGesture.action`
   (goal/result/feedback; wired into CMakeLists + package.xml with action_msgs).
-  `drona_ros/policy_node.py` — ROS2 **ActionServer** wrapping the LeRobot/keyframe
+  `drona_ros/policy_node.py` - ROS2 **ActionServer** wrapping the LeRobot/keyframe
   PolicyRouter with per-frame feedback (progress/joint_positions), cancellation,
   and /drona/joint_states streaming (entry point added). New `drona_description`
   package: humanoid upper-body URDF (`drona_humanoid.urdf.xacro`, joints =
@@ -188,7 +188,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   colcon build --symlink-install`; `ros2 launch drona_bringup drona_system.launch.py
   use_rviz:=true`; `ros2 action send_goal /drona/execute_gesture_action
   drona_msgs/action/ExecuteGesture "{gesture_label: 'greet'}" --feedback`.
-- 2026-06-09 — Phase 6 Next.js frontend — `frontend/` Next.js 14 App Router +
+- 2026-06-09 - Phase 6 Next.js frontend - `frontend/` Next.js 14 App Router +
   TypeScript + Tailwind + shadcn/ui (new-york). `lib/types.ts` mirrors the Pydantic
   contracts; `lib/api.ts` REST + WS client (derives ws:// from API URL; advising
   path stays local-only); `lib/gamification.ts` pure anti-bias logic (diversity
@@ -202,7 +202,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   primitives. **Verify:** `cd frontend && npm install && npm run build`
   (passes; Next 14.2.35) + `npm run typecheck` (green); `npm run dev` against
   `python scripts/run_api.py`.
-- 2026-06-09 — Phase 4 LeRobot policies — `drona/interaction/lerobot_dataset.py`
+- 2026-06-09 - Phase 4 LeRobot policies - `drona/interaction/lerobot_dataset.py`
   (pure `to_lerobot_records` + `LEROBOT_FEATURES` spec + lazy `build_lerobot_dataset`
   via `LeRobotDataset.create`; gesture label = per-frame `task`/instruction, 20 FPS),
   `sim_eval.py` (backend/policy-agnostic harness: success rate = reached-apex +
@@ -215,7 +215,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   (Colab T4, LeRobot CLI training + three-way eval). +20 tests (415 total green, 1
   skipped). **Verify:** `pytest tests/test_ws4_phase4_lerobot.py -q`;
   `python -c "from drona.interaction.sim_eval import evaluate_keyframe_baseline as e; print(e().success_rate)"`.
-- 2026-06-09 — Phase 3 LoRA fine-tune — `drona/finetune/`: `qa_generator.py`
+- 2026-06-09 - Phase 3 LoRA fine-tune - `drona/finetune/`: `qa_generator.py`
   (deterministic, grounded, bias-balanced synthetic advising Q&A → gold JSON
   answers; anchored + labelled), `dataset.py` (chat SFT formatting via the
   production prompt_builder + train/val split + JSONL), `gold_set.py` (stratified
@@ -229,10 +229,10 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   +19 tests (395 total green, 1 skipped=peft). **Verify:**
   `pytest tests/test_ws3_finetune.py -q`;
   `python scripts/generate_qa.py --pathways <pathways.json> --n 500`.
-- 2026-06-09 — Phase 2 advising intelligence — `drona/advising/verify.py`
+- 2026-06-09 - Phase 2 advising intelligence - `drona/advising/verify.py`
   (transparent citation-grounding check → downgrades/strips ungrounded pathways).
   Qwen2.5-3B multilingual fallback in `LLMClient` (local, tries primary→fallback,
-  bounded retries). `drona/advising/graph.py` — LangGraph StateGraph
+  bounded retries). `drona/advising/graph.py` - LangGraph StateGraph
   (detect_bias→retrieve→generate→verify→format, conditional retry on parse
   failure, refusal on thin coverage) wrapping the EXISTING tested components +
   `.advise()`/`.stream()`; node fns unit-testable without LangGraph. FastAPI app
@@ -242,7 +242,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   +22 tests (376 total green); LangGraph + FastAPI paths covered (importorskip on
   [dev]-only). **Verify:** `pytest tests/test_ws2b_phase2.py -q`;
   `pip install -e ".[backend]"` then `python scripts/run_api.py` → open `/docs`.
-- 2026-06-09 — Phase 1 ingestion — Added source loaders: `esco.py` (ESCO v1.2.1
+- 2026-06-09 - Phase 1 ingestion - Added source loaders: `esco.py` (ESCO v1.2.1
   CSV bulk + API fallback, ICT filter), `bls.py` (OEWS wage bands + pathway
   enrichment), `nlfs.py` (Nepal LFS PDF → citable LabourSnippets), `synthetic.py`
   (deterministic rule-based + optional local-LLM/offline-Gemini, always labelled
@@ -253,7 +253,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   +20 offline tests (354 total green). **Verify:** `pytest -q`;
   `python scripts/ingest_sources.py --help`;
   `python scripts/ingest_sources.py synthetic --jobs data/manual_collection/_template.json --n 2 --out /tmp/s.json`.
-- 2026-06-09 — Phase 0 gap-fill — Added: optional dep groups (backend/db/genai/eval)
+- 2026-06-09 - Phase 0 gap-fill - Added: optional dep groups (backend/db/genai/eval)
   in `pyproject.toml`; expanded `.env.example` + `settings.py` with Gemini (offline-
   only, guarded), Vertex (flagged off), Pinecone, Postgres DSN, FastAPI config;
   `docker-compose.yml` (pgvector/pg16 + optional Ollama); `drona/db/` SQLAlchemy
@@ -262,43 +262,43 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   **Verify:** `pip install -e ".[dev]"` then `pytest -q` (existing suite green);
   `python -c "import drona.utils.settings as s; print(s.settings.vector_backend)"`.
 
-## Open Blockers (student action — see `docs/STUDENT_RUNBOOK.md`)
-- **Curriculum / jobs are PLACEHOLDERS (2026-06-27)** — the pipeline is fully
+## Open Blockers (student action - see `docs/STUDENT_RUNBOOK.md`)
+- **Curriculum / jobs are PLACEHOLDERS (2026-06-27)** - the pipeline is fully
   populated and run with dummy data so everything works end-to-end. Replace
   `data/raw/curriculum/*.md|pdf` (10 dummy Softwarica modules) and
   `data/manual_collection/*/*_placeholder_postings.json` (40 dummy Nepali jobs)
   with the real materials, then re-run `python scripts/scrape_jobs.py --source manual`
   + `python scripts/download_onet.py` + `python scripts/ingest_data.py`. O*NET 30.3
   is already downloaded and ingested (real). Curriculum/jobs are drop-in.
-- **Live LLM advising needs Ollama** — `ollama` python pkg is installed but the
+- **Live LLM advising needs Ollama** - `ollama` python pkg is installed but the
   server/binary is not. Install Ollama, `ollama serve`, and pull a model
   (e.g. `qwen2.5:3b`); retrieval (C1) already works without it.
-- **Colab training runs not yet executed** — LoRA (nb 09, SFT data ready),
+- **Colab training runs not yet executed** - LoRA (nb 09, SFT data ready),
   ACT (nb 07), Diffusion (nb 08); copy checkpoints to `data/checkpoints/`. A CPU
   behavior-cloning baseline IS trained (`scripts/train_bc_gesture.py`).
-- **ROS2/Gazebo demo not yet recorded** — runs in **WSL2 (Ubuntu 22.04) on
+- **ROS2/Gazebo demo not yet recorded** - runs in **WSL2 (Ubuntu 22.04) on
   Windows 11**; no dual-boot needed. ROS2 not yet installed in WSL. See
   `docs/wsl_setup.md`.
-- **Demo video not yet recorded** — script at `docs/demo_video_script.md`.
+- **Demo video not yet recorded** - script at `docs/demo_video_script.md`.
 - **Windows note:** run CLI scripts with `PYTHONUTF8=1` (Python 3.14 isn't UTF-8
   mode by default; the consoles use cp1252 and crash on box-drawing output).
 
 ## User-Provided Context
-- 2026-06-09 — Strategy = **EXTEND** (keep working code, add missing pieces).
-- 2026-06-09 — **API keys are available** (Gemini / Vertex / Pinecone). Wired into
+- 2026-06-09 - Strategy = **EXTEND** (keep working code, add missing pieces).
+- 2026-06-09 - **API keys are available** (Gemini / Vertex / Pinecone). Wired into
   `.env.example` + `settings.py`. Gemini/Vertex remain OUT of the live request path.
-- 2026-06-09 — Curriculum PDFs and Nepali job data **not ready yet** → build
+- 2026-06-09 - Curriculum PDFs and Nepali job data **not ready yet** → build
   pipelines + templates/stubs; fill with real data later.
 
 ## Decision Log
-- 2026-06-09 — Keep ChromaDB as default `VECTOR_BACKEND`; add pgvector + Pinecone
+- 2026-06-09 - Keep ChromaDB as default `VECTOR_BACKEND`; add pgvector + Pinecone
   as selectable backends. Rationale: student hardware (GTX 1650 4GB, 16GB RAM)
   runs Chroma with zero infra; Postgres/Pinecone demonstrate production scale.
-- 2026-06-09 — pgvector dims fixed: curriculum 384 (bge-small-en-v1.5),
+- 2026-06-09 - pgvector dims fixed: curriculum 384 (bge-small-en-v1.5),
   career 1024 (JobBERT-v3). HNSW + cosine (encoders trained for cosine).
-- 2026-06-09 — Gemini guarded by `allow_gemini_in_request_path=False`; offline-only
+- 2026-06-09 - Gemini guarded by `allow_gemini_in_request_path=False`; offline-only
   use preserves the proposal's "local-only advising" novelty claim (C4).
-- 2026-06-09 — Upgrade Mower et al. citation to the Nature Machine Intelligence
+- 2026-06-09 - Upgrade Mower et al. citation to the Nature Machine Intelligence
   2026 version per prompt; to be recorded in `docs/research_papers.md` (Phase 8).
 
 ## Notes for Next Session
@@ -313,7 +313,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   `stats.compare_conditions` is the ready-to-use harness for when that data exists.
 - Phase 5 caveat: code/launch/URDF/docs are written and Python-syntax-clean, but
   `colcon build` + runtime need Ubuntu 22.04 + ROS2 Humble (and Gazebo Harmonic /
-  Isaac for sim). The student has **no Ubuntu dual-boot** — this builds/runs in
+  Isaac for sim). The student has **no Ubuntu dual-boot** - this builds/runs in
   **WSL2 (Ubuntu 22.04)** on their Windows 11 box; WSLg renders Gazebo/RViz.
   Setup guide added: `docs/wsl_setup.md`. `policy_node` is the
   new action server; the older `gesture_node` (service) is kept for back-compat.
@@ -334,7 +334,7 @@ does **not** line up with the prompt's `Phase 0–8`. This ledger tracks the
   `data/checkpoints/<gesture>/` for `PolicyRouter` to auto-load. SmolVLA is a
   forward-looking VLA seam (no training) that falls back to keyframes today.
 - Pre-existing ruff lints in legacy interaction files (`act_policy.py`,
-  `demonstration.py`, `gesture_dispatcher.py`, `visualizer.py` — unused imports,
+  `demonstration.py`, `gesture_dispatcher.py`, `visualizer.py` - unused imports,
   E702 semicolons) are NOT from Phase 4; left untouched to avoid scope creep.
   The 4 new Phase-4 modules are lint-clean. Consider a `ruff --fix` housekeeping
   pass on the interaction package later.

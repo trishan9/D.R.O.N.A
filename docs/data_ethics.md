@@ -1,4 +1,4 @@
-# Data Ethics — D.R.O.N.A.
+# Data Ethics - D.R.O.N.A.
 
 This document is the single reference for D.R.O.N.A.'s data-handling ethics: the
 **PII policy**, the **licensing matrix** for every source, the **synthetic-data
@@ -7,7 +7,7 @@ decision is defensible at viva and reproducible by the next maintainer.
 
 ---
 
-## 1. PII policy — zero collection
+## 1. PII policy - zero collection
 
 D.R.O.N.A. collects, stores, and uses **no personally identifiable information**.
 
@@ -17,7 +17,7 @@ D.R.O.N.A. collects, stores, and uses **no personally identifiable information**
 | No persistence | The profile lives only in memory for the session; the frontend keeps it in React state (no `localStorage`, no cookies) and the backend never writes it to disk/DB |
 | No tracking | No analytics, no third-party calls in the request path, no logging of query text tied to identity |
 | Session-scoped | `StudentProfile` and `AdvisingQuery` are discarded at session end |
-| Contract-enforced | `StudentProfile` (`drona/contracts`) has `extra="forbid"` — no stray identity fields can be added accidentally |
+| Contract-enforced | `StudentProfile` (`drona/contracts`) has `extra="forbid"` - no stray identity fields can be added accidentally |
 
 This is a hard constraint, not a configuration. It satisfies the proposal's ethics
 commitment and removes the need for an ethics-board data-handling review for the
@@ -52,20 +52,20 @@ CC BY 4.0 attribution for O\*NET and ESCO is recorded in each dataset's
 The Nepali job portals' Terms of Service prohibit scraping. D.R.O.N.A. **never
 scrapes them**:
 
-- **MeroJob** — ToS §3.E explicitly prohibits automated collection.
-- **JobsNepal, Internsathi, Kumari Jobs** — treated identically (no scraping).
-- **LinkedIn** — never scraped; only published report **PDFs** are used.
+- **MeroJob** - ToS §3.E explicitly prohibits automated collection.
+- **JobsNepal, Internsathi, Kumari Jobs** - treated identically (no scraping).
+- **LinkedIn** - never scraped; only published report **PDFs** are used.
 
 Instead, the pipeline ships a **manual-collection JSON template**
 (`data/manual_collection/`) and a loader (`drona/data_pipeline/scrapers/manual_loader.py`).
 The student manually curates ~150–200 postings into the template; the loader
 validates them against the `JobPosting` contract. The per-source scraper modules
 exist as **documented, disabled stubs** that record this prohibition in code, so
-the decision is visible and auditable — they do not perform live scraping.
+the decision is visible and auditable - they do not perform live scraping.
 
 ---
 
-## 4. Synthetic data — always labelled, never silently mixed
+## 4. Synthetic data - always labelled, never silently mixed
 
 - Every synthetic record carries `is_synthetic=True` and `synthetic_anchor_ids`
   linking it to the real entries that inspired it (`JobPosting`, Q&A).
@@ -74,7 +74,7 @@ the decision is visible and auditable — they do not perform live scraping.
   "Synthetic" badge.
 - Synthetic Q&A is used for **fine-tuning and evaluation only**, not as retrieval
   evidence presented to students as fact.
-- Generation uses the **local** Phi-3.5 or the **offline** Gemini path — never the
+- Generation uses the **local** Phi-3.5 or the **offline** Gemini path - never the
   live advising request path (see §5).
 
 ---

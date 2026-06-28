@@ -108,7 +108,7 @@ class LLMClient:
         fallback_model: str | None = None,
     ) -> None:
         self._model = model or settings.ollama_model
-        # Multilingual fallback (Qwen2.5-3B) — still LOCAL, no API cost. Tried
+        # Multilingual fallback (Qwen2.5-3B) - still LOCAL, no API cost. Tried
         # when the primary model is unavailable or exhausts its retries, which
         # also helps for Nepali/code-switched queries (proposal Phase 2 seam).
         self._fallback_model = fallback_model or settings.ollama_fallback_model

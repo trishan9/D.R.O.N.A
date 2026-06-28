@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { GraduationCap, MapPin, Globe2, ListChecks, GitCompare } from "lucide-react";
+import { GraduationCap, MapPin, Globe2, ListChecks, GitCompare, Check } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,10 @@ import { ReversibilityViz } from "@/components/pathways/reversibility-viz";
 import type { Confidence, PathwayRecommendation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const CONFIDENCE_META: Record<Confidence, { label: string; className: string }> = {
-  high: { label: "High confidence", className: "bg-emerald-500/15 text-emerald-600" },
-  medium: { label: "Medium confidence", className: "bg-amber-500/15 text-amber-600" },
-  low: { label: "Low confidence", className: "bg-rose-500/15 text-rose-600" },
+const CONFIDENCE_META: Record<Confidence, { label: string; dot: string; className: string }> = {
+  high: { label: "High confidence", dot: "bg-success", className: "border-success/30 bg-success/10 text-success" },
+  medium: { label: "Medium confidence", dot: "bg-warning", className: "border-warning/30 bg-warning/10 text-warning" },
+  low: { label: "Low confidence", dot: "bg-destructive", className: "border-destructive/30 bg-destructive/10 text-destructive" },
 };
 
 interface PathwayCardProps {
@@ -40,35 +40,38 @@ export function PathwayCard({
   return (
     <Card
       className={cn(
-        "flex flex-col transition-shadow hover:shadow-md",
-        selected && "ring-2 ring-primary",
+        "flex flex-col overflow-hidden shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-card",
+        selected && "ring-2 ring-brand ring-offset-2 ring-offset-background",
         highlightCounter && "border-tier-synthetic/50",
       )}
     >
-      <CardHeader className="space-y-2 pb-3">
+      <CardHeader className="space-y-2.5 border-b bg-muted/20 pb-3">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-xs font-bold">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-tier-international text-xs font-bold text-brand-foreground shadow-soft">
               {index + 1}
             </span>
             <h3 className="font-semibold leading-tight">{pathway.pathway_title}</h3>
           </div>
-          <Badge className={cn("shrink-0", conf.className)} variant="secondary">
-            {conf.label}
-          </Badge>
         </div>
-        <p className="text-sm text-muted-foreground">{pathway.rationale}</p>
+        <div className="flex items-center justify-between">
+          <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", conf.className)}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", conf.dot)} />
+            {conf.label}
+          </span>
+        </div>
+        <p className="text-sm leading-relaxed text-muted-foreground">{pathway.rationale}</p>
       </CardHeader>
 
-      <CardContent className="flex flex-1 flex-col gap-3 text-sm">
+      <CardContent className="flex flex-1 flex-col gap-3.5 pt-4 text-sm">
         {pathway.matched_softwarica_modules.length > 0 && (
           <div className="space-y-1.5">
-            <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+            <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               <GraduationCap className="h-3.5 w-3.5" /> Builds on your modules
             </p>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1.5">
               {pathway.matched_softwarica_modules.map((m) => (
-                <Badge key={m} variant="outline" className="text-xs">
+                <Badge key={m} variant="secondary" className="font-normal">
                   {m}
                 </Badge>
               ))}
@@ -77,29 +80,29 @@ export function PathwayCard({
         )}
 
         {pathway.local_market_evidence && (
-          <p className="flex items-start gap-1.5 text-xs">
+          <div className="flex items-start gap-2 rounded-lg border border-tier-nepal/20 bg-tier-nepal/5 p-2.5 text-xs">
             <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-tier-nepal" />
             <span>
-              <span className="font-medium text-tier-nepal">Nepal market: </span>
-              {pathway.local_market_evidence}
+              <span className="font-semibold text-tier-nepal">Nepal market - </span>
+              <span className="text-foreground/80">{pathway.local_market_evidence}</span>
             </span>
-          </p>
+          </div>
         )}
 
         {pathway.international_context && (
-          <p className="flex items-start gap-1.5 text-xs">
+          <div className="flex items-start gap-2 rounded-lg border border-tier-international/20 bg-tier-international/5 p-2.5 text-xs">
             <Globe2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-tier-international" />
             <span>
-              <span className="font-medium text-tier-international">Global context: </span>
-              {pathway.international_context}
+              <span className="font-semibold text-tier-international">Global context - </span>
+              <span className="text-foreground/80">{pathway.international_context}</span>
             </span>
-          </p>
+          </div>
         )}
 
         {pathway.next_concrete_steps.length > 0 && (
           <div className="space-y-1.5">
-            <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-              <ListChecks className="h-3.5 w-3.5" /> Next steps — colour-coded by commitment
+            <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <ListChecks className="h-3.5 w-3.5" /> Next steps - by commitment
             </p>
             <ReversibilityViz steps={pathway.next_concrete_steps} />
           </div>
@@ -116,7 +119,7 @@ export function PathwayCard({
                 className="w-full"
                 onClick={onToggleCompare}
               >
-                <GitCompare className="h-3.5 w-3.5" />
+                {selected ? <Check className="h-3.5 w-3.5" /> : <GitCompare className="h-3.5 w-3.5" />}
                 {selected ? "Selected to compare" : "Add to comparison"}
               </Button>
             </>

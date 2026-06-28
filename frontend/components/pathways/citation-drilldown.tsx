@@ -19,7 +19,7 @@ export function CitationDrilldown({ citations, onOpen }: CitationDrilldownProps)
   if (citations.length === 0) {
     return (
       <p className="text-xs italic text-muted-foreground">
-        No citations attached — treat this with caution.
+        No citations attached - treat this with caution.
       </p>
     );
   }
@@ -39,7 +39,7 @@ export function CitationDrilldown({ citations, onOpen }: CitationDrilldownProps)
       >
         <span className="flex items-center gap-1.5">
           <Quote className="h-3.5 w-3.5" />
-          {citations.length} citation{citations.length === 1 ? "" : "s"} — see the evidence
+          {citations.length} citation{citations.length === 1 ? "" : "s"} - see the evidence
         </span>
         <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
       </button>

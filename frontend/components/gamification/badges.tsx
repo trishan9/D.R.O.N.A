@@ -49,7 +49,7 @@ export function ExplorationBadges({ exploration, response }: ExplorationBadgesPr
           <span className="text-sm tabular-nums text-muted-foreground">{earned}/{badges.length}</span>
         </CardTitle>
         <CardDescription>
-          Earned by exploring widely and checking evidence — not by committing fast.
+          Earned by exploring widely and checking evidence - not by committing fast.
         </CardDescription>
       </CardHeader>
       <CardContent>

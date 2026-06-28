@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. evaluation runner — measures all four research contributions.
+D.R.O.N.A. evaluation runner - measures all four research contributions.
 
 Usage:
     python scripts/run_evaluation.py              # run C2 + C3 (no ChromaDB/Ollama)

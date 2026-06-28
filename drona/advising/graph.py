@@ -1,6 +1,6 @@
 """
 LangGraph orchestration for D.R.O.N.A. advising (Mower et al. 2026, Nat. Mach.
-Intell. — LLMs in embodied AI; Lewis et al. 2020 — RAG).
+Intell. - LLMs in embodied AI; Lewis et al. 2020 - RAG).
 
 The advising request is a small state machine, made explicit as a LangGraph so
 the control flow (and its retry/refusal branches) is inspectable and defensible
@@ -17,7 +17,7 @@ Design choices:
     requires it.
   - The graph reuses the SAME tested components as ``AdvisingEngine``
     (Retriever, Reranker, BiasDetector, LLMClient) plus the new citation
-    ``verify`` stage — so this is an orchestration upgrade, not a rewrite.
+    ``verify`` stage - so this is an orchestration upgrade, not a rewrite.
 """
 
 from __future__ import annotations
@@ -229,7 +229,7 @@ def build_graph(comp: GraphComponents | None = None):
 
 
 class AdvisingGraph:
-    """LangGraph-backed advising orchestrator — drop-in for AdvisingEngine.advise."""
+    """LangGraph-backed advising orchestrator - drop-in for AdvisingEngine.advise."""
 
     def __init__(self, comp: GraphComponents | None = None) -> None:
         self._comp = comp or GraphComponents.default()

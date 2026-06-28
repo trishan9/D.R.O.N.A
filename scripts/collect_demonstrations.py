@@ -3,7 +3,7 @@ Demonstration data collection script for D.R.O.N.A. ACT training.
 
 Generates a bootstrap demonstration dataset from the pre-programmed keyframe
 trajectories. In production, this script would be replaced (or supplemented)
-by teleoperation recording — but for initial ACT training, keyframe-derived
+by teleoperation recording - but for initial ACT training, keyframe-derived
 demonstrations provide a reasonable starting point.
 
 Usage:

@@ -1,5 +1,5 @@
 """
-Phase 1 (extended) tests — ESCO, BLS, NLFS, synthetic generator, data-card MD.
+Phase 1 (extended) tests - ESCO, BLS, NLFS, synthetic generator, data-card MD.
 
 All offline: no network, no DB, no embeddings. Heavy/network paths (ESCO API,
 PDF download, sentence-transformers, pgvector/pinecone upsert) are intentionally
@@ -231,7 +231,7 @@ class TestDataCardMarkdown:
             description="A demo.",
         )
         md = card.to_markdown()
-        assert "# Data Card — `demo`" in md
+        assert "# Data Card - `demo`" in md
         assert "## Fields" in md
         assert "## Known limitations" in md
         assert "DemoSource" in md

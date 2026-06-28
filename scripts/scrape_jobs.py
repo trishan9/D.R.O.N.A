@@ -2,13 +2,13 @@
 Scrape Nepali tech job postings from automated sources and load manual collections.
 
 Automated (robots.txt verified May 2026):
-  - jobsnepal   — SSR site, sitemap-based discovery
-  - internsathi — sitemap-based, individual pages only
-  - kumarijob   — /search endpoint + individual pages
+  - jobsnepal   - SSR site, sitemap-based discovery
+  - internsathi - sitemap-based, individual pages only
+  - kumarijob   - /search endpoint + individual pages
 
 Manual loaders (JS-rendered or ToS restricts automation):
-  - merojob     — load from data/manual_collection/merojob/
-  - linkedin    — load from data/manual_collection/linkedin/
+  - merojob     - load from data/manual_collection/merojob/
+  - linkedin    - load from data/manual_collection/linkedin/
 
 Usage:
     python scripts/scrape_jobs.py                       # all sources, default limits
@@ -73,7 +73,7 @@ def main(
     out = out_dir or settings.data_processed_dir
 
     if dry_run:
-        logger.info("DRY RUN — discovering URLs only, not scraping pages")
+        logger.info("DRY RUN - discovering URLs only, not scraping pages")
 
     all_postings: list[JobPosting] = []
 

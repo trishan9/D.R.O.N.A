@@ -28,7 +28,7 @@ class AdvisingQAPair(BaseModel):
     bias_type: BiasLabel | None = None
     # Retrieval context the gold answer is allowed to cite (built from real anchors).
     context_citations: list[RetrievalCitation] = Field(default_factory=list)
-    # Gold assistant output — the exact JSON object the model should produce.
+    # Gold assistant output - the exact JSON object the model should produce.
     target_response: dict = Field(default_factory=dict)
 
     # Provenance / review

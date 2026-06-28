@@ -33,7 +33,7 @@ NLFS_PDF_URL = (
     "labour-force-survey-2017_18.pdf"
 )
 
-# Snippets must mention at least one labour-market term to be retained — keeps
+# Snippets must mention at least one labour-market term to be retained - keeps
 # the dataset relevant and drops boilerplate (title pages, acknowledgements).
 _RELEVANCE_TERMS = re.compile(
     r"\b(employ|unemploy|labour|labor|workforce|wage|income|sector|"
@@ -169,7 +169,7 @@ def build_data_card(snippets: list[LabourSnippet], output_path: Path) -> DataCar
         version=NLFS_VERSION,
         source_name=f"Nepal Labour Force Survey {NLFS_VERSION}",
         source_url=NLFS_PDF_URL,
-        license="Free public data — Government of Nepal (NSO/CBS)",
+        license="Free public data - Government of Nepal (NSO/CBS)",
         tier="nepal",
         collection_method="automated_bulk_download",
         record_count=len(snippets),
@@ -180,7 +180,7 @@ def build_data_card(snippets: list[LabourSnippet], output_path: Path) -> DataCar
             f"(employment, sectors, youth/informal work) in the advising layer (C4)."
         ),
         known_limitations=[
-            "PDF text extraction can mangle tables/figures — snippets are prose-biased",
+            "PDF text extraction can mangle tables/figures - snippets are prose-biased",
             "2017/18 is the latest full NLFS; figures predate recent shifts",
             "Relevance filter is keyword-based and may miss some context",
         ],

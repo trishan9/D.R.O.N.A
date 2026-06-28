@@ -5,10 +5,10 @@ Converts module descriptor documents (PDF / DOCX / plain text) into validated
 CurriculumModule objects ready for embedding and retrieval.
 
 Supported input formats:
-  .pdf   — pypdf text extraction (works for digitally-created PDFs)
-  .docx  — python-docx paragraph extraction
-  .txt   — direct UTF-8 read
-  .md    — same as .txt
+  .pdf   - pypdf text extraction (works for digitally-created PDFs)
+  .docx  - python-docx paragraph extraction
+  .txt   - direct UTF-8 read
+  .md    - same as .txt
 
 The parser is deliberately lenient: it extracts what it can and logs warnings
 for fields it cannot find. A module with only module_code + title + description
@@ -200,7 +200,7 @@ def parse_text(text: str, source_document: str | None = None) -> CurriculumModul
                 break
 
     if not module_code and not title:
-        logger.warning("  Cannot identify module_code or title — skipping document")
+        logger.warning("  Cannot identify module_code or title - skipping document")
         return None
 
     # Use filename as fallback code

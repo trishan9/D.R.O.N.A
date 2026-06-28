@@ -31,7 +31,7 @@ from drona.db import CAREER_EMBED_DIM, CURRICULUM_EMBED_DIM
 
 
 class Base(DeclarativeBase):
-    """Declarative base — Alembic autogenerate targets this metadata."""
+    """Declarative base - Alembic autogenerate targets this metadata."""
 
 
 class CurriculumModuleORM(Base):

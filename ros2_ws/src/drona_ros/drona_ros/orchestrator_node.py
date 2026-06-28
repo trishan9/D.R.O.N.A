@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Orchestrator Node — ROS2 Humble
+D.R.O.N.A. Orchestrator Node - ROS2 Humble
 
 Central coordinator. Subscribes to engagement detections, drives the session
 state machine, and dispatches gesture commands and advising queries.
@@ -43,7 +43,7 @@ from drona_ros.msg_bridge import (
 
 
 class OrchestratorNode(Node):
-    """ROS2 orchestrator — drives session lifecycle via engagement events."""
+    """ROS2 orchestrator - drives session lifecycle via engagement events."""
 
     def __init__(self) -> None:
         super().__init__("drona_orchestrator_node")

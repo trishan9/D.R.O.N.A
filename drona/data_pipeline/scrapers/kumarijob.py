@@ -3,9 +3,9 @@ KumariJob scraper for D.R.O.N.A.
 
 ToS/robots.txt (verified May 2026):
   - /search: explicitly Allow'd
-  - /jobseeker*: Disallowed (jobseeker profiles — not postings)
+  - /jobseeker*: Disallowed (jobseeker profiles - not postings)
   - /admin/, /api/: Disallowed
-  - Job posting pages (e.g. /jobs/XXXX): no Disallow — allowed
+  - Job posting pages (e.g. /jobs/XXXX): no Disallow - allowed
 
 Strategy:
   1. Use the /search endpoint (Allow'd) with tech keywords to get job listing pages
@@ -59,7 +59,7 @@ def _discover_job_urls(scraper: PoliteScraper, max_per_term: int = 10) -> list[s
             logger.info(f"  Searching KumariJob: '{term}'")
             soup = scraper.get_soup(SEARCH_URL, params=params)
 
-            # Look for job links — typically anchors with job slugs
+            # Look for job links - typically anchors with job slugs
             for a in soup.find_all("a", href=True):
                 href = a["href"]
                 if not href.startswith("http"):
@@ -178,7 +178,7 @@ def build_data_card(postings: list[JobPosting], output_path: Path) -> DataCard:
         name="kumarijob_postings",
         source_name="KumariJob",
         source_url="https://kumarijob.com",
-        license="custom — public-facing; paraphrased",
+        license="custom - public-facing; paraphrased",
         tier="nepal",
         collection_method="automated_scrape_public",
         record_count=len(postings),

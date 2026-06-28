@@ -2,11 +2,11 @@
 Student engagement detector for D.R.O.N.A.
 
 Classifies a student's engagement state from a video frame:
-  ABSENT       — no person detected
-  PASSING_BY   — person detected but transient (low confidence or far away)
-  APPROACHING  — person getting closer, not yet engaged
-  ENGAGED      — stable face detection, person is attending to the robot
-  DISENGAGING  — was engaged, now moving away or looking elsewhere
+  ABSENT       - no person detected
+  PASSING_BY   - person detected but transient (low confidence or far away)
+  APPROACHING  - person getting closer, not yet engaged
+  ENGAGED      - stable face detection, person is attending to the robot
+  DISENGAGING  - was engaged, now moving away or looking elsewhere
 
 Two backends with the same BaseDetector interface:
 
@@ -29,7 +29,7 @@ Temporal smoothing:
 
 Hardware note (GTX 1650):
   MediaPipe Face Detection runs on CPU at ~5ms/frame. With a 640×480 webcam
-  at 30fps, this leaves ~28ms headroom per frame — plenty for the advising
+  at 30fps, this leaves ~28ms headroom per frame - plenty for the advising
   pipeline at its 200ms+ latency.
 """
 
@@ -134,7 +134,7 @@ class MediaPipeDetector(BaseDetector):
     """Face-detection-based engagement classifier using MediaPipe.
 
     Reads from a webcam by default (camera_index=0).
-    The webcam capture is lazy — it opens on first detect() call.
+    The webcam capture is lazy - it opens on first detect() call.
     """
 
     def __init__(self, camera_index: int = 0, min_confidence: float = 0.5) -> None:
@@ -308,5 +308,5 @@ def make_detector(
             det._ensure_init()
             return det
         except (RuntimeError, ImportError) as exc:
-            logger.info(f"MediaPipe unavailable ({exc}) — using StubDetector")
+            logger.info(f"MediaPipe unavailable ({exc}) - using StubDetector")
     return StubDetector(script=stub_script)

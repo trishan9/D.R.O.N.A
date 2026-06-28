@@ -2,9 +2,9 @@
 D.R.O.N.A. FastAPI application.
 
 Endpoints:
-  GET  /health        — liveness + LLM/orchestrator/backend status
-  POST /advise        — synchronous advising (returns AdvisingResponse)
-  WS   /ws/advise     — streaming advising (node-by-node progress + result)
+  GET  /health        - liveness + LLM/orchestrator/backend status
+  POST /advise        - synchronous advising (returns AdvisingResponse)
+  WS   /ws/advise     - streaming advising (node-by-node progress + result)
 
 Hard guarantee (proposal C4 "local-only advising"): on startup we assert that
 Gemini/Vertex are NOT permitted in the request path. The advising endpoints call
@@ -33,10 +33,10 @@ async def lifespan(app: FastAPI):
     # Enforce the local-only invariant before serving a single request.
     if settings.allow_gemini_in_request_path:
         raise RuntimeError(
-            "ALLOW_GEMINI_IN_REQUEST_PATH must be False — the advising request path "
+            "ALLOW_GEMINI_IN_REQUEST_PATH must be False - the advising request path "
             "is local-only (Ollama). Gemini/Vertex are offline-only (synthetic gen / eval)."
         )
-    logger.info("D.R.O.N.A. API starting — advising request path is LOCAL-ONLY (Ollama)")
+    logger.info("D.R.O.N.A. API starting - advising request path is LOCAL-ONLY (Ollama)")
     yield
     logger.info("D.R.O.N.A. API shutting down")
 
@@ -101,7 +101,7 @@ async def ws_advise(websocket: WebSocket) -> None:
             async for event in stream_graph_events(advisor, query):
                 await websocket.send_json(event)
         else:
-            # Advisor can't stream — run once and emit a single result event.
+            # Advisor can't stream - run once and emit a single result event.
             response = await run_in_threadpool(advisor.advise, query)
             await websocket.send_json(
                 {"event": "result", "response": response.model_dump(mode="json")}

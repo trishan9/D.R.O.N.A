@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. simulation launch — all four nodes in stub/sim mode.
+D.R.O.N.A. simulation launch - all four nodes in stub/sim mode.
 
 Usage (on Ubuntu with ROS2 Humble sourced):
     ros2 launch drona_bringup drona_sim.launch.py

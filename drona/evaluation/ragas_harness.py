@@ -1,13 +1,13 @@
 """
-RAG quality evaluation for D.R.O.N.A. — Ragas with a transparent fallback.
+RAG quality evaluation for D.R.O.N.A. - Ragas with a transparent fallback.
 
 Ragas (Es et al. 2023) scores RAG systems on faithfulness, answer relevancy, and
 context precision/recall. It is, however, heavy and (for the LLM-graded metrics)
-calls an LLM judge — which conflicts with the C4 "local-only request path"
+calls an LLM judge - which conflicts with the C4 "local-only request path"
 guarantee if pointed at a cloud model. So this harness:
 
   - Uses **Ragas** when it is installed AND an offline judge LLM is explicitly
-    provided (Ragas/judge are an *evaluation-time*, offline concern — never the
+    provided (Ragas/judge are an *evaluation-time*, offline concern - never the
     live advising path), and
   - Otherwise falls back to a **lightweight, transparent, lexical proxy** that
     needs no extra dependencies and is fully reproducible. The proxy is clearly
@@ -52,7 +52,7 @@ def _faithfulness_proxy(answer: str, contexts: list[str]) -> float:
 
 
 def _answer_relevancy_proxy(question: str, answer: str) -> float:
-    """Token overlap (Jaccard) between question and answer — topical relevance."""
+    """Token overlap (Jaccard) between question and answer - topical relevance."""
     q, a = _tokens(question), _tokens(answer)
     if not q or not a:
         return 0.0
@@ -132,7 +132,7 @@ def evaluate_rag(
     Args:
         samples: list of {question, answer, contexts, ground_truth?} dicts.
         judge_llm: an offline LangChain-compatible LLM for Ragas's graded metrics.
-            REQUIRED for the real Ragas backend (kept offline — never the live
+            REQUIRED for the real Ragas backend (kept offline - never the live
             advising model). If None, the lexical proxy is used.
         judge_embeddings: embeddings model for Ragas relevancy metrics.
         force_proxy: skip Ragas even if installed (useful for fast CI).

@@ -5,7 +5,7 @@ The fine-tune must teach the model to produce the SAME prompt→JSON behaviour t
 live engine expects, so we reconstruct each example with the production
 ``prompt_builder`` (system + user with retrieval context) and use the gold JSON
 as the assistant target. This keeps train-time and inference-time prompts
-identical — critical for the LoRA adapter to transfer (Zhao et al. 2023 style
+identical - critical for the LoRA adapter to transfer (Zhao et al. 2023 style
 behaviour-cloning rationale, applied to text).
 
 Outputs are JSONL with both:

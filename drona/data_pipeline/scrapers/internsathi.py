@@ -28,7 +28,7 @@ from drona.utils.settings import settings
 SITEMAP_URL = "https://internsathi.com/sitemap.xml"
 BASE_URL = "https://internsathi.com"
 
-# Disallowed paths per robots.txt — never request these
+# Disallowed paths per robots.txt - never request these
 _DISALLOWED_PREFIXES = (
     "/dashboard/", "/api/", "/onboarding/", "/checkout/",
     "/verify/", "/login/", "/403", "/all-opportunities",
@@ -182,7 +182,7 @@ def build_data_card(postings: list[JobPosting], output_path: Path) -> DataCard:
         name="internsathi_postings",
         source_name="Internsathi",
         source_url="https://internsathi.com",
-        license="custom — public-facing; paraphrased",
+        license="custom - public-facing; paraphrased",
         tier="nepal",
         collection_method="automated_scrape_public",
         record_count=len(postings),
@@ -193,7 +193,7 @@ def build_data_card(postings: list[JobPosting], output_path: Path) -> DataCard:
             "(individual pages only; /all-opportunities was disallowed per robots.txt)."
         ),
         known_limitations=[
-            "Internship-heavy — fewer full-time senior roles",
+            "Internship-heavy - fewer full-time senior roles",
             "/all-opportunities disallowed; only sitemap-discoverable pages collected",
             "Salary rarely stated in internship postings",
         ],

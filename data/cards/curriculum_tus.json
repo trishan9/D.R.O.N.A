@@ -18,8 +18,8 @@
   },
   "data_tier": "nepal",
   "schema": {
-    "id": "string — unique document id, e.g. 'softwarica_bsc_y2_algorithms'",
-    "text": "string — extracted plain text of the module/course description",
+    "id": "string - unique document id, e.g. 'softwarica_bsc_y2_algorithms'",
+    "text": "string - extracted plain text of the module/course description",
     "metadata": {
       "source_type": "curriculum",
       "tier": "nepal",

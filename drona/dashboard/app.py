@@ -5,12 +5,12 @@ Streamlit web interface for the advising intelligence layer.
 
 Anti-anchoring design (C2 research contribution):
   - Pathways displayed in equal-width COLUMNS, not a ranked list.
-    The first column is not visually "better" — equal visual weight for all.
+    The first column is not visually "better" - equal visual weight for all.
   - "Show N pathways" slider defaults to 3. Showing one would anchor the student.
-  - Bias flags appear ABOVE the response, not below — the student sees the
+  - Bias flags appear ABOVE the response, not below - the student sees the
     cognitive context before reading the answer.
-  - Citation tier is always shown — Nepal-sourced data is visually distinct.
-  - Previous queries shown in a history panel — students can compare responses
+  - Citation tier is always shown - Nepal-sourced data is visually distinct.
+  - Previous queries shown in a history panel - students can compare responses
     across different phrasings, reducing confirmation bias from a single answer.
 
 Run with:
@@ -34,7 +34,7 @@ from drona.utils.settings import settings
 # ── Page config ───────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="DRONA — Academic Advisor",
+    page_title="DRONA - Academic Advisor",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -158,7 +158,7 @@ if submitted and query_text.strip():
     if response.refusal:
         render_refusal_banner(response)
     else:
-        # Bias flags FIRST (before the answer — students see context first)
+        # Bias flags FIRST (before the answer - students see context first)
         if response.bias_flags:
             render_bias_flags(response.bias_flags)
 
@@ -170,7 +170,7 @@ if submitted and query_text.strip():
         st.markdown("#### Career Pathways")
         st.caption(
             f"Showing {len(response.pathways)} pathway{'s' if len(response.pathways) != 1 else ''} "
-            f"in equal columns — no ranking implied."
+            f"in equal columns - no ranking implied."
         )
         render_pathway_columns(response.pathways)
 

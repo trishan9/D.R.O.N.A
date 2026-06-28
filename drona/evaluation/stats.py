@@ -1,7 +1,7 @@
 """
 Statistical comparison harness (scipy.stats) for D.R.O.N.A.
 
-Provides the inferential machinery to compare two conditions — e.g. *robot/
+Provides the inferential machinery to compare two conditions - e.g. *robot/
 D.R.O.N.A. advising* vs *traditional advising*, or *ACT* vs *keyframe* gesture
 smoothness, or *LoRA+RAG* vs *base+RAG* response quality.
 
@@ -201,7 +201,7 @@ def paired_comparison(
     label: str = "paired",
     alpha: float = 0.05,
 ) -> dict[str, Any]:
-    """Paired comparison (e.g. same participant pre/post) — Wilcoxon + paired t."""
+    """Paired comparison (e.g. same participant pre/post) - Wilcoxon + paired t."""
     x = np.asarray(before, dtype=float)
     y = np.asarray(after, dtype=float)
     if len(x) != len(y):

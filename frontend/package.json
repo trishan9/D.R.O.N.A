@@ -2,7 +2,7 @@
   "name": "drona-frontend",
   "version": "0.2.0",
   "private": true,
-  "description": "D.R.O.N.A. — bias-aware robotic academic advising platform (Next.js 14 App Router, multi-page)",
+  "description": "D.R.O.N.A. - bias-aware robotic academic advising platform (Next.js 14 App Router, multi-page)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

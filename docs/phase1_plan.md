@@ -1,4 +1,4 @@
-# Phase 1 Plan — Core System (this deliverable)
+# Phase 1 Plan - Core System (this deliverable)
 
 Phase 1 is the **complete, runnable software system** delivered for the BSc final
 project. Everything except the physical robot-hardware swap and the live student
@@ -40,7 +40,7 @@ user study is in scope.
 ## Hardware reality (Phase 1)
 
 - Student laptop: Windows 11, GTX 1650 4 GB VRAM, 16 GB RAM. **ROS2 runs in WSL2
-  (Ubuntu 22.04)** — no dual-boot; see `docs/wsl_setup.md`.
+  (Ubuntu 22.04)** - no dual-boot; see `docs/wsl_setup.md`.
 - Anything > 4 GB VRAM (LoRA/ACT/Diffusion training) runs in a **Colab T4 notebook**.
 - Serving LLM: Ollama with Phi-3.5-mini Q4_K_M (fits in 4 GB); Qwen2.5-3B fallback.
 - Simulation: **Gazebo Harmonic** is the low-VRAM default; Isaac Sim is documented

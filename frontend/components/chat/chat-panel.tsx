@@ -140,7 +140,7 @@ export function ChatPanel({ profile, onResponse, onQuerySent }: ChatPanelProps) 
               <h3 className="text-base font-semibold">What would you like to explore?</h3>
               <p className="mt-1 text-sm text-muted-foreground text-balance">
                 Ask about your studies, skills, or career direction. You&apos;ll get several
-                evidence-backed pathways — and a heads-up where a question hides a cognitive bias.
+                evidence-backed pathways - and a heads-up where a question hides a cognitive bias.
               </p>
             </div>
             <div className="mx-auto mt-5 w-full max-w-md space-y-2">
@@ -250,7 +250,7 @@ function MessageBubble({ turn }: { turn: ChatTurn }) {
       >
         {turn.response?.refusal && (
           <span className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-destructive">
-            <ShieldQuestion className="h-3.5 w-3.5" /> Held back — insufficient evidence
+            <ShieldQuestion className="h-3.5 w-3.5" /> Held back - insufficient evidence
           </span>
         )}
         <p className="whitespace-pre-wrap leading-relaxed">{turn.text}</p>

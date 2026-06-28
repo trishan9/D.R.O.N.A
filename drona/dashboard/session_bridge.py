@@ -3,17 +3,17 @@ Session bridge for D.R.O.N.A. dashboard.
 
 Manages communication between the Streamlit UI thread and the advising engine.
 Streamlit re-runs the entire script on every interaction, so we use
-`st.session_state` as the persistence layer — all mutable state lives there.
+`st.session_state` as the persistence layer - all mutable state lives there.
 
-The bridge is intentionally NOT a singleton — each Streamlit session gets its
+The bridge is intentionally NOT a singleton - each Streamlit session gets its
 own AdvisingEngine instance (lazy-initialised on first query). This avoids
 shared model state across concurrent browser sessions.
 
 Why not run the full Orchestrator here?
-  The Orchestrator's main loop is camera-driven. The dashboard is a web UI —
+  The Orchestrator's main loop is camera-driven. The dashboard is a web UI -
   no camera feed. The dashboard uses the AdvisingEngine directly (stages 1-4
   of the pipeline: retrieve → rerank → detect bias → generate). The
-  GestureDispatcher is not called from the dashboard — gestures are driven
+  GestureDispatcher is not called from the dashboard - gestures are driven
   by the physical robot via the Orchestrator, which runs separately.
 
 Thread safety:
@@ -43,7 +43,7 @@ class QueryEntry:
 # ── Bridge ────────────────────────────────────────────────────────────────────
 
 class SessionBridge:
-    """Stateless bridge — all state lives in the provided state dict
+    """Stateless bridge - all state lives in the provided state dict
     (intended to be ``st.session_state`` in production, a plain dict in tests).
     """
 

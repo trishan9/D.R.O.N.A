@@ -3,12 +3,12 @@ Hardware Abstraction Layer for D.R.O.N.A. robot arm.
 
 Three implementations share the same interface:
 
-  BaseArmInterface   — abstract base; defines the contract
-  SimArmInterface    — wraps StubEnv (no hardware, always available)
-  SO100ArmInterface  — real SO-100 6-DOF arm via Dynamixel SDK
+  BaseArmInterface   - abstract base; defines the contract
+  SimArmInterface    - wraps StubEnv (no hardware, always available)
+  SO100ArmInterface  - real SO-100 6-DOF arm via Dynamixel SDK
 
 The GestureNode selects between Sim and SO100 via the `use_hardware` parameter.
-Phase 2 hardware deployment only requires swapping to SO100ArmInterface — all
+Phase 2 hardware deployment only requires swapping to SO100ArmInterface - all
 gesture logic, policy routing, and joint publishing remain unchanged.
 
 SO-100 hardware notes:
@@ -18,7 +18,7 @@ SO-100 hardware notes:
   - Control mode: Position Control Mode (Mode 3)
   - Home position corresponds to REST_POSE in demonstration.py
   - Torque must be enabled before commanding positions
-  - DO NOT command beyond hardware limits — joint_limits in demonstration.py
+  - DO NOT command beyond hardware limits - joint_limits in demonstration.py
     match the mechanical range of the SO-100
 """
 
@@ -86,7 +86,7 @@ class SimArmInterface(BaseArmInterface):
 
     This is the default for Phase 1 and for development/testing without
     physical hardware. Behaviour is identical to the StubEnv used in
-    gesture evaluation — the same env that generated the C3 baseline metrics.
+    gesture evaluation - the same env that generated the C3 baseline metrics.
     """
 
     def __init__(self, dt: float = 0.05) -> None:

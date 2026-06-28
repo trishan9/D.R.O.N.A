@@ -2,7 +2,7 @@
 Advisor singleton + dependency injection for the API.
 
 The advisor (LangGraph-backed by default) loads embedding models, ChromaDB, and
-the reranker — expensive — so it is created ONCE, lazily, on first use. Tests
+the reranker - expensive - so it is created ONCE, lazily, on first use. Tests
 override ``get_advisor`` via FastAPI dependency_overrides to inject a stub.
 """
 

@@ -1,5 +1,5 @@
 """
-WS1 smoke tests — data pipeline layer.
+WS1 smoke tests - data pipeline layer.
 
 These tests do NOT hit the network, download files, or write to ChromaDB.
 They verify the logic and schema validation using in-memory fixtures only.
@@ -200,7 +200,7 @@ class TestManualLoader:
         assert posts == []
 
 
-# ── Ingestor (unit tests — no real ChromaDB) ─────────────────────────────────
+# ── Ingestor (unit tests - no real ChromaDB) ─────────────────────────────────
 
 class TestIngestorDocBuilders:
     """Test the document text builders without initialising ChromaDB."""

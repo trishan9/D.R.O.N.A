@@ -1,1 +1,1 @@
-"""perception module — see docs/architecture.md"""
+"""perception module - see docs/architecture.md"""

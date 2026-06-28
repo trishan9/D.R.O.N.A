@@ -3,20 +3,20 @@ Synthetic evaluation query bank for D.R.O.N.A.
 
 Provides labelled queries for evaluating each research contribution:
 
-  C1 — Retrieval quality
+  C1 - Retrieval quality
     Queries with known relevant content types (curriculum vs career vs both).
     Used to compute NDCG@K, MRR, Recall@K comparing hybrid vs dense-only.
 
-  C2 — Bias detection quality
+  C2 - Bias detection quality
     Queries with known expected bias labels.
     Used to compute precision, recall, F1 per bias type.
     Sourced from the psychology / advising literature on cognitive bias examples.
 
-  C3 — Gesture evaluation
+  C3 - Gesture evaluation
     Gesture labels with expected duration ranges and smoothness thresholds.
     Used to compare KeyframePolicy vs ACT baseline.
 
-  C4 — Stack evaluation
+  C4 - Stack evaluation
     Queries that should surface Nepal-local data preferentially.
     Used to measure Nepal citation ratio.
 
@@ -25,7 +25,7 @@ Why synthetic queries?
   approval (PII/welfare considerations). Synthetic queries are standard
   practice in IR evaluation (cf. TREC, BEIR benchmarks) when real data is
   unavailable. The bias detection labels are manually verified against the
-  pattern definitions in bias_detector.py — these are ground truth by
+  pattern definitions in bias_detector.py - these are ground truth by
   construction.
 """
 
@@ -103,7 +103,7 @@ C1_QUERIES: list[EvalQuery] = [
         expected_relevance="both",
         prefers_local=True,
         category="curriculum_to_career",
-        notes="Bridge query — needs both curriculum and career docs.",
+        notes="Bridge query - needs both curriculum and career docs.",
     ),
     EvalQuery(
         query_id="c1_006",
@@ -111,7 +111,7 @@ C1_QUERIES: list[EvalQuery] = [
         expected_relevance="both",
         prefers_local=True,
         category="curriculum_to_career",
-        notes="Nepal fintech sector — eSewa, Khalti etc.",
+        notes="Nepal fintech sector - eSewa, Khalti etc.",
     ),
     EvalQuery(
         query_id="c1_007",
@@ -126,7 +126,7 @@ C1_QUERIES: list[EvalQuery] = [
         expected_relevance="curriculum",
         prefers_local=False,
         category="curriculum_lookup",
-        notes="Conceptual query — less lexical overlap with postings.",
+        notes="Conceptual query - less lexical overlap with postings.",
     ),
     EvalQuery(
         query_id="c1_009",
@@ -247,7 +247,7 @@ C2_QUERIES: list[EvalQuery] = [
         expected_relevance="career",
         category="dunning_kruger",
     ),
-    # Clean queries (no bias — important for precision)
+    # Clean queries (no bias - important for precision)
     EvalQuery(
         query_id="c2_clean_001",
         query_text="What career paths are available for BSc Computing graduates in Nepal?",
@@ -286,7 +286,7 @@ class GestureEvalSpec:
 C3_GESTURE_SPECS: list[GestureEvalSpec] = [
     # Jerk thresholds are sanity bounds for the keyframe baseline, not quality targets.
     # Keyframe linear interpolation produces step-changes at keyframe boundaries that
-    # yield high jerk — these measured values ARE the thesis C3 baseline. ACT is
+    # yield high jerk - these measured values ARE the thesis C3 baseline. ACT is
     # expected to achieve lower jerk than these thresholds.
     GestureEvalSpec("greet",    10,  200, 50.0, 0.5),
     GestureEvalSpec("nod",      10,  150, 30.0, 0.2),

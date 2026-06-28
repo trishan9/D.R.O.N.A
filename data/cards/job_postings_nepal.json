@@ -35,17 +35,17 @@
       }
     ],
     "explicitly_excluded": [
-      "LinkedIn — ToS prohibits scraping; actively litigated",
-      "Glassdoor — ToS prohibits scraping",
-      "Indeed Nepal — ToS prohibits automated collection"
+      "LinkedIn - ToS prohibits scraping; actively litigated",
+      "Glassdoor - ToS prohibits scraping",
+      "Indeed Nepal - ToS prohibits automated collection"
     ],
     "collection_dates": ["2025-09-01", "2025-11-30"],
     "pii_removed": true
   },
   "data_tier": "nepal",
   "schema": {
-    "id": "string — portal_postingid, e.g. 'merojob_90123'",
-    "text": "string — job title, required skills, and job description concatenated",
+    "id": "string - portal_postingid, e.g. 'merojob_90123'",
+    "text": "string - job title, required skills, and job description concatenated",
     "metadata": {
       "source_type": "job_posting",
       "tier": "nepal",
@@ -69,12 +69,12 @@
     "notes": "Recruiter contact email addresses stripped during extraction"
   },
   "known_limitations": [
-    "Snapshot in time — market conditions shift; postings expire",
+    "Snapshot in time - market conditions shift; postings expire",
     "Salary disclosure is optional on these portals; ~30% of records have null salary",
     "IT sector over-represented relative to manufacturing and agriculture"
   ],
   "bias_notes": [
-    "Kathmandu-centric — most postings from Valley-based employers",
+    "Kathmandu-centric - most postings from Valley-based employers",
     "English-language postings biased toward multinational and large domestic firms",
     "Remote-Nepal postings are sparse; rural tech employment under-represented"
   ],

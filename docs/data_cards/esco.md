@@ -1,7 +1,7 @@
-# Data Card — ESCO v1.2.1
+# Data Card - ESCO v1.2.1
 
 - **Source:** European Skills, Competences, Qualifications and Occupations (ESCO)
-  v1.2.1 — https://esco.ec.europa.eu/
+  v1.2.1 - https://esco.ec.europa.eu/
 - **License:** CC BY 4.0 (European Commission)
 - **Tier:** `regional` / `international`
 - **Collection method:** API + CSV download fallback
@@ -22,7 +22,7 @@ Standardised skill vocabulary improves retrieval matching between curriculum
 
 ## Limitations
 - European framing; not Nepal-specific (ranked below Nepal tier).
-- Large taxonomy — only the subset relevant to computing occupations is ingested.
+- Large taxonomy - only the subset relevant to computing occupations is ingested.
 
 ## Attribution
 Contains ESCO data © European Union, CC BY 4.0.

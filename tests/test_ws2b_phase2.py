@@ -1,5 +1,5 @@
 """
-Phase 2 tests — citation verification, Qwen fallback, LangGraph orchestration,
+Phase 2 tests - citation verification, Qwen fallback, LangGraph orchestration,
 and the FastAPI advising API.
 
 Pure-logic tests run everywhere. LangGraph and FastAPI tests use importorskip so

@@ -40,7 +40,7 @@ class DronaMessage(BaseModel):
 
 
 # ============================================================================
-# WS1 — Data layer contracts
+# WS1 - Data layer contracts
 # ============================================================================
 
 class DataTier(str, Enum):
@@ -115,7 +115,7 @@ class CareerPathway(BaseModel):
 
 
 # ============================================================================
-# WS2 — Advising intelligence contracts
+# WS2 - Advising intelligence contracts
 # ============================================================================
 
 class StudentProfile(BaseModel):
@@ -207,7 +207,7 @@ class AdvisingResponse(DronaMessage):
 
 
 # ============================================================================
-# WS3 — Interaction policy contracts (LeRobot side)
+# WS3 - Interaction policy contracts (LeRobot side)
 # ============================================================================
 
 class GestureType(str, Enum):

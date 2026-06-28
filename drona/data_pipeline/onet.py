@@ -80,7 +80,7 @@ def download_zip(dest_path: Path | None = None, force: bool = False) -> Path:
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
     if dest_path.exists() and not force:
-        logger.info(f"O*NET zip already cached at {dest_path} — skipping download")
+        logger.info(f"O*NET zip already cached at {dest_path} - skipping download")
         return dest_path
 
     logger.info(f"Downloading O*NET {ONET_VERSION} from {ONET_DOWNLOAD_URL}")
@@ -281,7 +281,7 @@ def build_data_card(zip_path: Path, pathways: list[CareerPathway], dest: Path) -
             f"Used as international-tier anchor for career pathway recommendations."
         ),
         known_limitations=[
-            "US labour market only — salaries not included (US context)",
+            "US labour market only - salaries not included (US context)",
             "SOC taxonomy may not perfectly map to Nepal job market titles",
             "Technology skills list is indicative, not exhaustive",
         ],

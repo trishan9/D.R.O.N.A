@@ -1,4 +1,4 @@
-# Phase 2 Plan — Hardware + Study (future work)
+# Phase 2 Plan - Hardware + Study (future work)
 
 Phase 2 is the portion the proposal explicitly defers. The Phase 1 system is built
 so that each Phase 2 item is a **swap or an add-on**, not a redesign.
@@ -24,7 +24,7 @@ so that each Phase 2 item is a **swap or an add-on**, not a redesign.
 
 - `policy_node` consumes a clean `drona_msgs/action/ExecuteGesture` interface.
 - The same `/drona/joint_states` stream drives `StubEnv`, the URDF in Gazebo/Isaac,
-  and (Phase 2) the SO-100 — see `notebooks/11_sim_to_real_handoff.ipynb` and
+  and (Phase 2) the SO-100 - see `notebooks/11_sim_to_real_handoff.ipynb` and
   `docs/ros2_topics_actions.md`.
 - Swapping in the real arm means implementing one driver node that subscribes to
   the gesture command and publishes real joint states; no advising/policy code changes.
@@ -35,7 +35,7 @@ so that each Phase 2 item is a **swap or an add-on**, not a redesign.
 - **Measures**: decision diversity, perceived helpfulness, engagement, bias-shift.
 - **Analysis**: `compare_conditions()` (Welch t / Mann-Whitney + Cohen's d + bootstrap
   CI) for between-subjects; `paired_comparison()` for pre/post within-subjects.
-- **N**: powered for a medium effect (d≈0.5) — the harness reports effect size and
+- **N**: powered for a medium effect (d≈0.5) - the harness reports effect size and
   CI, not just p-values, per HRI best practice (Bartneck et al. 2020).
 
 ## Risks & mitigations

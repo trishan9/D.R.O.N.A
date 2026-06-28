@@ -103,7 +103,7 @@ export function liveSummary(response: AdvisingResponse | null): LiveSummary {
     return {
       pathwayCount: 0,
       diversityScore: 0,
-      diversityLabel: "—",
+      diversityLabel: "-",
       biasFlagCount: 0,
       citationCount: 0,
       nepalRate: 0,

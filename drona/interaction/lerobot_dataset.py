@@ -5,11 +5,11 @@ Convert D.R.O.N.A. demonstrations into the LeRobot dataset format (C3).
 LeRobot's ACT/Diffusion trainers expect a `LeRobotDataset` (HF v2 layout). This
 module is the bridge:
 
-  - ``to_lerobot_records()`` — PURE: flattens episodes into the canonical record
+  - ``to_lerobot_records()`` - PURE: flattens episodes into the canonical record
     list (observation.state / action / episode_index / frame_index / timestamp /
     next.done / task). Unit-testable with no LeRobot installed.
-  - ``LEROBOT_FEATURES`` — the feature/dtype/shape spec LeRobot needs.
-  - ``build_lerobot_dataset()`` — LAZY: creates an on-disk LeRobotDataset via the
+  - ``LEROBOT_FEATURES`` - the feature/dtype/shape spec LeRobot needs.
+  - ``build_lerobot_dataset()`` - LAZY: creates an on-disk LeRobotDataset via the
     `LeRobotDataset.create` API and writes one frame at a time. Only imported in
     the Colab training notebooks (07/08).
 
@@ -102,7 +102,7 @@ def build_lerobot_dataset(
         lerobot_ds.save_episode()
 
     logger.success(
-        f"Built LeRobotDataset '{repo_id}' — {len(dataset.episodes)} episodes, "
+        f"Built LeRobotDataset '{repo_id}' - {len(dataset.episodes)} episodes, "
         f"{dataset.total_frames} frames @ {fps} FPS"
     )
     return lerobot_ds

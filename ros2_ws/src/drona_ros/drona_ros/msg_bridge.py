@@ -3,7 +3,7 @@ Pydantic ↔ ROS2 message conversion bridge for D.R.O.N.A.
 
 Every function here is a pure conversion with no side effects. The bridge
 ensures that Phase 1 logic (drona.*) never imports rclpy, and ROS2 nodes
-never duplicate business logic — they only call bridge functions and
+never duplicate business logic - they only call bridge functions and
 forward results.
 
 Naming convention:
@@ -17,7 +17,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    # Only imported for type hints — rclpy not required at import time
+    # Only imported for type hints - rclpy not required at import time
     from drona_msgs.msg import (
         AdvisingQuery as RosAdvisingQuery,
         AdvisingResponse as RosAdvisingResponse,

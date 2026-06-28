@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Advising Node — ROS2 Humble
+D.R.O.N.A. Advising Node - ROS2 Humble
 
 Wraps drona.advising.engine.AdvisingEngine as a ROS2 node.
 Provides both pub/sub and service interfaces.

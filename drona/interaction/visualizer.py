@@ -2,8 +2,8 @@
 Real-time 6-DOF arm visualizer for D.R.O.N.A.
 
 Two backends (selected automatically):
-  MuJoCoVisualizer  — renders the embedded MuJoCo model with a viewer window
-  MatplotlibVisualizer — headless-compatible ASCII/matplotlib 3D stick figure
+  MuJoCoVisualizer  - renders the embedded MuJoCo model with a viewer window
+  MatplotlibVisualizer - headless-compatible ASCII/matplotlib 3D stick figure
 
 Both share BaseVisualizer so gesture_dispatcher and run_simulation.py need no
 backend-specific code.
@@ -121,7 +121,7 @@ def _forward_kinematics(q: np.ndarray) -> list[np.ndarray]:
     """Compute 3D joint positions via simple planar FK (for visualization only).
 
     Returns list of (x, y, z) positions for each joint (7 points: base + 6 joints).
-    This is NOT a precision kinematic model — it is only for visualization.
+    This is NOT a precision kinematic model - it is only for visualization.
     """
     import math
     positions = [np.array([0.0, 0.0, 0.0])]

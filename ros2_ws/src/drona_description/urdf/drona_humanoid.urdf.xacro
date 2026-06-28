@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  D.R.O.N.A. simulated humanoid (upper body) — ROS2 Humble.
+  D.R.O.N.A. simulated humanoid (upper body) - ROS2 Humble.
 
   Head + torso + a 6-DOF right arm. Joint names mirror
   drona.interaction.demonstration.JOINT_NAMES so /drona/joint_states drives this

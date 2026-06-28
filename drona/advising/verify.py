@@ -8,7 +8,7 @@ risk; we don't silently trust them.
 
 This is a deliberately TRANSPARENT and FALSIFIABLE check (no second LLM "judge"),
 mirroring the design philosophy of the rule-based bias detector. Grounding the
-RAG claim is the verification stage of the LangGraph (Lewis et al. 2020 — RAG;
+RAG claim is the verification stage of the LangGraph (Lewis et al. 2020 - RAG;
 the proposal's citation-grounding requirement).
 
 Outputs a VerificationReport the graph uses to decide:
@@ -88,11 +88,11 @@ def verify_pathways(
         if kept:
             report.grounded_pathways.append(pw.model_copy(update={"citations": kept}))
         else:
-            # No valid citation — keep the pathway but mark it low-confidence and
+            # No valid citation - keep the pathway but mark it low-confidence and
             # record the issue so the UI/graph can surface or suppress it.
             report.ungrounded_titles.append(pw.pathway_title)
             report.issues.append(
-                f"Pathway '{pw.pathway_title}': no valid citation — "
+                f"Pathway '{pw.pathway_title}': no valid citation - "
                 f"confidence downgraded to low."
             )
             report.grounded_pathways.append(

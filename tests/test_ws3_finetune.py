@@ -1,5 +1,5 @@
 """
-Phase 3 tests — synthetic advising Q&A generation, SFT dataset formatting,
+Phase 3 tests - synthetic advising Q&A generation, SFT dataset formatting,
 gold-set curation, LoRA config, ablation harness, and model card.
 
 All pure/offline. PEFT/transformers builders are exercised behind importorskip.
@@ -241,7 +241,7 @@ class TestModelCard:
     def test_card_markdown_and_write(self, tmp_path: Path) -> None:
         card = build_advising_lora_card({"r": 16, "epochs": 3}, num_train=450, num_gold=50)
         md = card.to_markdown()
-        assert "# Model Card — `phi35-lora-advising`" in md
+        assert "# Model Card - `phi35-lora-advising`" in md
         assert "Phi-3.5" in md
         out = tmp_path / "model_card.md"
         card.write(out)

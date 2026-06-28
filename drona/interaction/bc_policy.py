@@ -1,4 +1,4 @@
-"""Behavior-cloning gesture policy — Research Contribution C3 (CPU baseline).
+"""Behavior-cloning gesture policy - Research Contribution C3 (CPU baseline).
 
 A lightweight, **CPU-trainable** imitation-learning policy that learns gesture
 trajectories from the keyframe demonstration dataset. It is the local baseline
@@ -7,7 +7,7 @@ trains in seconds on this hardware, and plugs into the same ``BasePolicy``
 interface and ``sim_eval`` harness as the production ACT/Diffusion policies
 (which train on Colab T4 via notebooks 07/08).
 
-Design — phase-conditioned behavior cloning:
+Design - phase-conditioned behavior cloning:
     input  = [ joint_state (DOF), gesture_phase (1) ]   (closed-loop on state)
     output = [ target joint positions (DOF) ]
 

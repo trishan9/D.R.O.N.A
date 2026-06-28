@@ -7,11 +7,11 @@
     ROS2 Humble node implementations for D.R.O.N.A. Phase 2.
 
     Each node is a thin transport wrapper around Phase 1 Python logic:
-      advising_node    — wraps drona.advising.engine.AdvisingEngine
-      gesture_node     — wraps drona.interaction.gesture_dispatcher.GestureDispatcher
-      policy_node      — action server wrapping LeRobot gesture-policy inference
-      perception_node  — wraps drona.perception.mediapipe_detector
-      orchestrator_node — wraps drona.orchestrator.SessionMachine + Orchestrator
+      advising_node    - wraps drona.advising.engine.AdvisingEngine
+      gesture_node     - wraps drona.interaction.gesture_dispatcher.GestureDispatcher
+      policy_node      - action server wrapping LeRobot gesture-policy inference
+      perception_node  - wraps drona.perception.mediapipe_detector
+      orchestrator_node - wraps drona.orchestrator.SessionMachine + Orchestrator
 
     Zero new logic lives in this package. All algorithmic decisions remain in
     drona.* so Phase 1 unit tests continue to cover Phase 2 behaviour.

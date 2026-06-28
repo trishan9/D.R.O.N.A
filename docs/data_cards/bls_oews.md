@@ -1,7 +1,7 @@
-# Data Card — BLS OEWS May 2025
+# Data Card - BLS OEWS May 2025
 
 - **Source:** US Bureau of Labor Statistics, Occupational Employment and Wage
-  Statistics (OEWS), May 2025 — https://www.bls.gov/oes/
+  Statistics (OEWS), May 2025 - https://www.bls.gov/oes/
 - **License:** US Government public domain
 - **Tier:** `international`
 - **Collection method:** automated bulk download
@@ -12,7 +12,7 @@ Occupation-level employment counts and wage percentiles (mean/median/p10–p90).
 
 ## Why it's used
 Provides quantitative wage/role-prevalence context as international-tier evidence.
-Used cautiously — Nepali salary context comes from Nepal-tier sources; BLS is
+Used cautiously - Nepali salary context comes from Nepal-tier sources; BLS is
 illustrative, not prescriptive, for Nepali students.
 
 ## Schema (post-normalisation)

@@ -2,18 +2,18 @@
 
 D.R.O.N.A. ROS2 uses **ROS2 Humble** on **Ubuntu 22.04 LTS** (the officially supported combination). This guide covers installing ROS2, building the workspace, and running the nodes.
 
-> **On Windows (no Ubuntu dual-boot)?** Use **WSL2** — it runs a real Ubuntu 22.04
+> **On Windows (no Ubuntu dual-boot)?** Use **WSL2** - it runs a real Ubuntu 22.04
 > inside Windows 11, and WSLg shows the RViz/Gazebo windows on your desktop. Start
 > with **[`wsl_setup.md`](wsl_setup.md)** (WSL install + GPU + repo access), then
 > the commands below run unchanged inside the WSL Ubuntu shell. The pure-Python
 > advising stack and Phase-1 sim (`scripts/run_simulation.py`) still run natively
-> on Windows — only the ROS2 workspace needs Linux.
+> on Windows - only the ROS2 workspace needs Linux.
 
 ---
 
 ## Prerequisites
 
-- Ubuntu 22.04 LTS — **bare-metal _or_ WSL2 on Windows 11** (see `wsl_setup.md`)
+- Ubuntu 22.04 LTS - **bare-metal _or_ WSL2 on Windows 11** (see `wsl_setup.md`)
 - Python 3.10 (ships with Ubuntu 22.04)
 - The D.R.O.N.A. repository cloned and Python dependencies installed
 

@@ -1,4 +1,4 @@
-# Hardware deployment overrides — used by drona_hardware.launch.py
+# Hardware deployment overrides - used by drona_hardware.launch.py
 # Copy params.yaml values and change only these:
 
 drona_perception_node:

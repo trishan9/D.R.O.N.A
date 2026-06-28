@@ -1,11 +1,11 @@
 """
-Gesture dispatcher for D.R.O.N.A. — bridges advising contracts to robot motion.
+Gesture dispatcher for D.R.O.N.A. - bridges advising contracts to robot motion.
 
 Takes an InteractionAction (from the contracts layer) and executes it in the
 simulation environment using the appropriate ACT or keyframe policy.
 
 Design:
-  The dispatcher is stateless with respect to policy selection — it delegates
+  The dispatcher is stateless with respect to policy selection - it delegates
   that to PolicyRouter. It owns the environment and controls the execution loop.
 
   The POINT gesture receives special treatment: `target_direction` in the
@@ -13,7 +13,7 @@ Design:
   points in the correct direction relative to the perceived student position.
 
   Execution is synchronous in Phase 1. In Phase 2, this becomes a ROS2 action
-  server with a preemptable goal — the same interface, different transport.
+  server with a preemptable goal - the same interface, different transport.
 
 Timing contract:
   The dispatcher runs each gesture to completion (all keyframe frames consumed,

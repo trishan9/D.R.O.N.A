@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Policy Node — ROS2 Humble (Research Contribution C3)
+D.R.O.N.A. Policy Node - ROS2 Humble (Research Contribution C3)
 
 Wraps LeRobot gesture-policy inference (drona.interaction) as a ROS2 **action
 server**. This is the action-based counterpart to gesture_node's blocking
@@ -14,7 +14,7 @@ Action:
         result:   GestureResult, success, error
 
 Topics:
-    pub  /drona/joint_states  (sensor_msgs/JointState)  — streamed during motion
+    pub  /drona/joint_states  (sensor_msgs/JointState)  - streamed during motion
 
 Parameters:
     checkpoint_dir : ""     path to ACT/Diffusion checkpoints (auto-detect if "")
@@ -23,7 +23,7 @@ Parameters:
     use_hardware   : false  also command the physical arm via arm_interface
 
 Policy selection mirrors drona.interaction.act_policy.PolicyRouter: a trained
-LeRobot checkpoint is used when present, otherwise the keyframe baseline — so
+LeRobot checkpoint is used when present, otherwise the keyframe baseline - so
 this node runs with or without LeRobot installed.
 """
 
@@ -113,7 +113,7 @@ class PolicyNode(Node):
         return GoalResponse.ACCEPT
 
     def _on_cancel(self, goal_handle) -> CancelResponse:
-        self.get_logger().info("Gesture cancel requested — accepting.")
+        self.get_logger().info("Gesture cancel requested - accepting.")
         return CancelResponse.ACCEPT
 
     # ── Execution ──────────────────────────────────────────────────────────────
@@ -172,7 +172,7 @@ class PolicyNode(Node):
         result.error = ""
         result.result = self._build_result_msg(label, True, frames, t_start, policy)
         self.get_logger().info(
-            f"Gesture '{label}' complete — {frames} frames, "
+            f"Gesture '{label}' complete - {frames} frames, "
             f"{result.result.duration_s:.2f}s, policy={result.result.policy_used}"
         )
         return result

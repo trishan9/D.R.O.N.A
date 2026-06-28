@@ -1,6 +1,6 @@
-# Data Card — O\*NET 30.3
+# Data Card - O\*NET 30.3
 
-- **Source:** O\*NET Database 30.3 — https://www.onetcenter.org/database.html
+- **Source:** O\*NET Database 30.3 - https://www.onetcenter.org/database.html
 - **License:** CC BY 4.0 (attribution: "O\*NET® is a trademark of USDOL/ETA")
 - **Tier:** `international`
 - **Collection method:** automated bulk download (`scripts/download_onet.py`)
@@ -19,7 +19,7 @@ pathway recommendations and bridge curriculum skills to roles (RAG evidence, C1)
 `occupation_id, title, description, skills[], related_titles[], tier=international`
 
 ## Limitations
-- US-centric labour context — used only as international-tier evidence, ranked
+- US-centric labour context - used only as international-tier evidence, ranked
   **below** Nepal-tier sources (C4).
 - Occupation granularity may not map 1:1 to Nepali job titles.
 

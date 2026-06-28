@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /*
- * D.R.O.N.A. design system — "modern minimal" (DataCamp-inspired).
+ * D.R.O.N.A. design system - "modern minimal" (DataCamp-inspired).
  * Clean light surfaces, deep slate ink, a confident emerald brand accent, and
  * the project's data-provenance tier palette (Nepal-first). Dark mode mirrors
  * every token. All colors are HSL channels so Tailwind can apply opacity.
@@ -46,7 +46,7 @@
     --sidebar-accent: 162 60% 95%;
     --sidebar-accent-foreground: 160 84% 22%;
 
-    /* Data-tier palette — Nepal first (warm crimson), then cooler tiers. */
+    /* Data-tier palette - Nepal first (warm crimson), then cooler tiers. */
     --tier-nepal: 351 70% 47%;
     --tier-regional: 32 95% 50%;
     --tier-international: 217 91% 60%;

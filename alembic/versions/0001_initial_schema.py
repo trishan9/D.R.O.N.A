@@ -86,7 +86,7 @@ def upgrade() -> None:
     )
     op.create_index("ix_career_pathways_tier", "career_pathways", ["tier"])
 
-    # HNSW cosine indexes — built after tables so initial bulk insert is fast.
+    # HNSW cosine indexes - built after tables so initial bulk insert is fast.
     op.execute(
         "CREATE INDEX ix_curriculum_embedding ON curriculum_modules "
         "USING hnsw (embedding vector_cosine_ops)"
@@ -105,4 +105,4 @@ def downgrade() -> None:
     op.drop_table("career_pathways")
     op.drop_table("job_postings")
     op.drop_table("curriculum_modules")
-    # Extension left in place — other DBs may share it.
+    # Extension left in place - other DBs may share it.

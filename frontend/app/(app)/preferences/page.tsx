@@ -99,7 +99,7 @@ export default function PreferencesPage() {
               className="font-mono text-sm"
             />
             <p className="text-xs text-muted-foreground">
-              Leave blank to use the default. The advising path stays local — point this at your FastAPI server
+              Leave blank to use the default. The advising path stays local - point this at your FastAPI server
               (<code className="font-mono">python scripts/run_api.py</code>).
             </p>
           </div>
@@ -115,7 +115,7 @@ export default function PreferencesPage() {
               className="font-mono text-sm"
             />
             <p className="text-xs text-muted-foreground">
-              For the Robot Control page&apos;s live mode. Run rosbridge in WSL2 — see{" "}
+              For the Robot Control page&apos;s live mode. Run rosbridge in WSL2 - see{" "}
               <code className="font-mono">docs/wsl_setup.md</code>.
             </p>
           </div>

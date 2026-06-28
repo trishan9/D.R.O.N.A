@@ -16,7 +16,7 @@ Design:
     upgrade path to a real VLA on the robot in Phase 2.
 
 We map free-text instructions to one of our gesture labels via keyword rules
-(transparent, falsifiable — same philosophy as the bias detector).
+(transparent, falsifiable - same philosophy as the bias detector).
 """
 
 from __future__ import annotations

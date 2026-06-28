@@ -14,12 +14,12 @@
   },
   "data_tier": "synthetic",
   "schema": {
-    "episode_id": "string — 'gesture_LABEL_NNNN'",
+    "episode_id": "string - 'gesture_LABEL_NNNN'",
     "fields": {
-      "observation.state": "float32[6] — joint angles in radians at each timestep",
-      "action": "float32[6] — target joint angles for the next chunk_size steps",
-      "gesture": "string — gesture label",
-      "step": "integer — timestep index within episode"
+      "observation.state": "float32[6] - joint angles in radians at each timestep",
+      "action": "float32[6] - target joint angles for the next chunk_size steps",
+      "gesture": "string - gesture label",
+      "step": "integer - timestep index within episode"
     },
     "storage_format": "HuggingFace LeRobot dataset (parquet + metadata JSON)"
   },
@@ -27,12 +27,12 @@
     "episodes_per_gesture": "~50",
     "total_episodes": "~300",
     "steps_per_episode": "20-80 (gesture-dependent)",
-    "languages": ["N/A — kinematic data"],
+    "languages": ["N/A - kinematic data"],
     "synthetic_fraction": 1.0
   },
   "pii": {
     "contains_pii": false,
-    "notes": "Robot kinematics only — no human motion capture data"
+    "notes": "Robot kinematics only - no human motion capture data"
   },
   "known_limitations": [
     "Phase 1 episodes are simulation-only; real-hardware episodes pending Phase 2 deployment",
@@ -40,7 +40,7 @@
     "ACT policy trained on short episodes may not generalise to novel start poses"
   ],
   "bias_notes": [
-    "All gestures authored in a forward-facing, table-height context — may not transfer to different mounting angles",
+    "All gestures authored in a forward-facing, table-height context - may not transfer to different mounting angles",
     "Western gesture conventions assumed; cross-cultural gesture appropriateness not evaluated"
   ],
   "last_updated": "2025-11-30"

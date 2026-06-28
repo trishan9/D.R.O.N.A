@@ -17,7 +17,7 @@ interface CounterRecommendationPanelProps {
 
 /**
  * Surfaces the ONE pathway the student is least likely to pick given their
- * stated interests — the antidote to confirmation bias. It's hidden behind a
+ * stated interests - the antidote to confirmation bias. It's hidden behind a
  * deliberate "show me what I might be ignoring" action so revealing it is an
  * active, rewarded choice (ties into the "Open Mind" badge).
  */
@@ -40,7 +40,7 @@ export function CounterRecommendationPanel({
           <Shuffle className="h-4 w-4 text-tier-synthetic" /> The option you might overlook
         </CardTitle>
         <CardDescription>
-          A pathway that doesn&apos;t match what you said you wanted — worth a look precisely
+          A pathway that doesn&apos;t match what you said you wanted - worth a look precisely
           for that reason.
         </CardDescription>
       </CardHeader>

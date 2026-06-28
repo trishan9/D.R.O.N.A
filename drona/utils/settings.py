@@ -1,7 +1,7 @@
 """
 D.R.O.N.A. runtime settings loaded from environment / .env file.
 
-All configuration lives here — no other module should read os.environ directly.
+All configuration lives here - no other module should read os.environ directly.
 Settings are validated by Pydantic on first import; bad config fails fast.
 
 Usage:
@@ -76,13 +76,13 @@ class DronaSettings(BaseSettings):
     pinecone_index_curriculum: str = Field("drona-curriculum")
     pinecone_index_career: str = Field("drona-career")
 
-    # --- Google Gemini (OFFLINE USE ONLY — synthetic gen + eval sets) ---
+    # --- Google Gemini (OFFLINE USE ONLY - synthetic gen + eval sets) ---
     gemini_api_key: str | None = Field(default=None)
     gemini_model: str = Field("gemini-1.5-flash")
     # Hard guard: code asserts this is False before any request-path LLM call.
     allow_gemini_in_request_path: bool = Field(
         False,
-        description="MUST stay False — preserves the local-only advising claim.",
+        description="MUST stay False - preserves the local-only advising claim.",
     )
 
     # --- Google Vertex AI Agent Builder (optional, default OFF) ---
@@ -152,5 +152,5 @@ class DronaSettings(BaseSettings):
             d.mkdir(parents=True, exist_ok=True)
 
 
-# Module-level singleton — import this everywhere
+# Module-level singleton - import this everywhere
 settings = DronaSettings()

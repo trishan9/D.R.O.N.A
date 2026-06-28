@@ -2,7 +2,7 @@
 JobsNepal automated scraper for D.R.O.N.A.
 
 ToS/robots.txt: Fully open (no Disallow rules). Verified May 2026.
-Site rendering: Server-side (SSR) — parseable with requests + BeautifulSoup.
+Site rendering: Server-side (SSR) - parseable with requests + BeautifulSoup.
 Rate limit: 0.5 req/s (configured in settings.scraper_requests_per_second).
 
 Discovery strategy:
@@ -172,7 +172,7 @@ def _parse_job_page(soup: BeautifulSoup, url: str) -> JobPosting | None:
     """Parse a single JobsNepal job page into a JobPosting object."""
     title = _extract_title(soup)
     if not title:
-        logger.warning(f"  Could not extract title from {url} — skipping")
+        logger.warning(f"  Could not extract title from {url} - skipping")
         return None
 
     description_parts = []
@@ -262,7 +262,7 @@ def build_data_card(postings: list[JobPosting], output_path: Path) -> DataCard:
         name="jobsnepal_job_postings",
         source_name="JobsNepal",
         source_url="https://www.jobsnepal.com",
-        license="custom — public-facing job postings; paraphrased, no PII",
+        license="custom - public-facing job postings; paraphrased, no PII",
         tier="nepal",
         collection_method="automated_scrape_public",
         record_count=len(postings),
@@ -276,7 +276,7 @@ def build_data_card(postings: list[JobPosting], output_path: Path) -> DataCard:
             "Salary stated in only ~30% of postings",
             "Skill extraction is regex-based, may miss non-standard phrasing",
             "Sitemap covers only jobs active at collection time",
-            "Non-tech jobs excluded by URL keyword filter — may miss some tech roles with generic titles",
+            "Non-tech jobs excluded by URL keyword filter - may miss some tech roles with generic titles",
         ],
         contains_synthetic=False,
         robots_txt_verified=True,

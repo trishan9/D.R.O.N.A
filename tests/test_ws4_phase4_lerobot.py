@@ -1,4 +1,4 @@
-"""Phase 4 (LeRobot policies) tests — dataset conversion, sim eval, VLA seam.
+"""Phase 4 (LeRobot policies) tests - dataset conversion, sim eval, VLA seam.
 
 All pure-Python paths run without lerobot/torch/mujoco installed (the
 KeyframePolicy + StubEnv fallbacks). Heavy backends are only exercised lazily

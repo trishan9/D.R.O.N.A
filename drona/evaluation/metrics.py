@@ -8,7 +8,7 @@ Reference implementations:
   NDCG: Manning et al., "Introduction to Information Retrieval" §8.4
   MRR:  Voorhees, TREC-8 QA track, 1999
   F1:   Standard IR precision/recall
-  Jerk: Hogan (2009), "Revisiting the minimum-jerk hypothesis" — used in C3
+  Jerk: Hogan (2009), "Revisiting the minimum-jerk hypothesis" - used in C3
         gesture smoothness evaluation
 """
 
@@ -20,7 +20,7 @@ from typing import Any
 import numpy as np
 
 
-# ── C1 — Retrieval metrics ─────────────────────────────────────────────────────
+# ── C1 - Retrieval metrics ─────────────────────────────────────────────────────
 
 def dcg_at_k(relevance: list[float], k: int) -> float:
     """Discounted Cumulative Gain at k.
@@ -80,7 +80,7 @@ def recall_at_k(
     relevant_ids: set[str],
     k: int,
 ) -> float:
-    """Recall at k — fraction of relevant items retrieved in top-k.
+    """Recall at k - fraction of relevant items retrieved in top-k.
 
     Args:
         retrieved_ids: Ordered list of retrieved document IDs.
@@ -147,7 +147,7 @@ def mean_metrics(metric_dicts: list[dict[str, float]]) -> dict[str, float]:
     }
 
 
-# ── C2 — Bias detection metrics ───────────────────────────────────────────────
+# ── C2 - Bias detection metrics ───────────────────────────────────────────────
 
 def precision_recall_f1(
     predicted: set[str],
@@ -228,7 +228,7 @@ def bias_detection_metrics(
     return per_type
 
 
-# ── C3 — Gesture smoothness metrics ───────────────────────────────────────────
+# ── C3 - Gesture smoothness metrics ───────────────────────────────────────────
 
 def jerk_score(positions: list[np.ndarray], dt: float = 0.05) -> float:
     """Mean absolute jerk (third derivative of position).
@@ -282,7 +282,7 @@ def gesture_metrics(
     return result
 
 
-# ── C4 — Stack / provenance metrics ───────────────────────────────────────────
+# ── C4 - Stack / provenance metrics ───────────────────────────────────────────
 
 def nepal_citation_ratio(
     responses: list[Any],  # list[AdvisingResponse]

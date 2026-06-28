@@ -18,12 +18,9 @@ export default function AdvisorPage() {
 
   return (
     <div className="grid gap-4 animate-fade-in lg:grid-cols-12">
-      <section className="space-y-4 lg:col-span-3">
-        <ProfileBuilder profile={profile} onChange={setProfile} onReset={resetProfile} />
-      </section>
-
-      <section className="lg:col-span-6">
-        <div className="flex h-[calc(100vh-9rem)] min-h-[34rem] flex-col">
+      {/* Chat - hero. First on mobile, centre on desktop. */}
+      <section className="order-1 lg:order-2 lg:col-span-6">
+        <div className="flex h-[70vh] min-h-[30rem] flex-col lg:h-[calc(100vh-8.5rem)]">
           <ChatPanel
             profile={profile}
             onResponse={(r) => recordQuery(lastQuery.current, r)}
@@ -35,9 +32,13 @@ export default function AdvisorPage() {
         </div>
       </section>
 
-      <section className="space-y-4 lg:col-span-3">
-        <DiversityMeter response={response} />
-        <BiasFlags flags={response?.bias_flags ?? []} />
+      {/* Profile - left rail on desktop, second on mobile. */}
+      <section className="order-3 space-y-4 lg:order-1 lg:col-span-3">
+        <ProfileBuilder profile={profile} onChange={setProfile} onReset={resetProfile} />
+      </section>
+
+      {/* Live insights - right rail. */}
+      <section className="order-2 space-y-4 lg:order-3 lg:col-span-3">
         {response && !response.refusal && response.pathways.length > 0 && (
           <Card className="border-brand/30 bg-brand/5">
             <CardContent className="space-y-3 py-4">
@@ -50,6 +51,15 @@ export default function AdvisorPage() {
                   <Route className="h-4 w-4" /> View pathways <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
+            </CardContent>
+          </Card>
+        )}
+        <DiversityMeter response={response} />
+        <BiasFlags flags={response?.bias_flags ?? []} />
+        {!response && (
+          <Card className="border-dashed">
+            <CardContent className="py-6 text-center text-sm text-muted-foreground">
+              Your evidence-diversity meter and bias checks appear here after you ask a question.
             </CardContent>
           </Card>
         )}

@@ -1,1 +1,1 @@
-"""dashboard module — Streamlit anti-anchoring advising interface"""
+"""dashboard module - Streamlit anti-anchoring advising interface"""

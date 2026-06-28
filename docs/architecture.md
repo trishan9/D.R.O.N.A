@@ -1,7 +1,7 @@
 # D.R.O.N.A. System Architecture
 
 **D**ynamic **R**obot for **O**rientation and **N**eed-based **A**dvising  
-*BSc (Hons) Computing Final-Year Project — Softwarica College / Coventry University*
+*BSc (Hons) Computing Final-Year Project - Softwarica College / Coventry University*
 
 ---
 
@@ -13,8 +13,8 @@ The system is structured in two phases:
 
 | Phase | Scope | Transport |
 |-------|-------|-----------|
-| **Phase 1** | Core logic — perception, advising, gesture control | In-process Python calls |
-| **Phase 2** | ROS2 node deployment — real hardware, multi-process | ROS2 topics + services |
+| **Phase 1** | Core logic - perception, advising, gesture control | In-process Python calls |
+| **Phase 2** | ROS2 node deployment - real hardware, multi-process | ROS2 topics + services |
 
 ---
 
@@ -25,7 +25,7 @@ D.R.O.N.A/
 ├── drona/                   # Phase 1 Python library (all business logic)
 │   ├── contracts.py         # Pydantic data contracts (single source of truth)
 │   ├── advising/            # RAG + LLM advising pipeline
-│   │   ├── engine.py        # AdvisingEngine — orchestrates retrieval → rerank → LLM
+│   │   ├── engine.py        # AdvisingEngine - orchestrates retrieval → rerank → LLM
 │   │   ├── retriever.py     # ChromaDB dual-collection retriever
 │   │   ├── reranker.py      # Cross-encoder reranker
 │   │   ├── bias_detector.py # Rule-based cognitive bias detector (C2)
@@ -58,7 +58,7 @@ D.R.O.N.A/
 │   └── run_simulation.py    # Full Phase 1 demo (no ROS2 required)
 ├── tests/                   # pytest suite (~300 tests)
 ├── data/
-│   ├── raw/                 # Source documents (not committed — see data cards)
+│   ├── raw/                 # Source documents (not committed - see data cards)
 │   ├── processed/           # Chunked text ready for ChromaDB ingestion
 │   ├── chromadb/            # Persistent ChromaDB store
 │   ├── evaluation/          # Evaluation outputs and reports
@@ -121,7 +121,7 @@ advising_node                                        gesture_node
         └────────────────────────────────────────────────────┘
 ```
 
-All four nodes are **zero-logic wrappers** — they perform message translation only. Every algorithm lives in `drona.*` Phase 1 code.
+All four nodes are **zero-logic wrappers** - they perform message translation only. Every algorithm lives in `drona.*` Phase 1 code.
 
 ---
 

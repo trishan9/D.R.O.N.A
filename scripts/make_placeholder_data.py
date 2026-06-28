@@ -6,7 +6,7 @@ idempotent and safe to re-run; replace them with real data and re-run the
 pipeline when ready.
 
 `data/raw/` is gitignored, so the curriculum docs do not travel with a git clone
-— run this script after cloning (e.g. on Colab/Kaggle) to recreate them. The job
+- run this script after cloning (e.g. on Colab/Kaggle) to recreate them. The job
 JSONs are tracked in git, but this script can recreate them too.
 
 Usage:

@@ -37,7 +37,7 @@ def setup_logging(
     fmt = (
         "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
         "<level>{level: <8}</level> | "
-        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> — "
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
         "<level>{message}</level>"
     )
 
@@ -55,4 +55,4 @@ def setup_logging(
             encoding="utf-8",
         )
 
-    logger.debug(f"Logging initialised — level={level}, file={log_file}")
+    logger.debug(f"Logging initialised - level={level}, file={log_file}")

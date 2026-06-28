@@ -30,7 +30,7 @@ services:
       retries: 10
 
   # Optional local LLM server. Enable with: docker compose --profile llm up -d
-  # GPU passthrough is commented out — the student's GTX 1650 4GB runs Phi-3.5
+  # GPU passthrough is commented out - the student's GTX 1650 4GB runs Phi-3.5
   # Q4_K_M on CPU/partial-GPU fine; uncomment `deploy` on a bigger machine.
   ollama:
     image: ollama/ollama:latest

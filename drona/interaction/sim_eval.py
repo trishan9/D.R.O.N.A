@@ -1,5 +1,5 @@
 """
-Simulation evaluation for D.R.O.N.A. gesture policies — Research Contribution C3.
+Simulation evaluation for D.R.O.N.A. gesture policies - Research Contribution C3.
 
 Rolls a policy out in the simulation environment and scores it on:
 
@@ -41,7 +41,7 @@ IDLE_STILLNESS_TOL = 0.15
 
 
 def gesture_apex_pose(gesture_label: str) -> np.ndarray:
-    """Return the keyframe pose furthest from rest — the gesture's 'apex'."""
+    """Return the keyframe pose furthest from rest - the gesture's 'apex'."""
     keyframes = GESTURE_KEYFRAMES[gesture_label]
     best = np.array(keyframes[0][0], dtype=np.float32)
     best_dist = -1.0

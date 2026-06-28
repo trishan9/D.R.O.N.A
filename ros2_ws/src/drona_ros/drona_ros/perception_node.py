@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Perception Node — ROS2 Humble
+D.R.O.N.A. Perception Node - ROS2 Humble
 
 Runs the engagement detector at a configurable rate and publishes
 EngagementDetection messages.

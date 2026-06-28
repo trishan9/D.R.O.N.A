@@ -6,7 +6,7 @@ with a small cross-encoder (BAAI/bge-reranker-base, ~278M params), reducing
 to top-N (default 5) for the prompt builder.
 
 Why a reranker on top of dense+BM25?
-  Bi-encoders (the dense models) encode query and document independently —
+  Bi-encoders (the dense models) encode query and document independently -
   they cannot model token-level interactions. Cross-encoders see (query, doc)
   jointly and are more accurate but too slow to run over the full corpus.
   This is the standard two-stage pipeline: fast retrieval → accurate reranking.
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
 # bge-reranker returns ~[0,1] relevance probabilities. If even the best pair
 # scores below this, the cross-encoder found nothing clearly relevant (e.g.
-# heavy typos crush the scores, or the model failed to load) — in that case we
+# heavy typos crush the scores, or the model failed to load) - in that case we
 # keep the retriever's ordering/scores instead of overwriting them with ~0.
 _RERANK_MIN_SIGNAL = 0.01
 

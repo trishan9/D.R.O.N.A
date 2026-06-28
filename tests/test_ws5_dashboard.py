@@ -1,5 +1,5 @@
 """
-WS5 smoke tests — dashboard session bridge and component helpers.
+WS5 smoke tests - dashboard session bridge and component helpers.
 
 No Streamlit server, no browser, no Ollama. The AdvisingEngine is mocked so
 only the bridge and pure formatting logic are tested.
@@ -86,7 +86,7 @@ def _make_bridge() -> tuple[SessionBridge, dict]:
     return bridge, state
 
 
-# ── Component helpers — pure functions ────────────────────────────────────────
+# ── Component helpers - pure functions ────────────────────────────────────────
 
 class TestConfidenceEmoji:
     def test_high_returns_green(self) -> None:

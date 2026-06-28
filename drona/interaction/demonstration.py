@@ -1,5 +1,5 @@
 """
-Demonstration data layer for D.R.O.N.A. — Research Contribution C3.
+Demonstration data layer for D.R.O.N.A. - Research Contribution C3.
 
 Defines the schema for recording, storing, and loading robot gesture
 demonstrations used to train the ACT (Action Chunking with Transformers)
@@ -15,12 +15,12 @@ Joint space:
   manipulator. All angles clamped to [-π, π]. The same joint convention is used
   in both the simulation environment and ACT policy I/O so no remapping occurs.
 
-  j0 — base rotation (yaw)
-  j1 — shoulder pitch
-  j2 — elbow pitch
-  j3 — wrist pitch
-  j4 — wrist roll
-  j5 — gripper (0 = open, 1 = closed)
+  j0 - base rotation (yaw)
+  j1 - shoulder pitch
+  j2 - elbow pitch
+  j3 - wrist pitch
+  j4 - wrist roll
+  j5 - gripper (0 = open, 1 = closed)
 
 Storage:
   Primary: HuggingFace datasets (parquet) when `datasets` package is available.
@@ -53,7 +53,7 @@ JOINT_NAMES = ["j0_base_yaw", "j1_shoulder", "j2_elbow", "j3_wrist_pitch", "j4_w
 JOINT_LIMITS_LOW  = np.array([-math.pi, -math.pi/2, -math.pi, -math.pi/2, -math.pi, 0.0])
 JOINT_LIMITS_HIGH = np.array([ math.pi,  math.pi/2,  math.pi,  math.pi/2,  math.pi, 1.0])
 
-# Rest pose — arm hanging naturally at side
+# Rest pose - arm hanging naturally at side
 REST_POSE = np.array([0.0, -0.3, 0.5, -0.2, 0.0, 0.0])
 
 
@@ -119,14 +119,14 @@ GESTURE_KEYFRAMES: dict[str, list[tuple[list[float], float]]] = {
 class DemonstrationFrame:
     """One timestep of a recorded demonstration.
 
-    Mirrors a single row in a LeRobot dataset — every field maps directly to a
+    Mirrors a single row in a LeRobot dataset - every field maps directly to a
     HuggingFace datasets column. The order of fields is the serialization order.
     """
     episode_index: int
     frame_index: int
     timestamp: float              # seconds since episode start
-    observation_state: np.ndarray  # shape (DOF,) — current joint positions
-    action: np.ndarray             # shape (DOF,) — commanded joint positions
+    observation_state: np.ndarray  # shape (DOF,) - current joint positions
+    action: np.ndarray             # shape (DOF,) - commanded joint positions
     gesture_label: str             # e.g. "greet", "nod"
     is_terminal: bool = False
 
@@ -199,7 +199,7 @@ class DemonstrationDataset:
     """Collection of recorded demonstration episodes.
 
     Provides save/load in two formats:
-      - JSONL (always available, no extra deps) — one JSON object per frame
+      - JSONL (always available, no extra deps) - one JSON object per frame
       - HuggingFace datasets parquet (when `datasets` is installed)
     """
     episodes: list[DemonstrationEpisode] = field(default_factory=list)

@@ -1,1 +1,1 @@
-"""interaction module — see docs/architecture.md"""
+"""interaction module - see docs/architecture.md"""

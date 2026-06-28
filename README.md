@@ -1,10 +1,10 @@
 # D.R.O.N.A.
 **Demonstration-learned Robotic Oracle for Nurturing Aspirations**
 
-BSc Computing individual project — Softwarica College of IT & E-Commerce / Coventry University  
+BSc Computing individual project - Softwarica College of IT & E-Commerce / Coventry University  
 Author: Trisan Wagle
 
-> **▶ START HERE:** [`docs/RUN_EVERYTHING.md`](docs/RUN_EVERYTHING.md) — the single
+> **▶ START HERE:** [`docs/RUN_EVERYTHING.md`](docs/RUN_EVERYTHING.md) - the single
 > complete guide from a fresh machine to a fully working system: data → embeddings →
 > the LLM (local **or** cloud Ollama, with a recommendation) → the GPU models on
 > Colab/Kaggle → web app → simulation, with every command and a troubleshooting table.
@@ -40,30 +40,30 @@ The system makes four original research contributions:
 ```
 drona/
 ├── contracts.py              # Pydantic inter-module contracts (ROS2-portable)
-├── data_pipeline/            # WS1 — scrapers, O*NET loader, ChromaDB ingestor
+├── data_pipeline/            # WS1 - scrapers, O*NET loader, ChromaDB ingestor
 │   ├── scrapers/             #   MeroJob, Merojob manual loader, O*NET XML
 │   └── ingest.py             #   dual-collection ChromaDB indexer
-├── advising/                 # WS2 — RAG + bias-aware LLM engine
+├── advising/                 # WS2 - RAG + bias-aware LLM engine
 │   ├── retriever.py          #   hybrid BM25+dense RRF retriever
 │   ├── bias_detector.py      #   rule-based 6-type cognitive bias detector
 │   ├── prompt_builder.py     #   bias-aware system prompt construction
 │   ├── llm_client.py         #   Ollama/Phi-3.5 JSON generation client
 │   └── engine.py             #   AdvisingEngine: 4-stage advise() pipeline
-├── interaction/              # WS3 — robot gesture policy
+├── interaction/              # WS3 - robot gesture policy
 │   ├── demonstration.py      #   DemonstrationDataset, keyframe interpolation
 │   ├── mujoco_env.py         #   StubEnv / MuJoCoEnv (graceful fallback)
 │   ├── act_policy.py         #   KeyframePolicy + LeRobotACTPolicy + PolicyRouter
 │   └── gesture_dispatcher.py #   GestureDispatcher: execute() → InteractionActionResult
-├── perception/               # WS4 — engagement detection
+├── perception/               # WS4 - engagement detection
 │   └── mediapipe_detector.py #   MediaPipeDetector / StubDetector (EMA smoothing)
-├── orchestrator/             # WS4 — session lifecycle
+├── orchestrator/             # WS4 - session lifecycle
 │   ├── session_machine.py    #   5-state FSM + SessionContext
 │   └── orchestrator.py       #   Orchestrator.tick() main loop
-├── dashboard/                # WS5 — Streamlit UI (anti-anchoring layout)
+├── dashboard/                # WS5 - Streamlit UI (anti-anchoring layout)
 │   ├── session_bridge.py     #   SessionBridge wraps AdvisingEngine for Streamlit
 │   ├── components.py         #   pure formatting helpers (fully testable)
 │   └── app.py                #   Streamlit app entry point
-├── evaluation/               # WS6 — evaluation harness
+├── evaluation/               # WS6 - evaluation harness
 │   ├── queries.py            #   synthetic labelled query bank (C1–C4)
 │   ├── metrics.py            #   pure metric functions (NDCG, MRR, F1, jerk…)
 │   └── harness.py            #   EvaluationHarness.run_all() → EvaluationReport
@@ -73,7 +73,7 @@ drona/
 scripts/
 ├── ingest_data.py            # Index all data into ChromaDB
 └── run_evaluation.py         # Run C1–C4 evaluation and save JSON report
-tests/                        # 305 tests — no network, no GPU required
+tests/                        # 305 tests - no network, no GPU required
 ```
 
 ---
@@ -117,7 +117,7 @@ pip install mediapipe opencv-python
 
 ```bash
 cp .env.example .env
-# Edit .env — at minimum set OLLAMA_MODEL and DATA_* paths
+# Edit .env - at minimum set OLLAMA_MODEL and DATA_* paths
 ```
 
 ### 3. Start Ollama (for LLM advising)
@@ -147,7 +147,7 @@ streamlit run drona/dashboard/app.py
 ### Evaluation harness
 
 ```bash
-# C2 (bias detection) + C3 (gesture smoothness) — no external deps needed
+# C2 (bias detection) + C3 (gesture smoothness) - no external deps needed
 python scripts/run_evaluation.py
 
 # All contributions (needs ChromaDB populated and Ollama running)
@@ -159,7 +159,7 @@ python scripts/run_evaluation.py --c2 --c3
 
 Results are saved as JSON to `data/evaluation/report_<timestamp>.json`.
 
-### Web frontend (Next.js 14 — multi-page platform)
+### Web frontend (Next.js 14 - multi-page platform)
 
 A full sidebar-navigated app (Dashboard · Advisor · Pathways · Skills · Analytics ·
 Robot Control · Profile · Achievements · Preferences · About) with light/dark
@@ -172,7 +172,7 @@ cd frontend && npm install && npm run dev   # http://localhost:3000
 # Optional live robot (in WSL2): ros2 launch drona_bringup drona_system.launch.py rosbridge:=true
 ```
 
-### Robot simulation (ROS2 Humble — run in WSL2 on Windows)
+### Robot simulation (ROS2 Humble - run in WSL2 on Windows)
 
 No Ubuntu dual-boot needed: ROS2 + Gazebo run inside **WSL2 (Ubuntu 22.04)** and
 WSLg shows the windows on your Windows desktop. One-time setup: [`docs/wsl_setup.md`](docs/wsl_setup.md).
@@ -196,8 +196,8 @@ pytest tests/test_ws7_phase7_eval.py -v  # evaluation harness only
 
 | Doc | What it covers |
 |---|---|
-| **[`docs/RUN_EVERYTHING.md`](docs/RUN_EVERYTHING.md)** | **▶ THE complete guide** — fresh machine → working system; both LLM options; every step |
-| **[`docs/STUDENT_RUNBOOK.md`](docs/STUDENT_RUNBOOK.md)** | **Your operational guide** — data, scripts, Colab, ROS2, timeline |
+| **[`docs/RUN_EVERYTHING.md`](docs/RUN_EVERYTHING.md)** | **▶ THE complete guide** - fresh machine → working system; both LLM options; every step |
+| **[`docs/STUDENT_RUNBOOK.md`](docs/STUDENT_RUNBOOK.md)** | **Your operational guide** - data, scripts, Colab, ROS2, timeline |
 | **[`docs/COLAB_TRAINING_GUIDE.md`](docs/COLAB_TRAINING_GUIDE.md)** | **Train the GPU models on Colab/Kaggle**, bring checkpoints back, finalize + simulate |
 | [`docs/architecture.md`](docs/architecture.md) | System design + **mermaid** diagrams |
 | [`docs/phase1_plan.md`](docs/phase1_plan.md) / [`docs/phase2_plan.md`](docs/phase2_plan.md) | Delivered scope vs deferred (hardware + study) |
@@ -222,7 +222,7 @@ Full licensing matrix, PII policy, and scraping prohibitions: [`docs/data_ethics
 |--------|------|-----------------|
 | Softwarica curriculum PDFs | Curriculum | Institution-provided |
 | O*NET 28.3 | Occupation data | Public domain (US DOL) |
-| Nepal job portals (MeroJob) | Career postings | Manual collection — robots.txt checked |
+| Nepal job portals (MeroJob) | Career postings | Manual collection - robots.txt checked |
 | Synthetic evaluation queries | Eval only | Generated; labelled as `tier=synthetic` |
 
 **Data policy:**
@@ -233,20 +233,20 @@ Full licensing matrix, PII policy, and scraping prohibitions: [`docs/data_ethics
 
 ---
 
-## Research contributions — evaluation summary
+## Research contributions - evaluation summary
 
 Run `python scripts/run_evaluation.py --all` after indexing data to reproduce all numbers.
 
-**C1 — Hybrid retrieval:** NDCG@5 and MRR across 10 labelled queries; hybrid vs dense-only.
+**C1 - Hybrid retrieval:** NDCG@5 and MRR across 10 labelled queries; hybrid vs dense-only.
 
-**C2 — Bias detection:** Precision / Recall / F1 per bias type and macro-average across
+**C2 - Bias detection:** Precision / Recall / F1 per bias type and macro-average across
 17 labelled queries (14 biased, 3 clean). Bias types: availability heuristic, anchoring,
 confirmation bias, Dunning–Kruger effect, loss aversion, consistency bias.
 
-**C3 — Gesture smoothness:** Mean absolute jerk (rad/s³) and path length for KeyframePolicy
+**C3 - Gesture smoothness:** Mean absolute jerk (rad/s³) and path length for KeyframePolicy
 baseline. ACT-trained policies are compared against these numbers post-training.
 
-**C4 — Nepal stack:** Nepal citation ratio for local-preference queries; target ≥ 40%.
+**C4 - Nepal stack:** Nepal citation ratio for local-preference queries; target ≥ 40%.
 Generation latency (mean, p95) for full pipeline and retrieval-only.
 
 ---
@@ -255,19 +255,19 @@ Generation latency (mean, p95) for full pipeline and retrieval-only.
 
 | Week | Work stream | Status |
 |------|-------------|--------|
-| 1 | WS1 — data pipeline | Complete |
-| 1–2 | WS2 — advising intelligence (C1, C2) | Complete |
-| 2 | WS3 — robot interaction / ACT (C3) | Complete |
-| 3 | WS4 — orchestrator + perception | Complete |
-| 3 | WS5 — Streamlit dashboard | Complete |
-| 4 | WS6 — evaluation harness | Complete |
+| 1 | WS1 - data pipeline | Complete |
+| 1–2 | WS2 - advising intelligence (C1, C2) | Complete |
+| 2 | WS3 - robot interaction / ACT (C3) | Complete |
+| 3 | WS4 - orchestrator + perception | Complete |
+| 3 | WS5 - Streamlit dashboard | Complete |
+| 4 | WS6 - evaluation harness | Complete |
 
 ---
 
 ## Acknowledgements
 
-- [LeRobot](https://github.com/huggingface/lerobot) — ACT policy implementation
-- [BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5) — curriculum embeddings
-- [TechWolf/JobBERT-v2](https://huggingface.co/TechWolf/JobBERT-v2) — career embeddings
-- [Ollama](https://ollama.com/) — local LLM serving
-- O*NET Resource Center (US Department of Labor) — occupation data
+- [LeRobot](https://github.com/huggingface/lerobot) - ACT policy implementation
+- [BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5) - curriculum embeddings
+- [TechWolf/JobBERT-v2](https://huggingface.co/TechWolf/JobBERT-v2) - career embeddings
+- [Ollama](https://ollama.com/) - local LLM serving
+- O*NET Resource Center (US Department of Labor) - occupation data

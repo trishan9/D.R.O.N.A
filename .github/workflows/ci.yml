@@ -1,7 +1,7 @@
 name: CI
 
 # Runs the offline test suite (no network, no GPU) on every push/PR.
-# Heavy extras (backend, db, eval, robotics) are not installed here — those are
+# Heavy extras (backend, db, eval, robotics) are not installed here - those are
 # exercised in notebooks / integration environments, not unit CI.
 
 on:

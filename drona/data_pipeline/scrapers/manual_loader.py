@@ -124,7 +124,7 @@ def build_data_card(
         name=f"{portal_slug}_manual_postings",
         source_name=source_name,
         source_url=source_url,
-        license="custom — public job postings; paraphrased summaries, no PII",
+        license="custom - public job postings; paraphrased summaries, no PII",
         tier="nepal",
         collection_method="manual_user_collection",
         record_count=len(postings),

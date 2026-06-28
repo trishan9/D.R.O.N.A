@@ -27,7 +27,7 @@ export default function AchievementsPage() {
         <div className="space-y-4 lg:col-span-2">
           <SectionHeading
             title="Exploration badges"
-            description="These reward breadth and scepticism — not committing fast. That's the point: the gamification fights anchoring and confirmation bias instead of feeding them."
+            description="These reward breadth and scepticism - not committing fast. That's the point: the gamification fights anchoring and confirmation bias instead of feeding them."
           />
           <ExplorationBadges exploration={exploration} response={response} />
 

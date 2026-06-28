@@ -9,9 +9,9 @@ bias-appropriate framing baked in (so the fine-tune teaches the bias-aware
 style, not just the format).
 
 Two modes:
-  - RULE-BASED (default, deterministic, offline) — recombines anchor attributes
+  - RULE-BASED (default, deterministic, offline) - recombines anchor attributes
     into questions and gold answers. Fully reproducible (seeded).
-  - LLM-AUGMENTED (optional, offline only) — paraphrase questions with the local
+  - LLM-AUGMENTED (optional, offline only) - paraphrase questions with the local
     Phi-3.5 or the Gemini API (offline eval/data creation use only).
 
 Every pair is labelled is_synthetic=True with anchor_ids for provenance.
@@ -90,8 +90,8 @@ _BIAS_FRAMING: dict[str | None, str] = {
         "including some you may not have considered."
     ),
     "confirmation": (
-        "Here is balanced evidence — both where it supports that view and where it "
-        "complicates it — across multiple pathways."
+        "Here is balanced evidence - both where it supports that view and where it "
+        "complicates it - across multiple pathways."
     ),
     "dunning_kruger": (
         "Let's ground the skill picture in concrete employer requirements rather "
@@ -128,7 +128,7 @@ def _citation_from_posting(p: JobPosting, score: float) -> RetrievalCitation:
         source_type="job_posting",
         source_id=p.posting_id,
         tier=p.tier,
-        excerpt=f"{p.title} at {p.employer or 'a Nepali employer'} — skills: {skills}",
+        excerpt=f"{p.title} at {p.employer or 'a Nepali employer'} - skills: {skills}",
         relevance_score=score,
     )
 

@@ -16,7 +16,7 @@ interface SkillTreeProps {
 
 /**
  * Skill graph, deliberately NOT a ranked ladder. Shows what the student already
- * has vs. what surfaced pathways ask for — framed as a connected map so no
+ * has vs. what surfaced pathways ask for - framed as a connected map so no
  * single "destination" anchors the student.
  */
 export function SkillTree({ response, haveSkills, completedModules }: SkillTreeProps) {
@@ -44,7 +44,7 @@ export function SkillTree({ response, haveSkills, completedModules }: SkillTreeP
         <CardTitle className="text-base">Skill map</CardTitle>
         <CardDescription>
           What you already bring, and what the pathways above would grow. A web of
-          options — not a single ladder.
+          options - not a single ladder.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

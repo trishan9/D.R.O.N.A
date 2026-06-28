@@ -1,1 +1,1 @@
-"""orchestrator module — see docs/architecture.md"""
+"""orchestrator module - see docs/architecture.md"""

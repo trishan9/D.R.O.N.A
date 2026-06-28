@@ -1,4 +1,4 @@
-# Data Cards — D.R.O.N.A.
+# Data Cards - D.R.O.N.A.
 
 One card per dataset used by the system. Each card records provenance, license,
 tier, collection method, schema, and limitations. Machine-readable YAML cards are

@@ -1,5 +1,5 @@
 """
-Diffusion Policy wrapper for D.R.O.N.A. gestures — C3 ablation (Chi et al. 2023).
+Diffusion Policy wrapper for D.R.O.N.A. gestures - C3 ablation (Chi et al. 2023).
 
 Diffusion Policy models the action distribution with a conditional denoising
 diffusion process, which captures multimodal action distributions better than

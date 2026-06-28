@@ -4,7 +4,7 @@ Prompt builder for D.R.O.N.A.'s advising engine.
 Constructs the system + user prompt sent to the local LLM. Key design decisions:
 
   Anti-anchoring: Always asks for multiple pathways (default 3). Presenting
-  only one option is itself an anchoring effect — the first answer shapes
+  only one option is itself an anchoring effect - the first answer shapes
   all subsequent thinking (Tversky & Kahneman 1974).
 
   Bias-aware instructions: If the bias detector fired, the system prompt
@@ -34,18 +34,18 @@ _BIAS_INSTRUCTIONS: dict[str, str] = {
     "availability_heuristic": (
         "The student may be over-weighting a specific example they have heard "
         "about recently. Ground your response in broad market statistics from "
-        "the retrieved documents. Do not mirror the anecdote back — cite the "
+        "the retrieved documents. Do not mirror the anecdote back - cite the "
         "base rate instead."
     ),
     "anchoring": (
         "The student appears anchored on a specific company, role, or salary. "
         "Present at least three distinct pathways including ones they have not "
-        "mentioned. Do not start with their stated target — introduce it in the "
+        "mentioned. Do not start with their stated target - introduce it in the "
         "middle or end of the list so the first option they read is different."
     ),
     "confirmation": (
         "The student is seeking validation of a belief they already hold. Do "
-        "not simply confirm it. Present balanced evidence — where the retrieved "
+        "not simply confirm it. Present balanced evidence - where the retrieved "
         "data supports their belief, say so; where it challenges it, say that "
         "too. Phrase this supportively, not confrontationally."
     ),
@@ -73,7 +73,7 @@ _BIAS_INSTRUCTIONS: dict[str, str] = {
 
 def _format_citations(citations: list[RetrievalCitation]) -> str:
     if not citations:
-        return "(No retrieved documents — answer only from general knowledge and flag uncertainty.)"
+        return "(No retrieved documents - answer only from general knowledge and flag uncertainty.)"
 
     # Sort: Nepal → Regional → International → Synthetic
     tier_order = {"nepal": 0, "regional": 1, "international": 2, "synthetic": 3}
@@ -125,9 +125,9 @@ CORE RULES:
 1. Always present {max_pathways} career pathways unless fewer are genuinely supported by the evidence.
 2. Lead with Nepal-market evidence. Use international data only to provide context.
 3. Never invent salary figures, employer names, or module details not in the retrieved documents.
-4. If retrieved documents do not cover the question, say so clearly — do not hallucinate.
+4. If retrieved documents do not cover the question, say so clearly - do not hallucinate.
 5. Every factual claim must be traceable to a [N] citation number.
-6. Keep the speak_text field short (2-4 sentences) — this is what the robot says aloud.
+6. Keep the speak_text field short (2-4 sentences) - this is what the robot says aloud.
 
 RESPONSE FORMAT:
 Respond with a single JSON object using exactly these fields:
@@ -173,7 +173,7 @@ def build_prompt(
         bias_flags: Detected biases from BiasDetector.
 
     Returns:
-        (system_prompt, user_prompt) — both strings ready for the chat API.
+        (system_prompt, user_prompt) - both strings ready for the chat API.
     """
     system_parts = [_SYSTEM_BASE.format(max_pathways=query.max_pathways)]
 

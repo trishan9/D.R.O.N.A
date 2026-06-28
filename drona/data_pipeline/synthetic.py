@@ -13,10 +13,10 @@ This honours the proposal's data-ethics stance and the build prompt's hard rule:
 "Do not silently mix synthetic and real data."
 
 Two modes:
-  1. RULE-BASED (default, deterministic, offline, fully testable) — recombines
+  1. RULE-BASED (default, deterministic, offline, fully testable) - recombines
      attributes of real anchor postings with realistic Nepali employer/location
      pools and bounded salary jitter.
-  2. LLM-AUGMENTED (optional) — paraphrases descriptions with the LOCAL Phi-3.5
+  2. LLM-AUGMENTED (optional) - paraphrases descriptions with the LOCAL Phi-3.5
      model (drona.advising.llm_client) or, for offline eval-set creation only,
      the Gemini API. Gemini is gated behind settings and never used in the live
      advising request path.
@@ -54,7 +54,7 @@ def _stable_id(seed: str) -> str:
 def generate_from_anchors(
     anchors: list[JobPosting],
     n_per_anchor: int = 2,
-    seed: int = 230352,  # student ID — reproducible runs
+    seed: int = 230352,  # student ID - reproducible runs
 ) -> list[JobPosting]:
     """Deterministically generate synthetic postings from real anchors.
 
@@ -69,7 +69,7 @@ def generate_from_anchors(
     rng = random.Random(seed)
     real_anchors = [a for a in anchors if not a.is_synthetic]
     if not real_anchors:
-        logger.warning("No real anchors provided — cannot generate synthetic postings")
+        logger.warning("No real anchors provided - cannot generate synthetic postings")
         return []
 
     out: list[JobPosting] = []
@@ -186,7 +186,7 @@ def build_data_card(postings: list[JobPosting], output_path: Path) -> DataCard:
             "robustness; penalised at retrieval time so it never outranks real data."
         ),
         known_limitations=[
-            "Not real vacancies — must never be presented as live jobs",
+            "Not real vacancies - must never be presented as live jobs",
             "Diversity bounded by the anchor set and employer/location pools",
         ],
         contains_synthetic=True,

@@ -2,7 +2,7 @@
  * D.R.O.N.A. backend client (REST + WebSocket).
  *
  * The advising request path is LOCAL-ONLY on the backend (Ollama); this client
- * only ever talks to the FastAPI app in drona/api/app.py. No PII is sent — the
+ * only ever talks to the FastAPI app in drona/api/app.py. No PII is sent - the
  * request mirrors the session-scoped, identity-free AdviseRequest schema.
  */
 

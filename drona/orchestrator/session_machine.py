@@ -37,7 +37,7 @@ Design principles:
   - SessionEvent is emitted on every state change (contracts layer).
   - Timeout logic uses wall-clock time stored in SessionContext so the machine
     can be driven from tests without real sleeps.
-  - Each session gets a fresh UUID. The machine never stores student data —
+  - Each session gets a fresh UUID. The machine never stores student data -
     session_id is the only identifier and is discarded at session end.
 """
 
@@ -205,7 +205,7 @@ class SessionMachine:
           - IDLE → GREETING when ENGAGED detected
           - Timeout to IDLE when student ABSENT/DISENGAGING too long
 
-        Does NOT trigger GREETED, QUERY_RECEIVED, etc. — those are fired by
+        Does NOT trigger GREETED, QUERY_RECEIVED, etc. - those are fired by
         the Orchestrator at appropriate moments in the execution flow.
 
         Args:
@@ -252,11 +252,11 @@ class SessionMachine:
             query_text: The student's advising question.
 
         Returns:
-            TransitionResult — transitioned only if state was NEEDS_ASSESSMENT.
+            TransitionResult - transitioned only if state was NEEDS_ASSESSMENT.
         """
         if self._ctx.state != SessionState.NEEDS_ASSESSMENT:
             logger.warning(
-                f"Query submitted in state {self._ctx.state.value} — ignored"
+                f"Query submitted in state {self._ctx.state.value} - ignored"
             )
             return TransitionResult(False, None, self._ctx.state)
 

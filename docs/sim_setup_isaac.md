@@ -1,4 +1,4 @@
-# NVIDIA Isaac Sim Setup — D.R.O.N.A.
+# NVIDIA Isaac Sim Setup - D.R.O.N.A.
 
 Isaac Sim is D.R.O.N.A.'s **high-fidelity** simulator, used for photorealistic
 rendering and accurate articulation dynamics in the evaluation chapter. It is
@@ -7,13 +7,13 @@ rendering and accurate articulation dynamics in the evaluation chapter. It is
 
 > ⚠️ **Hardware requirement: an RTX-class GPU with ≥ 8 GB VRAM.**
 > Isaac Sim uses the Omniverse **RTX renderer**, so it needs RTX ray-tracing
-> cores — a **GTX** 1650 (4 GB, no RTX cores) **cannot** run it, with or without
+> cores - a **GTX** 1650 (4 GB, no RTX cores) **cannot** run it, with or without
 > WSL2. So on this machine Isaac Sim is **cloud-only** (recipe in §4); the local
 > embodied demo is **Gazebo Harmonic in WSL2** (`sim_setup_gazebo.md`) plus the
 > in-browser **Robot Control** page in the Next.js app (faithful 6-DOF twin).
 >
 > **About WSL2:** NVIDIA *does* officially support Isaac Sim on WSL2 (Ubuntu
-> 22.04) — so if you later get an RTX card (≥8 GB), you can run §3 inside WSL2
+> 22.04) - so if you later get an RTX card (≥8 GB), you can run §3 inside WSL2
 > exactly as written. The blocker here is the GPU class (GTX vs RTX), not WSL.
 
 ---
@@ -21,7 +21,7 @@ rendering and accurate articulation dynamics in the evaluation chapter. It is
 ## 1. Install Isaac Sim 4.x
 
 Follow NVIDIA's official installer (Omniverse Launcher or the container). Isaac
-Sim ships its **own Python** (`python.sh`) — this is separate from the ROS2
+Sim ships its **own Python** (`python.sh`) - this is separate from the ROS2
 Python environment.
 
 ```bash
@@ -30,7 +30,7 @@ cd ~/.local/share/ov/pkg/isaac-sim-4.*
 ./python.sh -c "import isaacsim; print('Isaac OK')"
 ```
 
-Enable the ROS2 bridge extension (`omni.isaac.ros2_bridge`) — the stage script
+Enable the ROS2 bridge extension (`omni.isaac.ros2_bridge`) - the stage script
 does this automatically, but it must be available in your Isaac install.
 
 ---
@@ -58,12 +58,12 @@ over the **Isaac ROS2 bridge**:
 xacro <repo>/ros2_ws/src/drona_description/urdf/drona_humanoid.urdf.xacro \
   > /tmp/drona_humanoid.urdf
 
-# Terminal 1 — Isaac stage (Isaac python):
+# Terminal 1 - Isaac stage (Isaac python):
 cd ~/.local/share/ov/pkg/isaac-sim-4.*
 ./python.sh <repo>/ros2_ws/src/drona_bringup/isaac/drona_isaac_stage.py \
   --urdf /tmp/drona_humanoid.urdf
 
-# Terminal 2 — D.R.O.N.A. ROS2 side (ROS2 sourced):
+# Terminal 2 - D.R.O.N.A. ROS2 side (ROS2 sourced):
 cd <repo>/ros2_ws && source install/setup.bash
 ros2 launch drona_bringup drona_isaac.launch.py
 ```
@@ -98,7 +98,7 @@ For machines without a capable GPU (incl. the GTX-1650):
 3. **Bridge ROS2** either inside the same container (install ros-humble) or via a
    second container on the same Docker network with `ROS_DOMAIN_ID` matched.
 4. **Record** the session as a rosbag (see `ros2_topics_actions.md`) and pull it
-   back to the laptop for offline analysis — no local GPU needed for the writeup.
+   back to the laptop for offline analysis - no local GPU needed for the writeup.
 
 > Colab note: Colab does not expose a full desktop GPU context suitable for
 > Isaac's renderer; prefer a proper cloud VM or the NGC container above.
@@ -109,7 +109,7 @@ For machines without a capable GPU (incl. the GTX-1650):
 
 | Symptom | Fix |
 |---|---|
-| `omni/isaacsim not found` | you ran with the wrong python — use Isaac's `python.sh` |
+| `omni/isaacsim not found` | you ran with the wrong python - use Isaac's `python.sh` |
 | URDF import fails on xacro | pre-expand with `xacro` first (see §3) |
 | No `/clock` in ROS2 | confirm `omni.isaac.ros2_bridge` enabled + `ROS_DOMAIN_ID` matches |
 | Out of memory | reduce viewport/render settings or run `--headless` |

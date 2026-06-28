@@ -4,7 +4,7 @@ BLS OEWS (Occupational Employment and Wage Statistics) ingestion for D.R.O.N.A.
 BLS OEWS gives US wage distributions per SOC occupation code. We use it ONLY to
 attach an international salary band (USD, 10th–90th percentile) to O*NET
 pathways, which share the SOC taxonomy. This provides honest international wage
-context that the advising layer contrasts against Nepal-tier salary evidence —
+context that the advising layer contrasts against Nepal-tier salary evidence -
 directly serving the anti-anchoring goal (C2/C4): never present US salaries as
 locally attainable.
 
@@ -127,7 +127,7 @@ def build_data_card(wages: dict[str, tuple[int, int]], output_path: Path) -> Dat
             "Nepal-tier evidence to avoid anchoring (C2/C4)."
         ),
         known_limitations=[
-            "US wages only — NOT representative of Nepal compensation",
+            "US wages only - NOT representative of Nepal compensation",
             "Percentiles capped by BLS for very high earners",
             "SOC matching to O*NET drops the .00 detail-occupation suffix",
         ],

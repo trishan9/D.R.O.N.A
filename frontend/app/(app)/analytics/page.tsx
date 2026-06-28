@@ -28,17 +28,17 @@ export default function AnalyticsPage() {
       <section className="space-y-3">
         <SectionHeading
           title="Live session metrics"
-          description="Computed in-browser from your most recent advising response — fully reproducible, not placeholders."
+          description="Computed in-browser from your most recent advising response - fully reproducible, not placeholders."
         />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <StatCard label="Pathways" value={s.pathwayCount} icon={Route} accent="brand" />
-          <StatCard label="Diversity" value={s.hasResponse ? s.diversityScore : "—"} hint={s.diversityLabel} icon={Gauge} accent="international" />
+          <StatCard label="Diversity" value={s.hasResponse ? s.diversityScore : "-"} hint={s.diversityLabel} icon={Gauge} accent="international" />
           <StatCard label="Bias checks" value={s.biasFlagCount} icon={ShieldAlert} accent="regional" />
           <StatCard label="Citations" value={s.citationCount} icon={Activity} accent="synthetic" />
-          <StatCard label="Nepal-first" value={s.hasResponse ? `${s.nepalRate}%` : "—"} icon={MapPin} accent="nepal" />
+          <StatCard label="Nepal-first" value={s.hasResponse ? `${s.nepalRate}%` : "-"} icon={MapPin} accent="nepal" />
           <StatCard
             label="Latency"
-            value={s.generationMs ? `${(s.generationMs / 1000).toFixed(1)}s` : "—"}
+            value={s.generationMs ? `${(s.generationMs / 1000).toFixed(1)}s` : "-"}
             icon={Timer}
             accent="muted"
           />

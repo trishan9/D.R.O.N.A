@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Gesture Node — ROS2 Humble
+D.R.O.N.A. Gesture Node - ROS2 Humble
 
 Wraps drona.interaction.gesture_dispatcher.GestureDispatcher.
 Publishes joint states during execution so visualizers / hardware drivers
@@ -8,10 +8,10 @@ can track the arm position in real time.
 Topics:
     sub  /drona/gesture_command  (drona_msgs/GestureCommand)
     pub  /drona/gesture_result   (drona_msgs/GestureResult)
-    pub  /drona/joint_states     (sensor_msgs/JointState)  — 20 Hz during gesture
+    pub  /drona/joint_states     (sensor_msgs/JointState)  - 20 Hz during gesture
 
 Services:
-    /drona/execute_gesture  (drona_msgs/ExecuteGesture)  — blocking until complete
+    /drona/execute_gesture  (drona_msgs/ExecuteGesture)  - blocking until complete
 
 Parameters:
     use_hardware   : false  (true = connect to SO-100 arm via arm_interface)
@@ -183,7 +183,7 @@ class GestureNode(Node):
     def _on_command(self, msg: GestureCommand) -> None:
         if not self._exec_lock.acquire(blocking=False):
             self.get_logger().warn(
-                f"Gesture '{msg.gesture_label}' dropped — previous gesture still running."
+                f"Gesture '{msg.gesture_label}' dropped - previous gesture still running."
             )
             return
         try:
@@ -192,7 +192,7 @@ class GestureNode(Node):
             result = self._execute_gesture(action)
             self._result_pub.publish(result)
             self.get_logger().info(
-                f"Gesture '{msg.gesture_label}' complete — "
+                f"Gesture '{msg.gesture_label}' complete - "
                 f"{result.frames_executed} frames, {result.duration_s:.2f}s, "
                 f"policy={result.policy_used}"
             )

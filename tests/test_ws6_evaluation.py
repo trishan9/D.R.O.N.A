@@ -1,11 +1,11 @@
 """
-WS6 evaluation harness tests — pure metric functions and harness C2/C3 evals.
+WS6 evaluation harness tests - pure metric functions and harness C2/C3 evals.
 
 No ChromaDB, no Ollama, no external dependencies. The tests cover:
   - All pure metric functions from drona.evaluation.metrics
   - Query bank integrity (drona.evaluation.queries)
-  - EvaluationHarness.eval_c2() — uses BiasDetector only
-  - EvaluationHarness.eval_c3() — uses KeyframePolicy + StubEnv only
+  - EvaluationHarness.eval_c2() - uses BiasDetector only
+  - EvaluationHarness.eval_c3() - uses KeyframePolicy + StubEnv only
   - EvaluationReport serialisation
 
 Run with:  pytest tests/test_ws6_evaluation.py -v
@@ -92,7 +92,7 @@ class TestNdcgAtK:
         assert ndcg_at_k([0.0, 0.0, 0.0], k=3) == pytest.approx(0.0)
 
     def test_reversed_order_less_than_one(self) -> None:
-        # relevant at last position — NDCG < 1
+        # relevant at last position - NDCG < 1
         score = ndcg_at_k([0.0, 0.0, 1.0], k=3)
         assert 0.0 < score < 1.0
 
@@ -256,7 +256,7 @@ class TestBiasDetectionMetrics:
     def test_no_bias_correct_clean(self) -> None:
         results = self._make_results([set()], [set()])
         metrics = bias_detection_metrics(results)
-        # No positives in any class — macro avg should be 0
+        # No positives in any class - macro avg should be 0
         assert metrics["macro_avg"]["f1"] == pytest.approx(0.0)
 
     def test_false_positive_lowers_precision(self) -> None:

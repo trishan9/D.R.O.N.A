@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. full-system simulation runner — no ROS2 required.
+D.R.O.N.A. full-system simulation runner - no ROS2 required.
 
 Runs the complete Phase 1 pipeline in a single process:
   - StubDetector generates a scripted engagement sequence
@@ -72,7 +72,7 @@ def main(
             )
             typer.echo("Visualizer: ready")
         except Exception as exc:
-            typer.secho(f"Visualizer unavailable ({exc}) — running headless.", fg=typer.colors.YELLOW)
+            typer.secho(f"Visualizer unavailable ({exc}) - running headless.", fg=typer.colors.YELLOW)
 
     # ── Policy router ──────────────────────────────────────────────────────────
     # The PolicyRouter auto-loads a trained ACT/Diffusion checkpoint per gesture
@@ -153,7 +153,7 @@ def main(
         elif state == SS.CLOSURE and not closed:
             typer.echo("  → Executing: FAREWELL")
             run_gesture("farewell")
-            # Capture the summary BEFORE closing — returning to IDLE starts a
+            # Capture the summary BEFORE closing - returning to IDLE starts a
             # fresh session and resets the per-session query counter.
             summary = machine.session_summary()
             machine.mark_session_closed()
@@ -182,7 +182,7 @@ def _do_advising(
     machine.submit_query(query_text)
 
     if no_advising:
-        typer.echo("  [advising skipped — --no-advising]")
+        typer.echo("  [advising skipped - --no-advising]")
         machine.mark_response_delivered()
         return
 

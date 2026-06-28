@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. hardware launch — real camera + real SO-100 arm.
+D.R.O.N.A. hardware launch - real camera + real SO-100 arm.
 
 Usage (on Ubuntu 22.04 with ROS2 Humble, arm connected via USB):
     ros2 launch drona_bringup drona_hardware.launch.py
@@ -78,7 +78,7 @@ def generate_launch_description() -> LaunchDescription:
     return LaunchDescription([
         arm_port_arg,
         log_level_arg,
-        LogInfo(msg="Starting D.R.O.N.A. in HARDWARE mode — ensure arm is connected"),
+        LogInfo(msg="Starting D.R.O.N.A. in HARDWARE mode - ensure arm is connected"),
         perception_node,
         gesture_node,
         advising_node,

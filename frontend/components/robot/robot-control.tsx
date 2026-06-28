@@ -106,7 +106,7 @@ export function RobotControl() {
     async (name: GestureName) => {
       setGesture(name);
       setSession(GESTURE_TO_STATE[name]);
-      addLog(`▶ gesture '${name}' (${gestureDurationSeconds(name).toFixed(2)}s) — sim`);
+      addLog(`▶ gesture '${name}' (${gestureDurationSeconds(name).toFixed(2)}s) - sim`);
       await animate(gestureTrajectory(name));
       setProgress(0);
       setGesture(null);
@@ -120,7 +120,7 @@ export function RobotControl() {
       if (!bridge?.connected) return;
       setGesture(name);
       setSession(GESTURE_TO_STATE[name]);
-      addLog(`▶ call ${DRONA_GESTURE_SERVICE.name} {gesture_label:'${name}'} — live`);
+      addLog(`▶ call ${DRONA_GESTURE_SERVICE.name} {gesture_label:'${name}'} - live`);
       try {
         await bridge.callService(DRONA_GESTURE_SERVICE.name, DRONA_GESTURE_SERVICE.type, {
           gesture_label: name,
@@ -385,7 +385,7 @@ export function RobotControl() {
             <EngagementGauge value={engagement} />
             <div>
               <p className="mb-1 text-xs text-muted-foreground">
-                {live ? "From /drona/engagement (live)" : "Simulated — drag to set"}
+                {live ? "From /drona/engagement (live)" : "Simulated - drag to set"}
               </p>
               <Slider
                 value={[engagement * 100]}

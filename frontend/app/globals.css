@@ -176,6 +176,49 @@
     @apply relative before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full;
   }
 
+  /* ── Robotics "console" surfaces ───────────────────────────────────────── */
+
+  /* Instrument-panel surface for the robot stage. Theme-aware (the SVG robot
+     uses --card/--background fills, so this must adapt, not hard-dark). */
+  .stage-surface {
+    background:
+      radial-gradient(115% 85% at 50% 0%, hsl(var(--brand) / 0.12), transparent 55%),
+      radial-gradient(90% 70% at 50% 100%, hsl(var(--tier-international) / 0.08), transparent 60%),
+      linear-gradient(180deg, hsl(var(--muted) / 0.55), hsl(var(--background)));
+  }
+
+  /* Corner registration brackets (mission-control framing). */
+  .hud-corners::before,
+  .hud-corners::after {
+    content: "";
+    @apply pointer-events-none absolute h-5 w-5 border-brand/50;
+  }
+  .hud-corners::before {
+    @apply left-2 top-2 border-l-2 border-t-2 rounded-tl-md;
+  }
+  .hud-corners::after {
+    @apply bottom-2 right-2 border-b-2 border-r-2 rounded-br-md;
+  }
+
+  /* Terminal / activity-log window. */
+  .term {
+    @apply rounded-lg border border-border/70 bg-[hsl(222_47%_9%)] font-mono text-[11px] leading-relaxed text-emerald-300/90;
+  }
+
+  /* Small telemetry chip. */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/50 px-2 py-1 text-[11px] font-medium;
+  }
+
+  /* Live status dot with a soft expanding halo. */
+  .pulse-dot {
+    @apply relative inline-flex h-2 w-2 rounded-full;
+  }
+  .pulse-dot::after {
+    content: "";
+    @apply absolute inset-0 rounded-full bg-current animate-ping-soft;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-fade-in,
     .animate-slide-up,

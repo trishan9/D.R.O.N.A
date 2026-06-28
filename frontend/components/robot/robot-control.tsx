@@ -10,6 +10,10 @@ import {
   Radio,
   Sparkles,
   CircleDot,
+  Activity,
+  Gauge,
+  Boxes,
+  Terminal,
 } from "lucide-react";
 
 import {
@@ -215,147 +219,201 @@ export function RobotControl() {
   };
 
   const live = rosStatus === "connected";
+  const engPct = Math.round(engagement * 100);
+  const controlsDisabled = busy || (mode === "live" && !live);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-12">
-      {/* Stage */}
-      <Card className="overflow-hidden lg:col-span-5">
-        <CardHeader className="flex-row items-center justify-between gap-2 space-y-0 border-b">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Cpu className="h-4 w-4 text-brand" /> Robot stage
-          </CardTitle>
-          <Badge variant={live ? "default" : "secondary"} className="gap-1">
-            {live ? <Radio className="h-3 w-3" /> : <CircleDot className="h-3 w-3" />}
-            {live ? "Live ROS2" : "Simulation"}
-          </Badge>
-        </CardHeader>
-        <CardContent className="relative p-0">
-          <div className="bg-grid relative aspect-square w-full">
-            <RobotArm joints={joints} engagement={engagement} active={!!gesture || busy} />
-            {gesture && (
-              <div className="absolute bottom-3 left-1/2 w-[80%] -translate-x-1/2">
-                <div className="mb-1 flex items-center justify-between text-xs font-medium">
-                  <span className="capitalize">{GESTURE_META[gesture].label}</span>
-                  <span className="tabular-nums text-muted-foreground">{Math.round(progress * 100)}%</span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-brand transition-all" style={{ width: `${progress * 100}%` }} />
-                </div>
-              </div>
-            )}
+    <div className="space-y-4 animate-fade-in">
+      {/* ── Command bar ─────────────────────────────────────────────────── */}
+      <Card className="overflow-hidden shadow-card">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3 p-3 sm:px-4">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-tier-international text-brand-foreground shadow-soft">
+              <Cpu className="h-5 w-5" />
+            </span>
+            <div className="leading-tight">
+              <p className="text-sm font-semibold tracking-tight">DRONA · 6-DOF Console</p>
+              <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <span className={cn("pulse-dot", live ? "text-success" : "text-brand")} />
+                {live ? "Live ROS2 link" : "Local simulation"}
+              </p>
+            </div>
           </div>
-        </CardContent>
+
+          <div className="hidden flex-1 flex-wrap items-center gap-1.5 md:flex">
+            <span className="chip"><Boxes className="h-3.5 w-3.5 text-brand" /> 6 DOF</span>
+            <span className="chip">
+              <Activity className="h-3.5 w-3.5 text-brand" />
+              {gesture ? GESTURE_META[gesture].label : "idle"}
+            </span>
+            <span className="chip font-mono text-[10px] uppercase">{session}</span>
+            <span className="chip"><Gauge className="h-3.5 w-3.5 text-brand" /> {engPct}%</span>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            <Button size="sm" onClick={runSession} disabled={controlsDisabled}>
+              <Sparkles className="h-4 w-4" /> Run session
+            </Button>
+            <Button size="sm" variant="outline" onClick={stop} disabled={!busy} aria-label="Stop">
+              <Square className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </Card>
 
-      {/* Controls */}
-      <div className="space-y-4 lg:col-span-7">
-        {/* Gesture controls */}
-        <Card>
-          <CardHeader className="border-b">
-            <CardTitle className="text-base">Gesture control</CardTitle>
+      {/* ── Stage + gesture control ─────────────────────────────────────── */}
+      <div className="grid gap-4 lg:grid-cols-12">
+        {/* Stage */}
+        <Card className="overflow-hidden lg:col-span-7">
+          <CardHeader className="flex-row items-center justify-between gap-2 space-y-0 border-b py-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+              <Cpu className="h-4 w-4 text-brand" /> Robot stage
+            </CardTitle>
+            <Badge variant={live ? "default" : "secondary"} className="gap-1">
+              {live ? <Radio className="h-3 w-3" /> : <CircleDot className="h-3 w-3" />}
+              {live ? "Live ROS2" : "Simulation"}
+            </Badge>
           </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {GESTURES.map((g) => (
-                <button
-                  key={g}
-                  disabled={busy || (mode === "live" && !live)}
-                  onClick={() => onGestureClick(g)}
-                  className={cn(
-                    "flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors disabled:opacity-50",
-                    gesture === g ? "border-brand bg-brand/5" : "hover:border-brand/50 hover:bg-accent/50",
-                  )}
-                >
-                  <span className="text-lg leading-none">{GESTURE_META[g].icon}</span>
-                  <span className="text-sm font-semibold">{GESTURE_META[g].label}</span>
-                  <span className="text-[11px] leading-tight text-muted-foreground">{GESTURE_META[g].blurb}</span>
-                </button>
-              ))}
+          <CardContent className="p-0">
+            <div className="stage-surface hud-corners bg-grid relative aspect-[5/4] w-full overflow-hidden">
+              {/* sweeping scan line */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-20 animate-scan bg-gradient-to-b from-brand/15 to-transparent" />
+              {/* HUD: camera tag */}
+              <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-md border border-border/60 bg-background/70 px-2 py-1 text-[10px] font-semibold backdrop-blur">
+                <span className={cn("pulse-dot", live ? "text-success" : "text-brand")} />
+                {live ? "CAM · LIVE" : "CAM · SIM"}
+              </div>
+              {/* HUD: gesture readout */}
+              {gesture && (
+                <div className="absolute right-3 top-3 rounded-md border border-border/60 bg-background/70 px-2 py-1 text-[10px] font-medium tabular-nums backdrop-blur">
+                  {GESTURE_META[gesture].label} · {Math.round(progress * 100)}%
+                </div>
+              )}
+
+              <RobotArm joints={joints} engagement={engagement} active={!!gesture || busy} />
+
+              {/* progress bar */}
+              {gesture && (
+                <div className="absolute bottom-3 left-1/2 w-[82%] -translate-x-1/2">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-background/60 backdrop-blur">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-brand to-tier-international transition-all"
+                      style={{ width: `${progress * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={runSession} disabled={busy || (mode === "live" && !live)}>
-                <Sparkles className="h-4 w-4" /> Run full session
-              </Button>
-              <Button variant="outline" onClick={stop} disabled={!busy}>
-                <Square className="h-4 w-4" /> Stop
-              </Button>
+          </CardContent>
+        </Card>
+
+        {/* Gesture control + FSM */}
+        <div className="space-y-4 lg:col-span-5">
+          <Card>
+            <CardHeader className="border-b py-3">
+              <CardTitle className="text-sm font-semibold text-muted-foreground">Gesture control</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 pt-4">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {GESTURES.map((g) => {
+                  const activeG = gesture === g;
+                  return (
+                    <button
+                      key={g}
+                      disabled={busy || (mode === "live" && !live)}
+                      onClick={() => onGestureClick(g)}
+                      className={cn(
+                        "group flex flex-col items-start gap-1 rounded-lg border p-2.5 text-left transition-all disabled:opacity-50",
+                        activeG
+                          ? "border-brand bg-brand/10 shadow-glow"
+                          : "hover:-translate-y-0.5 hover:border-brand/50 hover:bg-accent/50 hover:shadow-soft",
+                      )}
+                    >
+                      <span className="text-lg leading-none">{GESTURE_META[g].icon}</span>
+                      <span className="text-sm font-semibold">{GESTURE_META[g].label}</span>
+                      <span className="text-[10px] leading-tight text-muted-foreground">{GESTURE_META[g].blurb}</span>
+                    </button>
+                  );
+                })}
+              </div>
               <Button
                 variant="ghost"
+                size="sm"
+                className="w-full justify-center text-muted-foreground"
                 onClick={() => {
                   setJoints(REST_POSE);
                   setSession("IDLE");
                 }}
                 disabled={busy}
               >
-                <Play className="h-4 w-4" /> Rest pose
+                <Play className="h-4 w-4" /> Return to rest pose
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="border-b py-3">
+              <CardTitle className="text-sm font-semibold text-muted-foreground">Session state machine</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <SessionFsm current={session} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* ── Telemetry row ───────────────────────────────────────────────── */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="border-b py-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+              <Activity className="h-4 w-4 text-brand" /> Joint telemetry · 6-DOF
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <JointTelemetry joints={joints} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="border-b py-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+              <Gauge className="h-4 w-4 text-brand" /> Engagement
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 pt-4">
+            <EngagementGauge value={engagement} />
+            <div>
+              <p className="mb-1 text-xs text-muted-foreground">
+                {live ? "From /drona/engagement (live)" : "Simulated — drag to set"}
+              </p>
+              <Slider
+                value={[engagement * 100]}
+                onValueChange={(v) => setEngagement(v[0] / 100)}
+                min={0}
+                max={100}
+                step={1}
+                disabled={live}
+              />
             </div>
           </CardContent>
         </Card>
 
-        {/* Session FSM */}
         <Card>
-          <CardHeader className="border-b py-3">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Session state machine</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <SessionFsm current={session} />
-          </CardContent>
-        </Card>
-
-        {/* Telemetry + engagement */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
-            <CardHeader className="border-b py-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">Joint telemetry (6-DOF)</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <JointTelemetry joints={joints} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="border-b py-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground">Engagement</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 pt-4">
-              <EngagementGauge value={engagement} />
-              <div>
-                <p className="mb-1 text-xs text-muted-foreground">
-                  {live ? "From /drona/engagement (live)" : "Simulated — drag to set"}
-                </p>
-                <Slider
-                  value={[engagement * 100]}
-                  onValueChange={(v) => setEngagement(v[0] / 100)}
-                  min={0}
-                  max={100}
-                  step={1}
-                  disabled={live}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Live connection */}
-        <Card>
-          <CardHeader className="border-b py-3">
+          <CardHeader className="flex-row items-center justify-between gap-2 space-y-0 border-b py-3">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
               {live ? <Wifi className="h-4 w-4 text-success" /> : <WifiOff className="h-4 w-4" />}
-              Live ROS2 bridge
+              ROS2 bridge
             </CardTitle>
+            <StatusDot status={rosStatus} />
           </CardHeader>
           <CardContent className="space-y-3 pt-4">
-            <p className="text-xs text-muted-foreground">
-              Connect to the ROS2 graph running in WSL2 via rosbridge. The arm then mirrors
-              <code className="mx-1 rounded bg-muted px-1 font-mono">/drona/joint_states</code> and gestures call the
-              <code className="mx-1 rounded bg-muted px-1 font-mono">/drona/execute_gesture</code> service.
-            </p>
             <div className="flex flex-wrap items-center gap-2">
               <Input
                 value={prefs.rosbridgeUrl}
                 onChange={(e) => setPrefs({ rosbridgeUrl: e.target.value })}
                 placeholder="ws://localhost:9090"
-                className="h-9 max-w-[16rem] font-mono text-xs"
+                className="h-9 min-w-0 flex-1 font-mono text-xs"
               />
               {live ? (
                 <Button variant="outline" size="sm" onClick={disconnect}>
@@ -367,11 +425,15 @@ export function RobotControl() {
                   {rosStatus === "connecting" ? "Connecting…" : "Connect"}
                 </Button>
               )}
-              <StatusDot status={rosStatus} />
             </div>
-            <pre className="max-h-32 overflow-y-auto rounded-lg bg-muted/50 p-3 font-mono text-[11px] leading-relaxed text-muted-foreground">
-              {log.length === 0 ? "// activity log" : log.join("\n")}
-            </pre>
+            <div className="term overflow-hidden">
+              <div className="flex items-center gap-1.5 border-b border-border/50 px-2.5 py-1.5 text-[10px] text-muted-foreground">
+                <Terminal className="h-3 w-3" /> activity
+              </div>
+              <pre className="max-h-32 overflow-y-auto px-2.5 py-2">
+                {log.length === 0 ? "// waiting for events…" : log.join("\n")}
+              </pre>
+            </div>
           </CardContent>
         </Card>
       </div>

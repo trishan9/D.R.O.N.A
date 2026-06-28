@@ -19,6 +19,7 @@ export function Topbar() {
   const item = navItemForPath(pathname);
   const title = item?.title ?? "D.R.O.N.A.";
   const description = item?.description ?? "";
+  const Icon = item?.icon;
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur-md lg:px-8">
@@ -40,11 +41,18 @@ export function Topbar() {
         </SheetContent>
       </Sheet>
 
-      <div className="min-w-0 flex-1">
-        <h1 className="truncate text-lg font-semibold leading-tight tracking-tight">{title}</h1>
-        {description && (
-          <p className="hidden truncate text-xs text-muted-foreground sm:block">{description}</p>
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        {Icon && (
+          <span className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand sm:flex">
+            <Icon className="h-[18px] w-[18px]" />
+          </span>
         )}
+        <div className="min-w-0">
+          <h1 className="truncate text-lg font-semibold leading-tight tracking-tight">{title}</h1>
+          {description && (
+            <p className="hidden truncate text-xs text-muted-foreground sm:block">{description}</p>
+          )}
+        </div>
       </div>
 
       <div className="hidden md:block">

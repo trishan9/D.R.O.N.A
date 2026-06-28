@@ -122,6 +122,15 @@ const config: Config = {
           "0%, 100%": { transform: "translate(0, 0) scale(1)" },
           "50%": { transform: "translate(8%, -6%) scale(1.15)" },
         },
+        scan: {
+          "0%": { transform: "translateY(-100%)", opacity: "0" },
+          "10%, 90%": { opacity: "1" },
+          "100%": { transform: "translateY(900%)", opacity: "0" },
+        },
+        "ping-soft": {
+          "0%": { transform: "scale(1)", opacity: "0.6" },
+          "75%, 100%": { transform: "scale(2.2)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -132,6 +141,8 @@ const config: Config = {
         float: "float 6s ease-in-out infinite",
         shimmer: "shimmer 2s linear infinite",
         aurora: "aurora 14s ease-in-out infinite",
+        scan: "scan 4.5s ease-in-out infinite",
+        "ping-soft": "ping-soft 1.8s cubic-bezier(0,0,0.2,1) infinite",
       },
     },
   },

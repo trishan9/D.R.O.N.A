@@ -126,9 +126,17 @@ export default function DashboardPage() {
               }
             />
             {history.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                No questions yet. Head to the Advisor and try one of the suggested prompts.
-              </p>
+              <div className="flex flex-col items-center gap-3 py-8 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+                  <MessageSquare className="h-6 w-6" />
+                </span>
+                <p className="text-sm text-muted-foreground">
+                  No questions yet — ask the advisor your first one to see it here.
+                </p>
+                <Button asChild size="sm">
+                  <Link href="/advisor"><Bot className="h-4 w-4" /> Open the Advisor</Link>
+                </Button>
+              </div>
             ) : (
               <ul className="mt-3 divide-y">
                 {history.slice(0, 5).map((h) => (
@@ -155,17 +163,28 @@ export default function DashboardPage() {
         <Card>
           <CardContent className="py-5">
             <SectionHeading title="What makes it novel" />
-            <ul className="mt-3 space-y-3">
-              {CONTRIBUTIONS.map((c) => (
-                <li key={c.id} className="flex gap-2.5">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand/10 text-[11px] font-bold text-brand">
-                    {c.id}
-                  </span>
-                  <p className="text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground">{c.title}.</span> {c.claim}
-                  </p>
-                </li>
-              ))}
+            <ul className="mt-3 space-y-1.5">
+              {CONTRIBUTIONS.map((c, i) => {
+                const accent = [
+                  "text-brand bg-brand/10",
+                  "text-tier-international bg-tier-international/10",
+                  "text-tier-regional bg-tier-regional/10",
+                  "text-tier-synthetic bg-tier-synthetic/10",
+                ][i % 4];
+                return (
+                  <li
+                    key={c.id}
+                    className="flex gap-2.5 rounded-lg p-2 transition-colors hover:bg-accent/40"
+                  >
+                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[11px] font-bold ${accent}`}>
+                      {c.id}
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">{c.title}.</span> {c.claim}
+                    </p>
+                  </li>
+                );
+              })}
             </ul>
           </CardContent>
         </Card>

@@ -44,7 +44,7 @@ export function ExplorationBadges({ exploration, response }: ExplorationBadgesPr
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center justify-between text-base">
           <span className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-tier-nepal" /> Exploration badges
+            <Sparkles className="h-4 w-4 text-brand" /> Exploration badges
           </span>
           <span className="text-sm tabular-nums text-muted-foreground">{earned}/{badges.length}</span>
         </CardTitle>
@@ -62,14 +62,14 @@ export function ExplorationBadges({ exploration, response }: ExplorationBadgesPr
                   <TooltipTrigger asChild>
                     <div
                       className={cn(
-                        "flex cursor-default flex-col items-center gap-1.5 rounded-lg border p-2.5 text-center transition-colors",
+                        "flex cursor-default flex-col items-center gap-1.5 rounded-lg border p-2.5 text-center transition-all",
                         b.earned
-                          ? "border-tier-nepal/40 bg-tier-nepal/10"
+                          ? "border-brand/40 bg-brand/10 shadow-soft hover:-translate-y-0.5 hover:shadow-card"
                           : "border-dashed bg-muted/30 opacity-55",
                       )}
                     >
                       <Icon
-                        className={cn("h-5 w-5", b.earned ? "text-tier-nepal" : "text-muted-foreground")}
+                        className={cn("h-5 w-5", b.earned ? "text-brand" : "text-muted-foreground")}
                       />
                       <span className="text-[11px] font-medium leading-tight">{b.title}</span>
                     </div>

@@ -46,7 +46,7 @@ export default function AnalyticsPage() {
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="card-interactive">
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">Citation tier mix (C4)</CardTitle>
             <SourceBadge live />
@@ -59,7 +59,7 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-interactive">
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">Gesture smoothness (C3)</CardTitle>
             <SourceBadge live />
@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-interactive">
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">Retrieval ablation (C1)</CardTitle>
             <SourceBadge />
@@ -87,7 +87,7 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-interactive">
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">Bias detection P/R/F1 (C2)</CardTitle>
             <SourceBadge />
@@ -108,20 +108,28 @@ export default function AnalyticsPage() {
           description="The four claims this system is built to support and measure."
         />
         <div className="grid gap-3 sm:grid-cols-2">
-          {CONTRIBUTIONS.map((c) => (
-            <Card key={c.id}>
-              <CardContent className="space-y-2 py-4">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand/10 text-xs font-bold text-brand">
-                    {c.id}
-                  </span>
-                  <p className="font-semibold">{c.title}</p>
-                </div>
-                <p className="text-sm text-muted-foreground">{c.claim}</p>
-                <p className="text-xs text-muted-foreground/80">{c.technique}</p>
-              </CardContent>
-            </Card>
-          ))}
+          {CONTRIBUTIONS.map((c, i) => {
+            const accent = [
+              "text-brand bg-brand/10",
+              "text-tier-international bg-tier-international/10",
+              "text-tier-regional bg-tier-regional/10",
+              "text-tier-synthetic bg-tier-synthetic/10",
+            ][i % 4];
+            return (
+              <Card key={c.id} className="card-interactive">
+                <CardContent className="space-y-2 py-4">
+                  <div className="flex items-center gap-2">
+                    <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold ${accent}`}>
+                      {c.id}
+                    </span>
+                    <p className="font-semibold">{c.title}</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{c.claim}</p>
+                  <p className="text-xs text-muted-foreground/80">{c.technique}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </section>
     </div>

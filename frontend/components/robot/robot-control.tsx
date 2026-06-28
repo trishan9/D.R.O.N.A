@@ -275,7 +275,7 @@ export function RobotControl() {
             </Badge>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="stage-surface hud-corners bg-grid relative aspect-[5/4] w-full overflow-hidden">
+            <div className="stage-surface hud-corners bg-grid relative aspect-[16/10] w-full overflow-hidden">
               {/* sweeping scan line */}
               <div className="pointer-events-none absolute inset-x-0 top-0 h-20 animate-scan bg-gradient-to-b from-brand/15 to-transparent" />
               {/* HUD: camera tag */}

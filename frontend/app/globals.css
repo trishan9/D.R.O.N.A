@@ -210,9 +210,9 @@
     @apply inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-muted/50 px-2 py-1 text-[11px] font-medium;
   }
 
-  /* Live status dot with a soft expanding halo. */
+  /* Live status dot (solid centre) with a soft expanding halo. */
   .pulse-dot {
-    @apply relative inline-flex h-2 w-2 rounded-full;
+    @apply relative inline-flex h-2 w-2 rounded-full bg-current;
   }
   .pulse-dot::after {
     content: "";

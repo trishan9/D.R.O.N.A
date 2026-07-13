@@ -14,7 +14,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { TokenInput } from "@/components/token-input";
-import type { AspirationGeography, ProfileDraft } from "@/lib/types";
+import type { AspirationGeography, ProfileDraft, Programme } from "@/lib/types";
+import { PROGRAMME_LABELS } from "@/lib/types";
 
 interface ProfileBuilderProps {
   profile: ProfileDraft;
@@ -53,6 +54,26 @@ export function ProfileBuilder({ profile, onChange, onReset }: ProfileBuilderPro
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
+        <div className="space-y-2">
+          <Label>Programme</Label>
+          <div className="flex flex-col gap-2">
+            {(Object.keys(PROGRAMME_LABELS) as Programme[]).map((p) => (
+              <Button
+                key={p}
+                type="button"
+                variant={profile.programme === p ? "default" : "outline"}
+                size="sm"
+                className="justify-start"
+                onClick={() => patch({ programme: p })}
+              >
+                {PROGRAMME_LABELS[p]}
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Advice, module matching and career pathways are tailored to your programme.
+          </p>
+        </div>
         <div className="space-y-2">
           <Label>Year of study</Label>
           <div className="flex gap-2">

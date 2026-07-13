@@ -18,7 +18,6 @@ Usage:
 
 from __future__ import annotations
 
-import time
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -27,12 +26,8 @@ from loguru import logger
 
 from drona.interaction.demonstration import (
     DOF,
-    JOINT_NAMES,
-    JOINT_LIMITS_HIGH,
-    JOINT_LIMITS_LOW,
     REST_POSE,
 )
-
 
 # ── Base ──────────────────────────────────────────────────────────────────────
 
@@ -83,6 +78,7 @@ class MuJoCoVisualizer(BaseVisualizer):
         try:
             import mujoco
             import mujoco.viewer
+
             from drona.interaction.mujoco_env import _MUJOCO_XML
         except ImportError as exc:
             raise RuntimeError(
@@ -195,11 +191,15 @@ class MatplotlibVisualizer(BaseVisualizer):
         self._ax.set_xlim(-0.4, 0.4)
         self._ax.set_ylim(-0.4, 0.4)
         self._ax.set_zlim(0.0, 0.5)
-        self._ax.set_xlabel("X"); self._ax.set_ylabel("Y"); self._ax.set_zlabel("Z")
+        self._ax.set_xlabel("X")
+        self._ax.set_ylabel("Y")
+        self._ax.set_zlabel("Z")
         self._ax.set_title("D.R.O.N.A. Arm")
 
         pts = _forward_kinematics(REST_POSE)
-        xs = [p[0] for p in pts]; ys = [p[1] for p in pts]; zs = [p[2] for p in pts]
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        zs = [p[2] for p in pts]
         self._line, = self._ax.plot(xs, ys, zs, "b-o", linewidth=3, markersize=6)
         self._text = self._ax.text2D(0.05, 0.95, "", transform=self._ax.transAxes)
 
@@ -208,13 +208,16 @@ class MatplotlibVisualizer(BaseVisualizer):
             plt.show()
 
         if self._output_dir:
-            import os; os.makedirs(self._output_dir, exist_ok=True)
+            import os
+
+            os.makedirs(self._output_dir, exist_ok=True)
         logger.info("Matplotlib visualizer opened.")
 
     def update(self, q: np.ndarray, label: str = "") -> None:
-        import matplotlib.pyplot as plt
         pts = _forward_kinematics(q)
-        xs = [p[0] for p in pts]; ys = [p[1] for p in pts]; zs = [p[2] for p in pts]
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        zs = [p[2] for p in pts]
         self._line.set_data_3d(xs, ys, zs)
         self._text.set_text(label)
 

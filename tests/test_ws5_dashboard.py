@@ -10,9 +10,7 @@ Run with:  pytest tests/test_ws5_dashboard.py -v
 from __future__ import annotations
 
 import uuid
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from drona.contracts import (
     AdvisingResponse,
@@ -33,7 +31,6 @@ from drona.dashboard.components import (
     tier_label,
 )
 from drona.dashboard.session_bridge import QueryEntry, SessionBridge
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 

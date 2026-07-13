@@ -23,7 +23,6 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import typer
@@ -152,7 +151,7 @@ def _train_one(
 
 @app.command()
 def main(
-    demo_dir: Optional[str] = typer.Option(None, "--demo-dir", help="Demonstrations dir"),
+    demo_dir: str | None = typer.Option(None, "--demo-dir", help="Demonstrations dir"),
     checkpoint_dir: str = typer.Option(DEFAULT_BC_DIR, "--checkpoint-dir"),
     gestures: str = typer.Option("all", "--gestures", help="Comma list or 'all'"),
     epochs: int = typer.Option(300, "--epochs", "-e"),

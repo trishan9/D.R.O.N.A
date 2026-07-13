@@ -10,6 +10,15 @@
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="drona_humanoid">
 
+  <!-- Simulation feature gates (harmless elsewhere: RViz/Isaac ignore <gazebo>).
+       use_gz_camera  : head camera sensor for gz sim (needs the sensors system
+                        in the world - drona_bringup/worlds/drona_advising.sdf).
+       use_gz_control : per-joint PID position controllers + joint-state
+                        publisher so the gz model mirrors /drona/joint_states
+                        (relayed by drona_ros gz_joint_relay). -->
+  <xacro:arg name="use_gz_camera" default="false"/>
+  <xacro:arg name="use_gz_control" default="false"/>
+
   <!-- ── Materials ─────────────────────────────────────────────────────────── -->
   <material name="drona_crimson"><color rgba="0.78 0.10 0.23 1.0"/></material>
   <material name="drona_slate"><color rgba="0.25 0.28 0.34 1.0"/></material>
@@ -189,5 +198,77 @@
     <axis xyz="1 0 0"/>
     <limit lower="0.0" upper="1.0" effort="3" velocity="1.0"/>
   </joint>
+
+  <!-- ── Head camera (perception sensor) ──────────────────────────────────────
+       The physical deployment uses a webcam at eye level; this frame is its
+       TF anchor in every mode, and in Gazebo it also carries the simulated
+       camera sensor. camera_optical_frame follows REP-103 (z forward). -->
+  <link name="camera_link">
+    <visual>
+      <geometry><box size="0.02 0.05 0.02"/></geometry>
+      <material name="drona_slate"/>
+    </visual>
+    <collision><geometry><box size="0.02 0.05 0.02"/></geometry></collision>
+    <xacro:box_inertial mass="0.02"/>
+  </link>
+  <joint name="camera_fixed" type="fixed">
+    <parent link="head_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.085 0 0.02"/>
+  </joint>
+
+  <link name="camera_optical_frame"/>
+  <joint name="camera_optical_fixed" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_optical_frame"/>
+    <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+  </joint>
+
+  <!-- ── Gazebo camera sensor (sim only) ────────────────────────────────────── -->
+  <xacro:if value="$(arg use_gz_camera)">
+    <gazebo reference="camera_link">
+      <sensor name="drona_head_camera" type="camera">
+        <topic>drona/camera/image_raw</topic>
+        <update_rate>15</update_rate>
+        <always_on>1</always_on>
+        <visualize>true</visualize>
+        <gz_frame_id>camera_optical_frame</gz_frame_id>
+        <camera>
+          <horizontal_fov>1.204</horizontal_fov>
+          <image><width>640</width><height>480</height><format>R8G8B8</format></image>
+          <clip><near>0.05</near><far>10.0</far></clip>
+          <camera_info_topic>drona/camera/camera_info</camera_info_topic>
+        </camera>
+      </sensor>
+    </gazebo>
+  </xacro:if>
+
+  <!-- ── Gazebo joint control (sim only) ──────────────────────────────────────
+       PID position controllers per joint; the drona_ros gz_joint_relay node
+       converts /drona/joint_states into these per-joint command topics (bridged
+       to gz.msgs.Double), so the gz model performs the same gestures as the
+       policy publishes - the sim mirrors deployment exactly. -->
+  <xacro:if value="$(arg use_gz_control)">
+    <gazebo>
+      <plugin filename="gz-sim-joint-state-publisher-system"
+              name="gz::sim::systems::JointStatePublisher"/>
+      <xacro:macro name="gz_joint_pid" params="joint">
+        <plugin filename="gz-sim-joint-position-controller-system"
+                name="gz::sim::systems::JointPositionController">
+          <joint_name>${joint}</joint_name>
+          <topic>drona/gz/${joint}_cmd</topic>
+          <p_gain>20.0</p_gain>
+          <i_gain>0.5</i_gain>
+          <d_gain>1.0</d_gain>
+        </plugin>
+      </xacro:macro>
+      <xacro:gz_joint_pid joint="j0_base_yaw"/>
+      <xacro:gz_joint_pid joint="j1_shoulder"/>
+      <xacro:gz_joint_pid joint="j2_elbow"/>
+      <xacro:gz_joint_pid joint="j3_wrist_pitch"/>
+      <xacro:gz_joint_pid joint="j4_wrist_roll"/>
+      <xacro:gz_joint_pid joint="j5_gripper"/>
+    </gazebo>
+  </xacro:if>
 
 </robot>

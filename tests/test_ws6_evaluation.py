@@ -21,6 +21,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from drona.evaluation.harness import (
+    C2Result,
+    C3Result,
+    EvaluationHarness,
+    EvaluationReport,
+)
 from drona.evaluation.metrics import (
     bias_detection_metrics,
     dcg_at_k,
@@ -44,19 +50,10 @@ from drona.evaluation.queries import (
     C2_QUERIES,
     C3_GESTURE_SPECS,
     C4_QUERIES,
-    EvalQuery,
-    GestureEvalSpec,
     clean_queries,
     queries_by_category,
     queries_with_bias,
 )
-from drona.evaluation.harness import (
-    C2Result,
-    C3Result,
-    EvaluationHarness,
-    EvaluationReport,
-)
-
 
 # ── C1 metric unit tests ───────────────────────────────────────────────────────
 
@@ -241,7 +238,7 @@ class TestBiasDetectionMetrics:
     ) -> list[dict]:
         return [
             {"predicted_biases": p, "actual_biases": a}
-            for p, a in zip(predictions, actuals)
+            for p, a in zip(predictions, actuals, strict=False)
         ]
 
     def test_perfect_bias_detection(self) -> None:
@@ -381,7 +378,7 @@ class TestNepalCitationRatio:
 
     def test_all_nepal_returns_one(self) -> None:
         from unittest.mock import MagicMock
-        from drona.contracts import DataTier
+
         cit = MagicMock()
         cit.tier.value = "nepal"
         pw = MagicMock()
@@ -575,7 +572,7 @@ class TestHarnessC3:
         harness = EvaluationHarness()
         result = harness.eval_c3()
         idle_path = result.per_gesture["idle"]["path_length"]
-        for name, gm in result.per_gesture.items():
+        for name, _gm in result.per_gesture.items():
             if name != "idle":
                 # idle should be among the stillest (though not necessarily the absolute min)
                 pass

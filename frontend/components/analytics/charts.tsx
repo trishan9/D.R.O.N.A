@@ -14,6 +14,7 @@ import {
 } from "recharts";
 
 import type { AdvisingResponse, DataTier } from "@/lib/types";
+import type { AblationRow, BiasRow, PolicyRow } from "@/lib/api";
 import {
   BIAS_DETECTION_REFERENCE,
   RETRIEVAL_ABLATION_REFERENCE,
@@ -66,25 +67,30 @@ export function TierDonut({ response }: { response: AdvisingResponse | null }) {
   );
 }
 
-export function AblationBars() {
+export function AblationBars({ data }: { data?: AblationRow[] }) {
+  const rows = data && data.length > 0 ? data : RETRIEVAL_ABLATION_REFERENCE;
   return (
     <ResponsiveContainer width="100%" height={240}>
-      <BarChart data={RETRIEVAL_ABLATION_REFERENCE} margin={{ left: -18, right: 8, top: 8 }}>
+      <BarChart data={rows} margin={{ left: -18, right: 8, top: 8 }}>
         <XAxis dataKey="method" {...axisProps} interval={0} />
         <YAxis domain={[0, 1]} {...axisProps} />
         <Tooltip {...tooltipStyle} />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         <Bar dataKey="ndcg5" name="NDCG@5" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
         <Bar dataKey="mrr" name="MRR" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+        {data && data.length > 0 && (
+          <Bar dataKey="recall5" name="Recall@5" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+        )}
       </BarChart>
     </ResponsiveContainer>
   );
 }
 
-export function BiasBars() {
+export function BiasBars({ data }: { data?: BiasRow[] }) {
+  const rows = data && data.length > 0 ? data : BIAS_DETECTION_REFERENCE;
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <BarChart data={BIAS_DETECTION_REFERENCE} margin={{ left: -18, right: 8, top: 8 }}>
+      <BarChart data={rows} margin={{ left: -18, right: 8, top: 8 }}>
         <XAxis dataKey="bias" {...axisProps} interval={0} angle={-18} textAnchor="end" height={60} />
         <YAxis domain={[0, 1]} {...axisProps} />
         <Tooltip {...tooltipStyle} />
@@ -92,6 +98,47 @@ export function BiasBars() {
         <Bar dataKey="precision" name="Precision" fill="hsl(var(--chart-1))" radius={[3, 3, 0, 0]} />
         <Bar dataKey="recall" name="Recall" fill="hsl(var(--chart-3))" radius={[3, 3, 0, 0]} />
         <Bar dataKey="f1" name="F1" fill="hsl(var(--chart-4))" radius={[3, 3, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+/** C3 policy comparison from the thesis run: success rate per policy, jerk in the tooltip. */
+export function PolicyBars({ data }: { data: PolicyRow[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={data} margin={{ left: -18, right: 8, top: 8 }}>
+        <XAxis dataKey="policy" {...axisProps} interval={0} />
+        <YAxis domain={[0, 1]} {...axisProps} tickFormatter={(v: number) => `${Math.round(v * 100)}%`} />
+        <Tooltip
+          {...tooltipStyle}
+          formatter={(v: number, name: string, item: { payload?: PolicyRow }) => {
+            if (name === "Success rate") {
+              const jerk = item.payload?.mean_jerk;
+              return [`${Math.round(v * 100)}%  (jerk ${jerk?.toExponential(1)} rad/s³)`, name];
+            }
+            return [v, name];
+          }}
+        />
+        <Bar dataKey="success_rate" name="Success rate" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+/** LLM fine-tune result: validation cross-entropy, base vs fine-tuned. */
+export function LlmLossBars({ base, tuned }: { base: number; tuned: number }) {
+  const data = [
+    { model: "base", loss: Number(base.toFixed(3)) },
+    { model: "fine-tuned (+LoRA)", loss: Number(tuned.toFixed(3)) },
+  ];
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={data} margin={{ left: -18, right: 8, top: 8 }}>
+        <XAxis dataKey="model" {...axisProps} interval={0} />
+        <YAxis {...axisProps} />
+        <Tooltip {...tooltipStyle} formatter={(v: number) => [v, "val CE loss"]} />
+        <Bar dataKey="loss" name="Validation CE loss" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

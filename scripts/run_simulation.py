@@ -22,10 +22,8 @@ Usage:
 from __future__ import annotations
 
 import time
-from typing import Optional
 
 import typer
-from loguru import logger
 
 app = typer.Typer(name="drona-sim", help="Run D.R.O.N.A. full simulation.")
 
@@ -43,10 +41,10 @@ def main(
         "all", "--gestures",
         help="Comma-separated gesture sequence, or 'all' for full session.",
     ),
-    save_frames: Optional[str] = typer.Option(
+    save_frames: str | None = typer.Option(
         None, "--save-frames", help="Save visualizer frames to this directory."
     ),
-    checkpoint_dir: Optional[str] = typer.Option(
+    checkpoint_dir: str | None = typer.Option(
         None, "--checkpoint-dir", help="ACT checkpoint directory (auto-detected if omitted)."
     ),
     dt: float = typer.Option(0.05, "--dt", help="Simulation timestep (seconds)."),
@@ -85,7 +83,6 @@ def main(
     router = PolicyRouter(checkpoint_base_dir=ckpt, device="cpu")
 
     def run_gesture(label: str, target=None) -> None:
-        from drona.contracts import InteractionAction
         from drona.interaction.mujoco_env import StubEnv
 
         policy = router.get_policy(label)
@@ -113,7 +110,8 @@ def main(
         return
 
     # ── Full session simulation ────────────────────────────────────────────────
-    from drona.orchestrator.session_machine import SessionMachine, SessionState as SS
+    from drona.orchestrator.session_machine import SessionMachine
+    from drona.orchestrator.session_machine import SessionState as SessState
     from drona.perception.mediapipe_detector import make_detector
 
     machine = SessionMachine()
@@ -139,18 +137,18 @@ def main(
         if state != old:
             typer.secho(f"  [{step:3d}] {old.value:20s} → {state.value}", fg=typer.colors.CYAN)
 
-        if state == SS.GREETING and not greeted:
+        if state == SessState.GREETING and not greeted:
             typer.echo("  → Executing: GREET")
             run_gesture("greet")
             machine.mark_greeted()
             greeted = True
 
-        elif state == SS.NEEDS_ASSESSMENT and not advised:
+        elif state == SessState.NEEDS_ASSESSMENT and not advised:
             typer.echo(f"  → Advising query: {query[:60]}")
             _do_advising(query, machine, run_gesture, no_advising)
             advised = True
 
-        elif state == SS.CLOSURE and not closed:
+        elif state == SessState.CLOSURE and not closed:
             typer.echo("  → Executing: FAREWELL")
             run_gesture("farewell")
             # Capture the summary BEFORE closing - returning to IDLE starts a

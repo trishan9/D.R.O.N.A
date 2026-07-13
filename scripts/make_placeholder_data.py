@@ -169,6 +169,14 @@ def _module_md(m) -> str:
 
 def _write_curriculum() -> int:
     CURRICULUM_DIR.mkdir(parents=True, exist_ok=True)
+    # NEVER write dummies next to real curriculum: if any non-placeholder
+    # module file exists (real files carry a "REAL Softwarica" header), the
+    # real data wins and placeholders are skipped entirely.
+    real = [f for f in CURRICULUM_DIR.glob("*.md")
+            if "DUMMY / PLACEHOLDER" not in f.read_text(encoding="utf-8")[:200]]
+    if real:
+        typer.echo(f"  curriculum: {len(real)} REAL module docs present - placeholders skipped")
+        return 0
     for m in _MODULES:
         code, title = m[0], m[1]
         slug = title.lower().replace(" ", "_").replace("/", "_")
@@ -330,6 +338,13 @@ def _jobs_data():
 
 
 def _write_jobs() -> int:
+    # Never write dummy postings when REAL ones exist (any non-placeholder json
+    # under a source dir - e.g. scraped merojob/kumarijob data). Prevents the
+    # data-prep step from resurrecting placeholders over real collected jobs.
+    real = [f for f in MANUAL_DIR.glob("*/*.json") if "placeholder" not in f.name]
+    if real:
+        typer.echo(f"  jobs: {len(real)} REAL posting file(s) present - placeholders skipped")
+        return 0
     total = 0
     for source, posts in _jobs_data().items():
         d = MANUAL_DIR / source

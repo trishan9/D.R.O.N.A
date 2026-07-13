@@ -26,6 +26,7 @@ from loguru import logger
 from drona.contracts import DataTier, JobPosting
 from drona.data_pipeline.data_card import DataCard
 from drona.data_pipeline.scrapers._http import PoliteScraper
+from drona.utils.settings import settings
 
 SITEMAP_URL = "https://www.jobsnepal.com/jobs-sitemap.xml"
 BASE_URL = "https://www.jobsnepal.com"
@@ -110,7 +111,7 @@ def _extract_skills(soup: BeautifulSoup, description: str) -> list[str]:
                     return skills[:20]
 
     # Fallback: extract tech keywords from description
-    _TECH = [
+    tech_kw = [
         "Python", "JavaScript", "TypeScript", "Java", "C#", "C\\+\\+", "PHP", "Ruby", "Go",
         "React", "Angular", "Vue", "Node\\.js", "Django", "Laravel", "Spring",
         "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch",
@@ -120,7 +121,7 @@ def _extract_skills(soup: BeautifulSoup, description: str) -> list[str]:
         "TensorFlow", "PyTorch", "scikit-learn", "pandas", "NumPy",
     ]
     found = []
-    for pattern in _TECH:
+    for pattern in tech_kw:
         if re.search(rf"\b{pattern}\b", description, re.IGNORECASE):
             found.append(re.sub(r"\\", "", pattern))
     return found[:15]

@@ -94,6 +94,13 @@ def _format_citations(citations: list[RetrievalCitation]) -> str:
 def _format_profile(query: AdvisingQuery) -> str:
     p = query.profile
     parts: list[str] = []
+    programme_names = {
+        "software_engineering": "BSc (Hons) Software Engineering (formerly Computing)",
+        "ethical_hacking": "BSc (Hons) Ethical Hacking and Cybersecurity",
+        "csai": "BSc (Hons) Computer Science with Artificial Intelligence",
+    }
+    prog = getattr(p, "programme", "software_engineering")
+    parts.append(f"Enrolled programme: {programme_names.get(prog, prog)}")
     if p.year_of_study:
         parts.append(f"Year of study: {p.year_of_study}")
     if p.completed_modules:

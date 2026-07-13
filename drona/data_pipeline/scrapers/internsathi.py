@@ -114,11 +114,11 @@ def _parse_page(soup: BeautifulSoup, url: str) -> JobPosting | None:
                 skills = [li.get_text(strip=True) for li in nxt.find_all("li")][:15]
                 break
     if not skills:
-        _TECH = [
+        tech_kw = [
             "Python", "JavaScript", "Java", "PHP", "React", "Angular", "Node",
             "Django", "Laravel", "SQL", "Git", "HTML", "CSS", "Docker",
         ]
-        for kw in _TECH:
+        for kw in tech_kw:
             if re.search(rf"\b{kw}\b", description, re.IGNORECASE):
                 skills.append(kw)
         skills = skills[:10]

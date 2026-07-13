@@ -14,7 +14,6 @@ The report is saved as JSON for reproducibility and inclusion in the thesis appe
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -33,7 +32,7 @@ def main(
     c3: bool = typer.Option(False, "--c3", help="Evaluate gesture smoothness."),
     c4: bool = typer.Option(False, "--c4", help="Evaluate stack/provenance metrics."),
     llm: bool = typer.Option(False, "--llm", help="Include Ollama latency in C4 (needs Ollama)."),
-    out: Optional[str] = typer.Option(None, "--out", help="Output JSON path."),
+    out: str | None = typer.Option(None, "--out", help="Output JSON path."),
     log_level: str = typer.Option("INFO", "--log-level"),
 ) -> None:
     setup_logging(log_level)

@@ -33,29 +33,24 @@ Thread safety:
 from __future__ import annotations
 
 import queue
-import threading
 import time
-import uuid
-from dataclasses import dataclass, field
-from typing import Callable
+from collections.abc import Callable
+from dataclasses import dataclass
 
 from loguru import logger
 
 from drona.advising.engine import AdvisingEngine, make_query
 from drona.contracts import (
     AdvisingResponse,
-    EngagementState,
     GestureType,
-    InteractionAction,
     SessionEvent,
     SessionState,
     StudentDetection,
 )
 from drona.interaction.gesture_dispatcher import GestureDispatcher, make_action
-from drona.orchestrator.session_machine import SessionMachine, Trigger
+from drona.orchestrator.session_machine import SessionMachine
 from drona.perception.mediapipe_detector import BaseDetector, StubDetector
 from drona.utils.settings import settings
-
 
 # ── Session record ────────────────────────────────────────────────────────────
 

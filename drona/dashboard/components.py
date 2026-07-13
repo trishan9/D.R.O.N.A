@@ -26,7 +26,6 @@ from __future__ import annotations
 from drona.contracts import (
     AdvisingResponse,
     BiasFlag,
-    DataTier,
     PathwayRecommendation,
     RetrievalCitation,
 )
@@ -208,7 +207,7 @@ def render_bias_flags(flags: list[BiasFlag]) -> None:
 
     summaries = format_bias_summary(flags)
     cols = st.columns(min(len(summaries), 3))
-    for col, item in zip(cols, summaries):
+    for col, item in zip(cols, summaries, strict=False):
         with col:
             st.markdown(
                 f"""<div style="border-left: 4px solid {item['colour']};
@@ -235,7 +234,7 @@ def render_pathway_columns(pathways: list[PathwayRecommendation]) -> None:
         chunk = pathways[chunk_start:chunk_start + 3]
         ratios = pathway_columns_layout(len(chunk))
         cols = st.columns(ratios)
-        for col, pathway in zip(cols, chunk):
+        for col, pathway in zip(cols, chunk, strict=False):
             with col:
                 md = format_pathway_markdown(pathway, chunk_start + 1)
                 st.markdown(md)

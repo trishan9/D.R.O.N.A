@@ -1,17 +1,37 @@
 # D.R.O.N.A. - Colab / Kaggle Training & Finalization Guide
 
-Every step to train the GPU-only models on **Google Colab or Kaggle**, bring the
-checkpoints back, and run the **full system + simulation** on your PC.
+Every step to train the GPU-only models on **Google Colab (A100 recommended)**
+or Kaggle, bring the checkpoints back, and run the **full system + simulation**
+on your PC.
+
+> **▶ Recommended path: the staged pipeline in [`notebooks/`](../notebooks/README.md)**
+> (01 cleaning → 02 EDA → 03 embeddings → 04 training → 05 evaluation).
+> It is A100-optimised (bf16 LoRA, TF32, big batches, ~45-60 min total for all
+> models), regenerates its own inputs, saves publication-quality figures to
+> `reports/figures/`, and exports one `drona_trained_models.zip`.
+> The per-model notebooks (07/08/09) described below still work and remain the
+> minimal T4-friendly path.
 
 > TL;DR of what runs where
 >
 > | Task | Where | Why |
 > |---|---|---|
 > | Data pipeline, embeddings, retrieval, CPU behavior-cloning policy, web app, tests | **Your PC (CPU)** | No GPU needed |
-> | **Phi-3.5 LoRA fine-tune** (nb09) | **Colab/Kaggle GPU** | Needs CUDA + bitsandbytes |
-> | **ACT policy** (nb07), **Diffusion policy** (nb08) | **Colab/Kaggle GPU** | LeRobot training needs a GPU |
+> | **Full pipeline** (`notebooks/01-05`) | **Colab A100** | bf16 LoRA + ACT + Diffusion + evaluation in one sitting |
+> | **Advising-LLM LoRA fine-tune** (notebook 04) | **Colab/Kaggle GPU** | Needs CUDA (+ bitsandbytes when 4-bit) |
+> | **ACT + Diffusion policies** (notebook 04, Part B) | **Colab/Kaggle GPU** | LeRobot training needs a GPU |
 > | Live LLM advising | Your PC + **Ollama** | Local-only inference (no paid API) |
 > | Gazebo / RViz embodied sim | **WSL2 (Ubuntu) on Windows** | ROS2 only runs on Linux |
+>
+> **A100 vs T4 settings** (handled automatically by `notebook 04`):
+>
+> | Setting | A100 | T4 |
+> |---|---|---|
+> | LLM base precision (Qwen3-4B) | bf16 (no quantisation) | 4-bit QLoRA |
+> | SFT batch (per-device x accum) | 8 x 2 | 2 x 8 |
+> | ACT / Diffusion `batch_size` | 64 | 32 |
+> | TF32 matmuls | on | n/a |
+> | SFT wall time | ~8-12 min | ~30-60 min |
 
 The local pipeline is already populated and verified (see `PROGRESS.md`). This
 guide covers the parts that **could not** run on your CPU box.
@@ -61,51 +81,29 @@ gitignored, so for GitHub either force-add your curriculum
 
 ---
 
-## 1. Notebook 09 - LoRA fine-tune of Phi-3.5 (advising brain, C2/C3)
+## 1. Train everything - `notebooks/04_model_training.ipynb`
 
-**GPU required.** Colab: `Runtime ▸ Change runtime type ▸ T4 GPU`.
-Kaggle: `Settings ▸ Accelerator ▸ GPU T4 x2`.
+**GPU required.** Colab: `Runtime ▸ Change runtime type ▸ A100` (or T4 -
+everything auto-falls back to QLoRA/smaller batches).
 
-1. Open `notebooks/09_lora_finetune_phi35.ipynb` in Colab/Kaggle.
-2. **Cell 1 (Setup):** edit `REPO_URL` (Option A) or rely on your upload (Option B). Run it - it prints the GPU and `repo:` path.
-3. **Cell 2:** installs transformers/peft/trl/accelerate/datasets/bitsandbytes.
-4. **Cell 3:** runs `prepare_training_data.py` → builds `data/finetune/sft_train.jsonl` (≈450) + `sft_val.jsonl` (≈50) and prints a sample.
-5. **Cells 4–6:** load Phi-3.5 in 4-bit and **train** (`trainer.train()`). ~30–60 min on T4.
-6. **Cell 7:** saves the adapter to `models/phi35-lora-advising/`.
-7. **Cell 8 (optional):** export a merged **GGUF** for Ollama (uncomment the block).
-8. **Cell 9:** quick base+LoRA generation sanity check.
-9. **Cell 10:** zips + **downloads** `drona_phi35_lora_adapter.zip`.
+1. Open `notebooks/04_model_training.ipynb` in Colab (run 01-03 first on a
+   fresh dataset; each stands alone otherwise).
+2. **Cell 1 (Setup):** edit `REPO_URL` (Option A) or rely on your upload
+   (Option B). Run it - it prints the GPU and `repo:` path.
+3. Run all. In one sitting it: installs deps → verifies the data → **LoRA
+   fine-tunes the advising LLM** (Qwen3-4B; bf16 on A100, 4-bit on T4, with
+   learning curves + base-model baseline) → trains the **BC baseline** and
+   exports it to **ONNX/TorchScript** → trains **ACT** → trains **Diffusion**
+   (flag-controlled) → smoke-checks every policy in sim → zips everything.
+4. The last cell downloads **`drona_trained_models.zip`**.
 
 **Bring it back (on your PC):**
 ```bash
-unzip drona_phi35_lora_adapter.zip -d models/phi35-lora-advising
+unzip drona_trained_models.zip -d .     # at the repo root - paths line up
 ```
-
----
-
-## 2. Notebook 07 - ACT gesture policy (C3)
-
-**GPU required.**
-1. Open `notebooks/07_lerobot_act_training.ipynb`.
-2. **Cell 1:** setup (`REPO_URL`).
-3. **Cell 2:** installs LeRobot.
-4. **Cell 3:** regenerates demonstrations and builds the `LeRobotDataset` (self-contained).
-5. **Cell 4:** **trains ACT** (`--steps=20000`; lower it for a quick smoke run). ~15–30 min.
-6. **Cell 5:** evaluates ACT vs the keyframe baseline (success / jerk).
-7. **Cell 6:** downloads `drona_act_checkpoints.zip`.
-
-**Bring it back:**
-```bash
-unzip drona_act_checkpoints.zip -d data/checkpoints/act
-```
-The `PolicyRouter` auto-loads a per-gesture checkpoint from `data/checkpoints/<gesture>/`
-when present - see notebook 11 / `STUDENT_RUNBOOK.md` for the exact layout if you
-split per gesture.
-
-## 3. Notebook 08 - Diffusion policy ablation (C3)
-Same flow as nb07 (you can run it in the **same session** right after - the dataset
-is reused). Output → `drona_diffusion_checkpoints.zip` → `data/checkpoints/diffusion`.
-Cell 5 prints the three-way **keyframe vs ACT vs Diffusion** comparison for the thesis.
+`PolicyRouter` (web twin, ROS2 nodes) and the dashboard `/evaluation`
+analytics pick the artifacts up automatically. Then run
+`notebooks/05_model_evaluation_comparison.ipynb` for the thesis numbers.
 
 ---
 
@@ -119,21 +117,22 @@ Retrieval (C1) works without any LLM, but the spoken advice (C2) needs a local m
    ```
 2. **Easiest path - pull the model DRONA already defaults to** (no `.env` edit needed):
    ```bash
-   ollama pull phi3.5:3.8b-mini-instruct-q4_K_M    # = the default OLLAMA_MODEL
+   ollama pull qwen3:4b-instruct-2507-q4_K_M    # = the default OLLAMA_MODEL
    ollama pull qwen2.5:3b-instruct-q4_K_M          # the multilingual fallback (optional)
    ```
    To use a different model, copy `.env.example` → `.env` and set
    `OLLAMA_MODEL=<tag>` (e.g. `llama3.2:3b`).
-3. **Your fine-tuned model** (if you exported GGUF in nb09 cell 8): create a
-   `Modelfile` next to `models/phi35-advising.gguf`:
+3. **Your fine-tuned model** (merge + GGUF-convert per section 1's notes, or
+   simpler: serve it directly with `LLM_BACKEND=transformers`): create a
+   `Modelfile` next to `models/advising.gguf`:
    ```
-   FROM ./models/phi35-advising.gguf
+   FROM ./models/advising.gguf
    ```
    then:
    ```bash
-   ollama create phi35-advising -f Modelfile
+   ollama create drona-advising -f Modelfile
    ```
-   and set `OLLAMA_MODEL=phi35-advising` in `.env`.
+   and set `OLLAMA_MODEL=drona-advising` in `.env`.
 
 ---
 
@@ -209,9 +208,8 @@ mirrors the real joint stream.
 ## 7. Finalization checklist
 
 - [ ] (Optional) Replace placeholder curriculum + jobs with real data; re-run 5a.
-- [ ] nb09 → LoRA adapter → `models/phi35-lora-advising/` (or GGUF → Ollama).
-- [ ] nb07 → ACT checkpoints → `data/checkpoints/act/`.
-- [ ] nb08 → Diffusion checkpoints → `data/checkpoints/diffusion/` (ablation).
+- [ ] notebook 04 → `drona_trained_models.zip` unzipped at the repo root
+      (LoRA adapter + BC/ONNX + ACT + Diffusion checkpoints).
 - [ ] Ollama installed + model pulled/created; `OLLAMA_MODEL` set in `.env`.
 - [ ] `python scripts/ingest_data.py` run → ChromaDB populated.
 - [ ] API (`run_api.py`) + web (`npm run dev`) up; `/advisor` streams a real answer.

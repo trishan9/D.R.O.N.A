@@ -22,6 +22,10 @@ class AdviseRequest(BaseModel):
 
     query_text: str = Field(min_length=1, max_length=2000)
     session_id: str | None = Field(default=None, description="Random UUID; never identity-linked")
+    programme: str = Field(
+        default="software_engineering",
+        description="software_engineering | ethical_hacking | csai",
+    )
     year_of_study: int | None = Field(default=None, ge=1, le=4)
     completed_modules: list[str] = Field(default_factory=list)
     declared_interests: list[str] = Field(default_factory=list)
@@ -35,6 +39,7 @@ class AdviseRequest(BaseModel):
     def to_query(self) -> AdvisingQuery:
         profile = StudentProfile(
             session_id=self.session_id or str(uuid.uuid4()),
+            programme=self.programme,
             year_of_study=self.year_of_study,
             completed_modules=self.completed_modules,
             declared_interests=self.declared_interests,

@@ -46,6 +46,56 @@ export async function getHealth(signal?: AbortSignal): Promise<HealthResponse> {
   return (await res.json()) as HealthResponse;
 }
 
+/** Thesis evaluation results (GET /evaluation - notebook 04/05 artifacts). */
+export interface AblationRow {
+  method: string;
+  ndcg5?: number;
+  mrr?: number;
+  recall5?: number;
+  precision5?: number;
+}
+export interface BiasRow {
+  bias: string;
+  precision: number;
+  recall: number;
+  f1: number;
+}
+export interface PolicyRow {
+  policy: string;
+  success_rate: number;
+  mean_jerk: number;
+  mean_path?: number;
+  mean_apex_err?: number;
+}
+export interface VerdictRow {
+  component: string;
+  candidates: string;
+  winner: string;
+  evidence: string;
+}
+export interface EvaluationData {
+  available: boolean;
+  generated?: string;
+  c1_ablation?: AblationRow[];
+  c2_per_type?: BiasRow[];
+  c2_macro_f1?: number;
+  c3_policies?: PolicyRow[];
+  c4?: { nepal_citation_ratio?: number; target_met?: boolean };
+  verdict?: VerdictRow[];
+  llm?: {
+    base_model?: string;
+    base_eval_loss?: number;
+    final_eval_loss?: number;
+    curve?: { step: number; eval_loss: number }[];
+  };
+}
+
+export async function getEvaluation(signal?: AbortSignal): Promise<EvaluationData> {
+  const res = await fetch(`${apiBaseUrl()}/evaluation`, { signal, cache: "no-store" });
+  if (!res.ok) throw new Error(`Evaluation fetch failed: ${res.status}`);
+  return (await res.json()) as EvaluationData;
+}
+
 /** Synchronous advising (no streaming). Used as a fallback when WS is blocked. */
 export async function advise(req: AdviseRequest, signal?: AbortSignal): Promise<AdvisingResponse> {
   const res = await fetch(`${apiBaseUrl()}/advise`, {

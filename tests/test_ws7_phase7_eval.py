@@ -28,7 +28,6 @@ from drona.evaluation.citation_eval import evaluate_citations
 from drona.evaluation.ragas_harness import evaluate_rag
 from drona.evaluation.stats import compare_conditions, paired_comparison
 
-
 # ── Fixtures / builders ───────────────────────────────────────────────────────
 
 def _cit(source_id: str, tier: DataTier, score: float = 0.8) -> RetrievalCitation:

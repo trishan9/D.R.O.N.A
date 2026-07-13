@@ -1,12 +1,12 @@
 name: onet_career_pathways
 version: '30.3'
-created_at: '2026-06-28T03:56:24.728195'
+created_at: '2026-07-11T12:32:39.307139'
 source_name: O*NET 30.3 Database
 source_url: https://www.onetcenter.org/database.html
 license: CC BY 4.0
 tier: international
 collection_method: automated_bulk_download
-collection_date: '2026-06-28T03:56:24.728205'
+collection_date: '2026-07-11T12:32:39.307148'
 collector: Trisan Wagle
 record_count: 39
 fields:
@@ -36,6 +36,6 @@ robots_txt_allows_crawl: true
 rate_limit_applied: N/A (single bulk download)
 derived_from: []
 output_files:
-- C:\Users\trish\Documents\Developer\D.R.O.N.A\data\processed\onet_career_pathways.parquet
+- data\processed\onet_career_pathways.parquet
 notes: 'Downloaded from https://www.onetcenter.org/dl_files/database/db_30_3_text.zip.
   Zip SHA256: 7758ec966fd91895'

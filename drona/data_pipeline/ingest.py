@@ -28,6 +28,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 import chromadb
@@ -50,6 +51,44 @@ def _tier_boost(tier: str) -> float:
 
 
 # ── Document text builders (what gets embedded) ─────────────────────────────
+
+_CHUNK_CHARS = 1400          # ~350 tokens - fits the embedding model comfortably
+_CHUNK_OVERLAP = 150         # carry context across boundaries
+_MAX_CHUNKS_PER_MODULE = 40  # safety cap for very large modules
+
+
+def _chunk_content(content: str) -> list[str]:
+    """Split a module's full body into overlapping chunks for embedding.
+
+    Prefers paragraph/lesson boundaries; falls back to fixed windows. Returns
+    [] for empty/short content (the summary doc already covers those).
+    """
+    content = (content or "").strip()
+    if len(content) < 200:
+        return []
+    paras = [p.strip() for p in re.split(r"\n{2,}|\n(?=###|\*\*|\[Attached)", content)
+             if p.strip()]
+    chunks: list[str] = []
+    buf = ""
+    for para in paras:
+        if len(buf) + len(para) + 1 <= _CHUNK_CHARS:
+            buf = f"{buf}\n{para}".strip()
+        else:
+            if buf:
+                chunks.append(buf)
+            # a single huge paragraph is windowed
+            if len(para) > _CHUNK_CHARS:
+                for i in range(0, len(para), _CHUNK_CHARS - _CHUNK_OVERLAP):
+                    chunks.append(para[i:i + _CHUNK_CHARS])
+                buf = ""
+            else:
+                buf = para
+        if len(chunks) >= _MAX_CHUNKS_PER_MODULE:
+            break
+    if buf and len(chunks) < _MAX_CHUNKS_PER_MODULE:
+        chunks.append(buf)
+    return chunks[:_MAX_CHUNKS_PER_MODULE]
+
 
 def _curriculum_doc(m: CurriculumModule) -> str:
     """Build the text that represents a module in the embedding space."""
@@ -114,6 +153,7 @@ def _curriculum_meta(m: CurriculumModule) -> dict[str, Any]:
     return {
         "module_code": m.module_code,
         "title": m.title,
+        "programme": getattr(m, "programme", "software_engineering"),
         "year": m.year,
         "semester": m.semester or 0,
         "credits": m.credits or 0,
@@ -217,7 +257,7 @@ class Ingestor:
         # only the ids of those already present, which we use to skip duplicates.
         existing = set(collection.get(ids=ids, include=[])["ids"])
         new_ids, new_docs, new_metas = [], [], []
-        for id_, doc, meta in zip(ids, documents, metadatas):
+        for id_, doc, meta in zip(ids, documents, metadatas, strict=False):
             if id_ not in existing:
                 new_ids.append(id_)
                 new_docs.append(doc)
@@ -242,11 +282,41 @@ class Ingestor:
     # ── Public add methods ──────────────────────────────────────────────────
 
     def add_curriculum_modules(self, modules: list[CurriculumModule]) -> None:
-        """Embed and store curriculum modules in the curriculum collection."""
+        """Embed and store curriculum modules in the curriculum collection.
+
+        Each module produces one summary document (title/skills/description) plus
+        N content chunks from its full lesson + PDF body, so deep material - not
+        just the blurb - is retrievable.
+        """
+        # A module shared across programmes (e.g. Computer Architecture in both
+        # Computing and CS-AI) is synced once per account and collides on
+        # module_code. Keep the richest copy so ids stay unique.
+        by_code: dict[str, CurriculumModule] = {}
+        for m in modules:
+            prev = by_code.get(m.module_code)
+            if prev is None or len(m.content) > len(prev.content):
+                by_code[m.module_code] = m
+        deduped = list(by_code.values())
+        if len(deduped) < len(modules):
+            logger.info(f"  deduped {len(modules) - len(deduped)} cross-account "
+                        f"module copies (shared codes)")
+        modules = deduped
+
         logger.info(f"Ingesting {len(modules)} curriculum modules → {COLL_CURRICULUM}")
-        ids = [f"curriculum_{m.module_code}" for m in modules]
-        docs = [_curriculum_doc(m) for m in modules]
-        metas = [_curriculum_meta(m) for m in modules]
+        ids: list[str] = []
+        docs: list[str] = []
+        metas: list[dict[str, Any]] = []
+        for m in modules:
+            ids.append(f"curriculum_{m.module_code}")
+            docs.append(_curriculum_doc(m))
+            metas.append(_curriculum_meta(m))
+            for i, chunk in enumerate(_chunk_content(m.content)):
+                ids.append(f"curriculum_{m.module_code}_c{i}")
+                docs.append(f"{m.title} ({m.module_code}). {chunk}")
+                meta = _curriculum_meta(m)
+                meta["is_chunk"] = True
+                metas.append(meta)
+        logger.info(f"  {len(modules)} modules -> {len(ids)} documents (with content chunks)")
         self._add_batched(self._coll_curriculum, ids, docs, metas)
 
     def add_job_postings(self, postings: list[JobPosting]) -> None:

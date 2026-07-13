@@ -38,8 +38,7 @@ from __future__ import annotations
 import time
 import uuid
 from abc import ABC, abstractmethod
-from collections import deque
-from typing import Iterator
+from collections.abc import Iterator
 
 import numpy as np
 from loguru import logger
@@ -137,9 +136,11 @@ class MediaPipeDetector(BaseDetector):
     The webcam capture is lazy - it opens on first detect() call.
     """
 
-    def __init__(self, camera_index: int = 0, min_confidence: float = 0.5) -> None:
+    def __init__(self, camera_index: int = 0, min_confidence: float = 0.5,
+                 open_camera: bool = True) -> None:
         self._camera_index = camera_index
         self._min_confidence = min_confidence
+        self._open_camera = open_camera  # False = frames injected via detect(frame=...)
         self._cap = None          # cv2.VideoCapture, lazy
         self._detector = None     # mp face_detection, lazy
         self._ema_conf = 0.0
@@ -163,17 +164,23 @@ class MediaPipeDetector(BaseDetector):
             model_selection=0,  # 0 = short-range (< 2m), 1 = full-range
             min_detection_confidence=self._min_confidence,
         )
-        self._cap = cv2.VideoCapture(self._camera_index)
-        if not self._cap.isOpened():
-            raise RuntimeError(f"Could not open camera {self._camera_index}")
-        logger.info(f"MediaPipeDetector ready (camera {self._camera_index})")
+        if self._open_camera:
+            self._cap = cv2.VideoCapture(self._camera_index)
+            if not self._cap.isOpened():
+                raise RuntimeError(f"Could not open camera {self._camera_index}")
+        logger.info(
+            "MediaPipeDetector ready "
+            + (f"(camera {self._camera_index})" if self._open_camera else "(injected frames)")
+        )
 
     def detect(self, frame: np.ndarray | None = None) -> StudentDetection:
         self._ensure_init()
         import cv2  # type: ignore[import]
 
         if frame is None:
-            ret, frame = self._cap.read()  # type: ignore[union-attr]
+            if self._cap is None:  # injected-frame mode with no frame yet
+                return self._make_detection(EngagementState.ABSENT, None, 0.0)
+            ret, frame = self._cap.read()
             if not ret or frame is None:
                 return self._make_detection(EngagementState.ABSENT, None, 0.0)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -291,6 +298,7 @@ def make_detector(
     prefer_mediapipe: bool = True,
     camera_index: int = 0,
     stub_script: list[tuple[EngagementState, float, float | None]] | None = None,
+    open_camera: bool = True,
 ) -> BaseDetector:
     """Create a detector, preferring MediaPipe if available.
 
@@ -298,13 +306,16 @@ def make_detector(
         prefer_mediapipe: Try MediaPipe/webcam first; fall back to StubDetector.
         camera_index: Webcam device index (MediaPipe only).
         stub_script: Custom detection sequence (StubDetector only).
+        open_camera: False = no local webcam; frames are injected via
+            detect(frame=...) (used by the ROS2 perception node in image-topic
+            mode, where the camera lives in the simulator or on another node).
 
     Returns:
         A BaseDetector instance.
     """
     if prefer_mediapipe:
         try:
-            det = MediaPipeDetector(camera_index=camera_index)
+            det = MediaPipeDetector(camera_index=camera_index, open_camera=open_camera)
             det._ensure_init()
             return det
         except (RuntimeError, ImportError) as exc:

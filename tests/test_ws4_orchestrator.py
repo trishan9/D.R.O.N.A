@@ -9,30 +9,25 @@ Run with:  pytest tests/test_ws4_orchestrator.py -v
 
 from __future__ import annotations
 
-import time
 import uuid
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from drona.contracts import (
     AdvisingResponse,
     EngagementState,
-    GestureType,
     InteractionActionResult,
     PathwayRecommendation,
     SessionState,
     StudentDetection,
 )
 from drona.orchestrator.orchestrator import Orchestrator, SessionRecord
-from drona.orchestrator.session_machine import SessionMachine, Trigger
+from drona.orchestrator.session_machine import SessionMachine
 from drona.perception.mediapipe_detector import (
     StubDetector,
     _classify_engagement,
     _default_session_script,
     make_detector,
 )
-
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

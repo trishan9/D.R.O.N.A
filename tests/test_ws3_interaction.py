@@ -10,9 +10,7 @@ Run with:  pytest tests/test_ws3_interaction.py -v
 
 from __future__ import annotations
 
-import json
 import math
-import uuid
 from pathlib import Path
 
 import numpy as np
@@ -32,17 +30,14 @@ from drona.interaction.demonstration import (
     DemonstrationDataset,
     DemonstrationEpisode,
     DemonstrationFrame,
-    clamp_joints,
     interpolate_keyframes,
     record_keyframe_episode,
 )
 from drona.interaction.gesture_dispatcher import (
     GestureDispatcher,
     make_action,
-    make_dispatcher,
 )
 from drona.interaction.mujoco_env import StubEnv, make_env
-
 
 # ── DemonstrationFrame / Episode / Dataset ────────────────────────────────────
 
@@ -150,7 +145,7 @@ class TestInterpolateKeyframes:
     def test_output_arrays_have_correct_dof(self) -> None:
         kf = GESTURE_KEYFRAMES["greet"]
         result = interpolate_keyframes(kf, dt=0.05)
-        for q, t in result:
+        for q, _t in result:
             assert q.shape == (DOF,)
 
     def test_timestamps_monotonically_increasing(self) -> None:

@@ -43,7 +43,7 @@ is copy-paste ready, with **Git Bash** and **PowerShell** variants where they di
 ### The LLM - will it run on your device?
 
 **Yes.** The advisor uses a **3-billion-parameter, 4-bit quantized** model
-(`phi3.5:3.8b-mini-instruct-q4_K_M`, ~2.2 GB). That runs on **CPU with ~4 GB RAM**,
+(`qwen3:4b-instruct-2507-q4_K_M`, ~2.5 GB). That runs on **CPU with ~4 GB RAM**,
 and your GTX 1650 (4 GB) offloads some layers to speed it up. It is **slower** than
 a data-center GPU (expect a short pause per answer), but it works and it is **free,
 private, and offline** - which is the entire point of your **C4 contribution
@@ -98,7 +98,7 @@ cd ..
 ```bash
 # Git Bash
 PYTHONUTF8=1 python -c "import drona; print('drona OK')"
-PYTHONUTF8=1 python -m pytest -q        # expect: 431 passed, 1 skipped
+PYTHONUTF8=1 python -m pytest -q        # expect: 440 passed, 1 skipped
 ```
 ```powershell
 # PowerShell equivalent
@@ -159,7 +159,7 @@ Pick **A** (recommended) or **B**. You only need one.
 **A2. Pull the model DRONA defaults to** (no `.env` edit needed)
 ```bash
 ollama pull qwen2.5:3b-instruct-q4_K_M          # primary: fast, typo-robust, multilingual
-ollama pull phi3.5:3.8b-mini-instruct-q4_K_M    # fallback (optional)
+ollama pull qwen3:4b-instruct-2507-q4_K_M    # fallback (optional)
 ```
 
 **A3. Test it**
@@ -194,7 +194,7 @@ subprocess.run("curl -fsSL https://ollama.com/install.sh | sh", shell=True, chec
 os.environ["OLLAMA_HOST"] = "0.0.0.0:11434"          # so the tunnel can reach it
 subprocess.Popen(["ollama", "serve"])
 time.sleep(6)
-subprocess.run(["ollama", "pull", "phi3.5:3.8b-mini-instruct-q4_K_M"], check=True)
+subprocess.run(["ollama", "pull", "qwen3:4b-instruct-2507-q4_K_M"], check=True)
 print("ollama ready")
 ```
 
@@ -215,7 +215,7 @@ Copy the printed `https://<something>.trycloudflare.com` URL.
 **B2. On your PC**, point DRONA at that URL. Edit `.env`:
 ```
 OLLAMA_HOST=https://<something>.trycloudflare.com
-OLLAMA_MODEL=phi3.5:3.8b-mini-instruct-q4_K_M
+OLLAMA_MODEL=qwen3:4b-instruct-2507-q4_K_M
 ```
 That's it - the backend now sends advising requests to the cloud GPU. When the
 cloud session ends, re-run B1–B2 and update the URL (or switch back to Option A).
@@ -225,6 +225,13 @@ cloud session ends, re-run B1–B2 and update the URL (or switch back to Option 
 ## 5. Train the GPU models on Colab/Kaggle
 
 Three models need a GPU. The notebooks are ready; you just deliver the code and run.
+
+> **Recommended:** on a Colab **A100**, use the staged pipeline
+> [`notebooks/`](../notebooks/README.md) instead of the individual
+> notebooks below - `notebooks/04_model_training.ipynb` trains the LoRA + BC + ACT
+> + Diffusion models in one sitting (~45-60 min) and exports a single
+> `drona_trained_models.zip`, and `notebook 05` produces all the thesis figures.
+> The steps below remain the minimal T4 path.
 
 ### 5.1 Get the repo onto Colab/Kaggle (do this once)
 
@@ -244,32 +251,21 @@ zip -r drona.zip D.R.O.N.A -x "*/node_modules/*" "*/.git/*" "*/.next/*" \
 Colab: upload `drona.zip` (Files panel) and add a first cell `!unzip -q drona.zip`.
 Kaggle: make a **Dataset** from `drona.zip` (mounts under `/kaggle/input/`).
 
-### 5.2 Notebook 09 - LoRA fine-tune of Phi-3.5 (the advising brain)
-1. Set the GPU: Colab `Runtime ▸ Change runtime type ▸ T4 GPU`; Kaggle `Settings ▸ Accelerator ▸ GPU T4 x2`.
-2. Open `notebooks/09_lora_finetune_phi35.ipynb`.
-3. **Cell 1:** set `REPO_URL = "https://github.com/<you>/D.R.O.N.A.git"` (or rely on your upload). Run it.
-4. Run cells top to bottom: installs deps → builds the SFT data → loads Phi-3.5 in 4-bit → **trains** (~30–60 min) → saves the adapter → **downloads** `drona_phi35_lora_adapter.zip`.
-5. **On your PC:**
+### 5.2 Notebook 04 - train every model in one sitting
+1. Set the GPU: Colab `Runtime ▸ Change runtime type ▸ A100` (T4 also works).
+2. Open `notebooks/04_model_training.ipynb`, set `REPO_URL` in cell 1, **Run all**.
+   It trains the advising LoRA + BC (with ONNX export) + ACT + Diffusion and
+   downloads one **`drona_trained_models.zip`**.
+3. **On your PC:**
    ```bash
-   unzip drona_phi35_lora_adapter.zip -d models/phi35-lora-advising
+   unzip drona_trained_models.zip -d .    # at the repo root
    ```
 
-### 5.3 Notebook 07 - ACT gesture policy
-Same pattern. Output → `drona_act_checkpoints.zip` →
-```bash
-unzip drona_act_checkpoints.zip -d data/checkpoints/act
-```
-
-### 5.4 Notebook 08 - Diffusion policy (ablation)
-You can run it in the same session right after 07. Output → `drona_diffusion_checkpoints.zip` →
-```bash
-unzip drona_diffusion_checkpoints.zip -d data/checkpoints/diffusion
-```
-
-> Want the LoRA model served by Ollama? Notebook 09 cell 8 (optional) exports a
-> GGUF. Then locally: create a `Modelfile` with `FROM ./models/phi35-advising.gguf`,
-> run `ollama create phi35-advising -f Modelfile`, and set
-> `OLLAMA_MODEL=phi35-advising` in `.env`.
+> Want the LoRA model served by Ollama? Merge + GGUF-convert (COLAB guide
+> section 4), or simpler: serve it directly with `LLM_BACKEND=transformers`. A
+> GGUF. Then locally: create a `Modelfile` with `FROM ./models/advising.gguf`,
+> run `ollama create drona-advising -f Modelfile`, and set
+> `OLLAMA_MODEL=drona-advising` in `.env`.
 
 ---
 
@@ -377,7 +373,7 @@ Analytics. Use **Option B** for the LLM if you want snappy responses on camera.
 | Ollama answers very slowly | Use `qwen2.5:3b` as `OLLAMA_MODEL`, close other apps, or use Option B. |
 | Retrieval empty / advisor has no evidence | Run `python scripts/ingest_data.py` (Part 3) first. |
 | `bitsandbytes` / CUDA error in a notebook | You're on CPU - select a **GPU** runtime (Part 5.2 step 1). |
-| Notebook 07/08 LeRobot flag errors | `pip install -U git+https://github.com/huggingface/lerobot.git`; check `python -m lerobot.scripts.train --help`. |
+| Notebook 04 LeRobot flag errors | `pip install -U git+https://github.com/huggingface/lerobot.git`; check `python -m lerobot.scripts.train --help`. |
 | Colab/Kaggle session disconnected mid-train | Lower `--steps`/epochs, or save to Google Drive and resume. |
 | `cloudflared` URL stopped working | The cloud session ended - re-run B1–B2 and update `OLLAMA_HOST`. |
 | Web app can't reach API | API not running, or set `NEXT_PUBLIC_DRONA_API_URL` in `frontend/.env.local`. |
@@ -395,13 +391,12 @@ Local, no GPU:
 - [ ] `pytest -q` → green
 
 The LLM (pick one):
-- [ ] **A:** Ollama installed + `ollama pull phi3.5:3.8b-mini-instruct-q4_K_M`, **or**
+- [ ] **A:** Ollama installed + `ollama pull qwen3:4b-instruct-2507-q4_K_M`, **or**
 - [ ] **B:** cloud Ollama + cloudflared tunnel + `OLLAMA_HOST` set in `.env`
 
 GPU models (Colab/Kaggle):
-- [ ] nb09 → adapter → `models/phi35-lora-advising/`
-- [ ] nb07 → ACT → `data/checkpoints/act/`
-- [ ] nb08 → Diffusion → `data/checkpoints/diffusion/`
+- [ ] notebook 04 → `drona_trained_models.zip` unzipped at repo root
+      (adapter + BC/ONNX + ACT + Diffusion)
 
 Run + finalize:
 - [ ] API (`run_api.py`) + web (`npm run dev`) → `/advisor` streams a real answer

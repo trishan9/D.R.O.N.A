@@ -73,6 +73,7 @@ export function ChatPanel({ profile, onResponse, onQuerySent }: ChatPanelProps) 
     const req: AdviseRequest = {
       query_text: q,
       session_id: profile.session_id,
+      programme: profile.programme,
       year_of_study: profile.year_of_study,
       completed_modules: profile.completed_modules,
       declared_interests: profile.declared_interests,

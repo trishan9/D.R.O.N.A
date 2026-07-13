@@ -1,0 +1,34 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 5770.33it/s]
+[1mBertModel LOAD REPORT[0m from: BAAI/bge-small-en-v1.5
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 5670.75it/s]
+Traceback (most recent call last):
+  File "<string>", line 7, in <module>
+    docs = r.retrieve_raw(q, top_k=2)
+  File "C:\Users\trish\Documents\Developer\D.R.O.N.A\drona\advising\retriever.py", line 250, in retrieve_raw
+    career_docs = self._dense_retrieve(query, self._coll_career, COLL_CAREER, k)
+  File "C:\Users\trish\Documents\Developer\D.R.O.N.A\drona\advising\retriever.py", line 143, in _dense_retrieve
+    result = collection.query(
+        query_texts=[query],
+        n_results=min(n, collection.count()),
+        include=["documents", "metadatas", "distances"],
+    )
+  File "C:\Users\trish\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\chromadb\api\models\Collection.py", line 265, in query
+    query_results = self._client._query(
+        collection_id=self.id,
+    ...<7 lines>...
+        database=self.database,
+    )
+  File "C:\Users\trish\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\chromadb\api\rust.py", line 582, in _query
+    rust_response = self.bindings.query(
+        str(collection_id),
+    ...<7 lines>...
+        database,
+    )
+chromadb.errors.InternalError: Error executing plan: Internal error: Error creating hnsw segment reader: Nothing found on disk

@@ -48,7 +48,7 @@ def _extract_docx(path: Path) -> str:
     except ImportError:
         raise ImportError(
             "python-docx is not installed. Run: pip install python-docx"
-        )
+        ) from None
     doc = docx.Document(str(path))
     return "\n".join(p.text for p in doc.paragraphs)
 
@@ -117,7 +117,15 @@ def _find_list_field(text: str, *labels: str) -> list[str]:
 
 
 def _extract_module_code(text: str) -> str | None:
-    """Extract module code (e.g. '4001COMP', 'CIS101', 'CS-301')."""
+    """Extract module code (e.g. '4001COMP', 'CIS101', 'CS-301').
+
+    An explicit ``Module Code:`` header line is authoritative and wins - only
+    when it is absent do we scan the body for a code-shaped token (which, in a
+    long document with lecture text, can otherwise match incidental strings).
+    """
+    header = re.search(r"(?im)^\s*Module\s+Code:\s*([A-Za-z0-9][A-Za-z0-9_-]{1,40})\s*$", text)
+    if header:
+        return header.group(1)
     # Coventry / Softwarica format: 4-digit number + alpha suffix
     m = re.search(r"\b(\d{4}[A-Z]{2,6})\b", text)
     if m:
@@ -127,6 +135,33 @@ def _extract_module_code(text: str) -> str | None:
     if m:
         return m.group(1).replace(" ", "-")
     return None
+
+
+_PROGRAMME_ALIASES = {
+    "software engineering": "software_engineering",
+    "computing": "software_engineering",          # renamed programme
+    "ethical hacking": "ethical_hacking",
+    "cyber": "ethical_hacking",
+    "artificial intelligence": "csai",
+    "computer science": "csai",
+}
+
+
+_PROGRAMME_SLUGS = {"software_engineering", "ethical_hacking", "csai"}
+
+
+def _extract_programme(text: str) -> str:
+    """Read the 'Programme:' header line; default to software_engineering."""
+    m = re.search(r"(?im)^programme:\s*(.+)$", text)
+    if m:
+        raw = m.group(1).strip().lower()
+        # canonical slug written directly (e.g. "csai", "ethical_hacking")
+        if raw in _PROGRAMME_SLUGS:
+            return raw
+        for alias, slug in _PROGRAMME_ALIASES.items():
+            if alias in raw:
+                return slug
+    return "software_engineering"
 
 
 def _extract_year(text: str) -> int:
@@ -165,7 +200,7 @@ def _extract_skills(text: str, description: str, outcomes: list[str]) -> list[st
 
     # Infer from description + outcomes combined text
     combined = description + " ".join(outcomes)
-    _SKILL_KW = [
+    skill_kw = [
         "Python", "Java", "JavaScript", "C\\+\\+", "C#", "SQL", "HTML", "CSS",
         "React", "Angular", "Node", "Django", "REST", "API", "Git", "Linux",
         "Database", "Networking", "Security", "Algorithm", "Data Structure",
@@ -173,7 +208,7 @@ def _extract_skills(text: str, description: str, outcomes: list[str]) -> list[st
         "Functional programming", "Debugging", "Testing", "Docker",
     ]
     found = []
-    for kw in _SKILL_KW:
+    for kw in skill_kw:
         if re.search(rf"\b{kw}\b", combined, re.IGNORECASE):
             found.append(re.sub(r"\\", "", kw))
     return found[:10]
@@ -241,12 +276,20 @@ def parse_text(text: str, source_document: str | None = None) -> CurriculumModul
 
     is_core = not bool(re.search(r"(?i)\b(optional|elective|choice)\b", text))
 
+    # Full body (everything after the front-matter labels) so the deep weekly +
+    # PDF content reaches the embeddings via the ingestor's chunker.
+    body = re.split(r"(?im)^\s*(?:Weekly Learning Content|Module Description):\s*$",
+                    text, maxsplit=1)
+    full_content = body[-1].strip() if len(body) > 1 else text.strip()
+
     return CurriculumModule(
         module_code=module_code,
+        programme=_extract_programme(text),
         title=title or module_code,
         year=year,
         credits=credits,
         description=description[:1000],
+        content=full_content,
         learning_outcomes=outcomes,
         prerequisites=prerequisites,
         skills_developed=skills,

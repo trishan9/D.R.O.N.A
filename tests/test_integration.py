@@ -19,7 +19,7 @@ Run with:  pytest tests/test_integration.py -v
 from __future__ import annotations
 
 import uuid
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
@@ -35,7 +35,6 @@ from drona.contracts import (
     RetrievalCitation,
     StudentProfile,
 )
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -82,7 +81,7 @@ def _make_response(n_pathways: int = 3) -> AdvisingResponse:
 
 
 def _make_detection(engagement=None, confidence: float = 0.9, distance_m: float = 1.2):
-    from drona.perception.mediapipe_detector import StudentDetection, EngagementState
+    from drona.perception.mediapipe_detector import EngagementState, StudentDetection
     if engagement is None:
         engagement = EngagementState.ENGAGED
     return StudentDetection(
@@ -235,26 +234,27 @@ class TestAdvisingEngineMocked:
 
 class TestSessionLifecycle:
     def test_full_session_idle_to_idle(self) -> None:
-        from drona.orchestrator.session_machine import SessionMachine, SessionState as SS
+        from drona.orchestrator.session_machine import SessionMachine
+        from drona.orchestrator.session_machine import SessionState as SessState
         from drona.perception.mediapipe_detector import EngagementState
 
         machine = SessionMachine(timeout_s=999.0)
-        assert machine.state == SS.IDLE
+        assert machine.state == SessState.IDLE
 
         machine.feed_detection(_make_detection(EngagementState.ENGAGED, 0.9, 1.2))
-        assert machine.state == SS.GREETING
+        assert machine.state == SessState.GREETING
 
         machine.mark_greeted()
-        assert machine.state == SS.NEEDS_ASSESSMENT
+        assert machine.state == SessState.NEEDS_ASSESSMENT
 
         machine.submit_query("What jobs suit me?")
-        assert machine.state == SS.ADVISING
+        assert machine.state == SessState.ADVISING
 
         machine.mark_response_delivered()
-        assert machine.state == SS.CLOSURE
+        assert machine.state == SessState.CLOSURE
 
         machine.mark_session_closed()
-        assert machine.state == SS.IDLE
+        assert machine.state == SessState.IDLE
 
     def test_session_id_changes_after_close(self) -> None:
         from drona.orchestrator.session_machine import SessionMachine
@@ -284,17 +284,19 @@ class TestSessionLifecycle:
         assert summary["query_count"] == 1
 
     def test_timeout_returns_to_idle(self) -> None:
-        from drona.orchestrator.session_machine import SessionMachine, SessionState as SS
-        from drona.perception.mediapipe_detector import EngagementState
         import time
+
+        from drona.orchestrator.session_machine import SessionMachine
+        from drona.orchestrator.session_machine import SessionState as SessState
+        from drona.perception.mediapipe_detector import EngagementState
 
         machine = SessionMachine(timeout_s=0.05)
         machine.feed_detection(_make_detection(EngagementState.ENGAGED, 0.9, 1.2))
-        assert machine.state == SS.GREETING
+        assert machine.state == SessState.GREETING
 
         time.sleep(0.1)
         machine.feed_detection(_make_detection(EngagementState.DISENGAGING, 0.2, 3.0))
-        assert machine.state == SS.IDLE
+        assert machine.state == SessState.IDLE
 
 
 # ── GestureDispatcher full execution ──────────────────────────────────────────
@@ -341,10 +343,10 @@ class TestGestureDispatcherIntegration:
 
 class TestOrchestratorTickLoop:
     def test_tick_loop_drives_greeting(self) -> None:
-        from drona.orchestrator.orchestrator import Orchestrator
-        from drona.perception.mediapipe_detector import EngagementState, StubDetector
         from drona.interaction.gesture_dispatcher import GestureDispatcher
-        from drona.orchestrator.session_machine import SessionState as SS
+        from drona.orchestrator.orchestrator import Orchestrator
+        from drona.orchestrator.session_machine import SessionState as SessState
+        from drona.perception.mediapipe_detector import EngagementState, StubDetector
 
         dispatcher = GestureDispatcher(checkpoint_base_dir=None)
 
@@ -362,25 +364,25 @@ class TestOrchestratorTickLoop:
 
         for _ in range(6):
             orch.tick()
-            if orch._machine.state in (SS.GREETING, SS.NEEDS_ASSESSMENT):
+            if orch._machine.state in (SessState.GREETING, SessState.NEEDS_ASSESSMENT):
                 break
 
         # After an ENGAGED sequence the machine should have advanced past IDLE
-        assert orch._machine.state in (SS.GREETING, SS.NEEDS_ASSESSMENT, SS.ADVISING)
+        assert orch._machine.state in (SessState.GREETING, SessState.NEEDS_ASSESSMENT, SessState.ADVISING)
 
 
 # ── Visualizer FK sanity ───────────────────────────────────────────────────────
 
 class TestVisualizerFK:
     def test_fk_returns_five_points(self) -> None:
-        from drona.interaction.visualizer import _forward_kinematics
         from drona.interaction.demonstration import REST_POSE
+        from drona.interaction.visualizer import _forward_kinematics
         pts = _forward_kinematics(REST_POSE)
         assert len(pts) == 5  # base + 4 joints
 
     def test_gesture_positions_all_finite(self) -> None:
-        from drona.interaction.visualizer import _forward_kinematics
         from drona.interaction.demonstration import GESTURE_KEYFRAMES, interpolate_keyframes
+        from drona.interaction.visualizer import _forward_kinematics
 
         for gesture, kfs in GESTURE_KEYFRAMES.items():
             traj = interpolate_keyframes(kfs, dt=0.1)
@@ -390,15 +392,15 @@ class TestVisualizerFK:
                     assert np.all(np.isfinite(pt)), f"Non-finite in {gesture}: {pt}"
 
     def test_rest_pose_base_at_origin(self) -> None:
-        from drona.interaction.visualizer import _forward_kinematics
         from drona.interaction.demonstration import REST_POSE
+        from drona.interaction.visualizer import _forward_kinematics
         pts = _forward_kinematics(REST_POSE)
         # Base joint is always at origin
         np.testing.assert_array_almost_equal(pts[0], [0.0, 0.0, 0.0])
 
     def test_fk_tip_is_finite(self) -> None:
-        from drona.interaction.visualizer import _forward_kinematics
         from drona.interaction.demonstration import REST_POSE
+        from drona.interaction.visualizer import _forward_kinematics
         pts = _forward_kinematics(REST_POSE)
         assert np.all(np.isfinite(pts[-1])), "Tip position must be finite"
 

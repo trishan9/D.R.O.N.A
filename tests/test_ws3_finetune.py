@@ -177,9 +177,14 @@ class TestLoraConfig:
         cfg = DronaLoraConfig(per_device_train_batch_size=2, gradient_accumulation_steps=8)
         assert cfg.effective_batch_size == 16
 
-    def test_target_modules_for_phi3(self) -> None:
+    def test_target_modules_all_linear_default(self) -> None:
         cfg = DronaLoraConfig()
-        assert "qkv_proj" in cfg.target_modules
+        assert cfg.target_modules == "all-linear"   # architecture-agnostic (QLoRA paper)
+
+    def test_arch_presets_available(self) -> None:
+        from drona.finetune.lora_config import ARCH_TARGET_MODULES
+        assert "qkv_proj" in ARCH_TARGET_MODULES["phi3"]
+        assert "q_proj" in ARCH_TARGET_MODULES["qwen"]
 
     def test_to_peft_config(self) -> None:
         pytest.importorskip("peft")
@@ -241,8 +246,8 @@ class TestModelCard:
     def test_card_markdown_and_write(self, tmp_path: Path) -> None:
         card = build_advising_lora_card({"r": 16, "epochs": 3}, num_train=450, num_gold=50)
         md = card.to_markdown()
-        assert "# Model Card - `phi35-lora-advising`" in md
-        assert "Phi-3.5" in md
+        assert "# Model Card - `advising-lora`" in md
+        assert "Qwen3" in md
         out = tmp_path / "model_card.md"
         card.write(out)
         assert out.exists()

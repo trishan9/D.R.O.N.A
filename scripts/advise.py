@@ -9,10 +9,6 @@ Usage:
 
 from __future__ import annotations
 
-import json
-import sys
-from typing import Optional
-
 import typer
 
 from drona.advising.engine import AdvisingEngine, make_query
@@ -25,11 +21,11 @@ app = typer.Typer(name="drona-advise", help="Run the D.R.O.N.A. advising engine.
 @app.command()
 def main(
     query: str = typer.Argument(..., help="The advising question to answer."),
-    year: Optional[int] = typer.Option(None, "--year", "-y", help="Student year of study (1-4)."),
-    modules: Optional[str] = typer.Option(
+    year: int | None = typer.Option(None, "--year", "-y", help="Student year of study (1-4)."),
+    modules: str | None = typer.Option(
         None, "--modules", "-m", help="Comma-separated completed module codes."
     ),
-    skills: Optional[str] = typer.Option(
+    skills: str | None = typer.Option(
         None, "--skills", "-s", help="Comma-separated declared skills."
     ),
     geography: str = typer.Option(
@@ -71,7 +67,7 @@ def main(
     typer.secho(f"\nSummary: {response.summary}", fg=typer.colors.GREEN)
 
     if response.bias_flags:
-        typer.secho(f"\nBias Flags Detected:", fg=typer.colors.CYAN)
+        typer.secho("\nBias Flags Detected:", fg=typer.colors.CYAN)
         for bf in response.bias_flags:
             typer.echo(f"  • {bf.bias_type}: {bf.detected_signal[:80]}")
 

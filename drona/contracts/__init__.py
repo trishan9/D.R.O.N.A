@@ -85,10 +85,16 @@ class CurriculumModule(BaseModel):
 
     module_code: str  # e.g. '4001COMP'
     title: str
+    # Which Softwarica bachelor programme this module belongs to:
+    # software_engineering (formerly BSc Computing) | ethical_hacking | csai
+    programme: str = "software_engineering"
     year: int = Field(ge=1, le=4)
     semester: int | None = Field(default=None, ge=1, le=2)
     credits: int | None = None
     description: str = ""
+    # Full lesson/PDF body text (LMS-synced modules). Chunked into the
+    # embeddings by the ingestor; empty for public-page modules.
+    content: str = ""
     learning_outcomes: list[str] = Field(default_factory=list)
     prerequisites: list[str] = Field(default_factory=list)  # other module_codes
     skills_developed: list[str] = Field(default_factory=list)
@@ -127,6 +133,9 @@ class StudentProfile(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     session_id: str  # random UUID per session, never tied to identity
+    # Enrolled programme (software_engineering | ethical_hacking | csai) -
+    # advising is tailored to the programme's module structure and careers.
+    programme: str = "software_engineering"
     year_of_study: int | None = Field(default=None, ge=1, le=4)
     completed_modules: list[str] = Field(default_factory=list)
     declared_interests: list[str] = Field(default_factory=list)

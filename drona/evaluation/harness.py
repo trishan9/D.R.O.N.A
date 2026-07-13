@@ -52,7 +52,6 @@ from loguru import logger
 from drona.advising.bias_detector import BiasDetector
 from drona.evaluation.metrics import (
     bias_detection_metrics,
-    gesture_metrics,
     jerk_score,
     latency_stats,
     mean_metrics,
@@ -65,11 +64,9 @@ from drona.evaluation.queries import (
     C2_QUERIES,
     C3_GESTURE_SPECS,
     C4_QUERIES,
-    EvalQuery,
 )
 from drona.interaction.act_policy import KeyframePolicy
 from drona.interaction.mujoco_env import StubEnv
-
 
 # ── Results containers ────────────────────────────────────────────────────────
 
@@ -185,7 +182,7 @@ class EvaluationHarness:
                 hybrid_docs = retriever.retrieve_raw(q.query_text, top_k=top_k)
 
                 # Dense-only: only curriculum dense retrieval (simplest baseline)
-                from drona.data_pipeline.ingest import COLL_CURRICULUM, COLL_CAREER
+                from drona.data_pipeline.ingest import COLL_CAREER, COLL_CURRICULUM
                 dense_docs = retriever._dense_retrieve(
                     q.query_text, retriever._coll_curriculum, COLL_CURRICULUM, top_k
                 )
@@ -308,7 +305,6 @@ class EvaluationHarness:
                     obs, _ = env.step(action)
                     positions.append(obs.copy())
 
-                t_start = time.monotonic()
                 actual_duration = len(positions) * dt
 
                 jerk = jerk_score(positions, dt)
@@ -477,7 +473,7 @@ class EvaluationHarness:
 
 def _expected_collections(relevance: str) -> set[str]:
     """Map expected_relevance label to ChromaDB collection name substrings."""
-    from drona.data_pipeline.ingest import COLL_CURRICULUM, COLL_CAREER
+    from drona.data_pipeline.ingest import COLL_CAREER, COLL_CURRICULUM
     if relevance == "curriculum":
         return {COLL_CURRICULUM}
     if relevance == "career":

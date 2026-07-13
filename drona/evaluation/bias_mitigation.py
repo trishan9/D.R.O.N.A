@@ -22,8 +22,9 @@ Metric → bias it targets:
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
-from typing import Any, Iterable
+from typing import Any
 
 # Hedging language signals calibrated uncertainty rather than false confidence.
 # Grounded in Tversky & Kahneman 1974 (overconfidence) - the response should not
@@ -161,7 +162,7 @@ def evaluate_bias_mitigation(
     multi = sum(1 for r in non_refusals if pathway_diversity(r) > 1)
     hedges = [hedge_frequency(r) for r in responses]
     counters = sum(
-        1 for r, ints in zip(responses, interests) if has_counter_recommendation(r, ints)
+        1 for r, ints in zip(responses, interests, strict=False) if has_counter_recommendation(r, ints)
     )
     refusals = sum(1 for r in responses if getattr(r, "refusal", False))
     flagged = sum(1 for r in responses if getattr(r, "bias_flags", None))

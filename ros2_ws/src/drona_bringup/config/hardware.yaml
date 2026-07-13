@@ -6,12 +6,23 @@ drona_perception_node:
     use_camera: true           # real webcam
     camera_index: 0
     detection_hz: 10.0
+    image_topic: ""            # webcam is local in hardware mode
 
 drona_gesture_node:
   ros__parameters:
     use_hardware: true         # real SO-100 arm
     checkpoint_dir: ""
     joint_pub_hz: 20.0
+
+drona_policy_node:
+  ros__parameters:
+    checkpoint_dir: ""         # "" = auto-detect (prefers exported ONNX on the robot)
+    device: cpu
+    control_hz: 20.0
+    # The serial port has exactly ONE owner: gesture_node (the path the
+    # orchestrator + web UI drive). Keep this false so the action server does
+    # not contend for the arm; flip the two flags to hand ownership over.
+    use_hardware: false
 
 drona_advising_node:
   ros__parameters:
@@ -23,3 +34,8 @@ drona_orchestrator_node:
     session_timeout_s: 10.0   # longer timeout for real sessions
     tick_hz: 10.0
     max_pathways: 3
+
+drona_diagnostics_node:
+  ros__parameters:
+    publish_hz: 1.0
+    stale_after_s: 5.0

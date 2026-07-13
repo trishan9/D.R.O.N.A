@@ -1,0 +1,6 @@
+hybrid top-5 citation source_ids:
+    curriculum_INFO-EHC
+    curriculum_INFO-EHC_c0
+    curriculum_INFO-EHC_c1
+    curriculum_ST4059CEM_c5
+    curriculum_SC-001_c6

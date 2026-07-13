@@ -60,10 +60,20 @@ export interface AdvisingResponse {
   generation_time_ms: number | null;
 }
 
+/** Softwarica bachelor programmes the platform supports. */
+export type Programme = "software_engineering" | "ethical_hacking" | "csai";
+
+export const PROGRAMME_LABELS: Record<Programme, string> = {
+  software_engineering: "Software Engineering (formerly Computing)",
+  ethical_hacking: "Ethical Hacking & Cybersecurity",
+  csai: "CS with Artificial Intelligence",
+};
+
 /** Matches drona/api/schemas.py::AdviseRequest (PII-free, session-scoped). */
 export interface AdviseRequest {
   query_text: string;
   session_id?: string | null;
+  programme?: Programme;
   year_of_study?: number | null;
   completed_modules: string[];
   declared_interests: string[];
@@ -81,6 +91,7 @@ export interface AdviseRequest {
  */
 export interface ProfileDraft {
   session_id: string;
+  programme: Programme;
   year_of_study: number | null;
   completed_modules: string[];
   declared_interests: string[];

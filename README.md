@@ -4,6 +4,11 @@
 BSc Computing individual project - Softwarica College of IT & E-Commerce / Coventry University  
 Author: Trisan Wagle
 
+> **▶ FINAL DEPLOYMENT GUIDE:** [`FINAL_STEPS.md`](FINAL_STEPS.md) - the complete
+> sequential path from a blank machine to the fully operational system (datasets →
+> Colab training → RAG/web → WSL2/ROS2/Gazebo → physical robot), with a verify
+> step after every part.
+>
 > **▶ START HERE:** [`docs/RUN_EVERYTHING.md`](docs/RUN_EVERYTHING.md) - the single
 > complete guide from a fresh machine to a fully working system: data → embeddings →
 > the LLM (local **or** cloud Ollama, with a recommendation) → the GPU models on
@@ -11,8 +16,12 @@ Author: Trisan Wagle
 >
 > Also: [`docs/STUDENT_RUNBOOK.md`](docs/STUDENT_RUNBOOK.md) (data-collection runbook)
 > and [`docs/COLAB_TRAINING_GUIDE.md`](docs/COLAB_TRAINING_GUIDE.md) (GPU training deep-dive).
+>
+> **▶ ML pipeline on Colab (A100):** [`notebooks/`](notebooks/README.md) - five staged
+> notebooks (data cleaning → EDA → feature engineering/embeddings → model training →
+> evaluation & comparison) that rebuild every dataset, model, and thesis figure end-to-end.
 
-**Build status:** Phases 0–8 complete · `pytest` 431 pass · software ready · your data +
+**Build status:** Phases 0–8 complete · `pytest` 440 pass · software ready · your data +
 Colab training runs + demo recording remain.
 
 ---
@@ -39,7 +48,7 @@ The system makes four original research contributions:
 
 ```
 drona/
-├── contracts.py              # Pydantic inter-module contracts (ROS2-portable)
+├── contracts/                # Pydantic inter-module contracts (ROS2-portable)
 ├── data_pipeline/            # WS1 - scrapers, O*NET loader, ChromaDB ingestor
 │   ├── scrapers/             #   MeroJob, Merojob manual loader, O*NET XML
 │   └── ingest.py             #   dual-collection ChromaDB indexer
@@ -47,7 +56,7 @@ drona/
 │   ├── retriever.py          #   hybrid BM25+dense RRF retriever
 │   ├── bias_detector.py      #   rule-based 6-type cognitive bias detector
 │   ├── prompt_builder.py     #   bias-aware system prompt construction
-│   ├── llm_client.py         #   Ollama/Phi-3.5 JSON generation client
+│   ├── llm_client.py         #   local LLM client (Ollama GGUF or HF transformers)
 │   └── engine.py             #   AdvisingEngine: 4-stage advise() pipeline
 ├── interaction/              # WS3 - robot gesture policy
 │   ├── demonstration.py      #   DemonstrationDataset, keyframe interpolation
@@ -123,7 +132,7 @@ cp .env.example .env
 ### 3. Start Ollama (for LLM advising)
 
 ```bash
-ollama pull phi3.5:3.8b-mini-instruct-q4_K_M
+ollama pull qwen3:4b-instruct-2507-q4_K_M
 ollama serve
 ```
 
@@ -186,7 +195,7 @@ ros2 launch drona_bringup drona_system.launch.py use_rviz:=true
 ### Tests
 
 ```bash
-pytest                                   # full suite (431 pass, 1 skipped), no network/GPU
+pytest                                   # full suite (440 pass, 1 skipped), no network/GPU
 pytest tests/test_ws7_phase7_eval.py -v  # evaluation harness only
 ```
 
@@ -205,6 +214,7 @@ pytest tests/test_ws7_phase7_eval.py -v  # evaluation harness only
 | [`docs/data_cards/`](docs/data_cards/) | One data card per dataset |
 | [`models/*/model_card.md`](models/) | One model card per trained model |
 | [`docs/research_papers.md`](docs/research_papers.md) | Paper → design-choice grounding |
+| [`ros2_ws/README.md`](ros2_ws/README.md) | **ROS2 workspace** - packages, nodes, sim-first workflow, model export, deployment checklist |
 | [`docs/ros2_topics_actions.md`](docs/ros2_topics_actions.md) | Every ROS2 topic / action / service |
 | [`docs/wsl_setup.md`](docs/wsl_setup.md) | **Run ROS2 + Gazebo on Windows via WSL2** (no dual-boot) |
 | [`docs/sim_setup_gazebo.md`](docs/sim_setup_gazebo.md) / [`docs/sim_setup_isaac.md`](docs/sim_setup_isaac.md) | Simulator setup |
@@ -221,9 +231,15 @@ Full licensing matrix, PII policy, and scraping prohibitions: [`docs/data_ethics
 | Source | Type | License / access |
 |--------|------|-----------------|
 | Softwarica curriculum PDFs | Curriculum | Institution-provided |
-| O*NET 28.3 | Occupation data | Public domain (US DOL) |
+| O*NET 30.3 | Occupation data | CC BY 4.0 (US DOL) |
+| ESCO v1.2.1 (optional) | Occupation/skill taxonomy | CC BY 4.0 (European Commission) |
+| BLS OEWS May 2025 (optional) | US wage bands per SOC | Public domain (US BLS) |
+| NLFS 2017/18 (optional) | Nepal labour statistics | Open government data (Nepal NSO) |
 | Nepal job portals (MeroJob) | Career postings | Manual collection - robots.txt checked |
 | Synthetic evaluation queries | Eval only | Generated; labelled as `tier=synthetic` |
+
+Dataset selection rationale (why each source, and what it feeds) is documented in
+[`notebooks/01_data_cleaning_preprocessing.ipynb`](notebooks/01_data_cleaning_preprocessing.ipynb).
 
 **Data policy:**
 - Zero PII collected, stored, or used at any layer

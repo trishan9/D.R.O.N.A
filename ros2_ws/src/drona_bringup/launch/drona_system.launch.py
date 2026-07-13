@@ -42,6 +42,7 @@ _RECORD_TOPICS = [
     "/drona/advising_response",
     "/drona/session_state",
     "/drona/joint_states",
+    "/diagnostics",
     "/tf",
     "/tf_static",
     "/robot_description",
@@ -101,6 +102,7 @@ def generate_launch_description() -> LaunchDescription:
     policy = Node(executable="policy_node", name="drona_policy_node", **common)
     advising = Node(executable="advising_node", name="drona_advising_node", **common)
     orchestrator = Node(executable="orchestrator_node", name="drona_orchestrator_node", **common)
+    diagnostics = Node(executable="diagnostics_node", name="drona_diagnostics_node", **common)
 
     rviz = Node(
         package="rviz2",
@@ -136,6 +138,7 @@ def generate_launch_description() -> LaunchDescription:
         policy,
         advising,
         orchestrator,
+        diagnostics,
         rviz,
         rosbag,
         rosbridge_node,

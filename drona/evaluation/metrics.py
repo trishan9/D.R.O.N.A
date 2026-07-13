@@ -19,7 +19,6 @@ from typing import Any
 
 import numpy as np
 
-
 # ── C1 - Retrieval metrics ─────────────────────────────────────────────────────
 
 def dcg_at_k(relevance: list[float], k: int) -> float:
@@ -189,7 +188,6 @@ def bias_detection_metrics(
     Returns:
         Dict mapping bias_type → {precision, recall, f1}, plus 'macro_avg'.
     """
-    from drona.contracts import BiasFlag  # for the 6 valid bias types
 
     bias_types = [
         "availability_heuristic", "anchoring", "confirmation",

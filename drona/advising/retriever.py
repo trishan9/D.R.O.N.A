@@ -28,7 +28,7 @@ Usage:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 import chromadb
@@ -127,7 +127,7 @@ class Retriever:
 
         self._bm25_docs = [
             _Doc(id=i, text=t, metadata=m or {}, collection=COLL_CURRICULUM)
-            for i, t, m in zip(ids, texts, metas)
+            for i, t, m in zip(ids, texts, metas, strict=False)
         ]
         tokenised = [d.text.lower().split() for d in self._bm25_docs]
         self._bm25_index = BM25Okapi(tokenised)
@@ -146,11 +146,12 @@ class Retriever:
             include=["documents", "metadatas", "distances"],
         )
         docs: list[_Doc] = []
-        for id_, text, meta, dist in zip(
+        for id_, text, meta, _dist in zip(
             result["ids"][0],
             result["documents"][0],
             result["metadatas"][0],
             result["distances"][0],
+            strict=False,
         ):
             docs.append(_Doc(id=id_, text=text, metadata=meta or {}, collection=label))
         return docs

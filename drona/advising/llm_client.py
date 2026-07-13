@@ -232,3 +232,21 @@ class LLMClient:
             True,
             last_error,
         )
+
+
+# ── Backend factory ───────────────────────────────────────────────────────────
+
+def make_llm_client():
+    """Build the configured LLM backend (LLM_BACKEND in .env).
+
+    "ollama" (default)  - GGUF via the local Ollama server; fastest on CPU.
+    "transformers"      - weights straight from Hugging Face (like the
+                          embedding models), incl. the LoRA adapter with no
+                          GGUF conversion; best on any CUDA GPU.
+    Both are local and open-source - the no-paid-API invariant (C4) holds.
+    """
+    if settings.llm_backend == "transformers":
+        from drona.advising.hf_client import HFLocalClient
+
+        return HFLocalClient()
+    return LLMClient()

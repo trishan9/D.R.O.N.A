@@ -16,6 +16,8 @@ share one data model.
 | `drona_gesture_node` | `drona_ros` | `drona.interaction.gesture_dispatcher` | Gesture topic + **service** (blocking) |
 | `drona_advising_node` | `drona_ros` | `drona.advising` | Advising **service** (local LLM RAG) |
 | `drona_orchestrator_node` | `drona_ros` | `drona.orchestrator` | Session state machine: idle→greet→assess→advise→close |
+| `drona_diagnostics_node` | `drona_ros` | - | Health monitor: stream liveness → `/diagnostics` |
+| `drona_gz_joint_relay` | `drona_ros` | - | Gazebo only: `/drona/joint_states` → per-joint gz position commands |
 | `robot_state_publisher` | (upstream) | `drona_description` URDF | Publishes TF for RViz / sim |
 
 ---
@@ -55,6 +57,10 @@ share one data model.
 | `/drona/advising_response` | `drona_msgs/AdvisingResponse` | advising → orchestrator |
 | `/drona/session_state` | `drona_msgs/SessionState` | orchestrator → (monitors) |
 | `/drona/joint_states` | `sensor_msgs/JointState` | policy/gesture → robot_state_publisher |
+| `/drona/camera/image_raw` | `sensor_msgs/Image` | gz sim camera (bridged) → perception (`image_topic` mode) |
+| `/drona/camera/camera_info` | `sensor_msgs/CameraInfo` | gz sim camera (bridged) |
+| `/drona/gz/<joint>_cmd` | `std_msgs/Float64` | gz_joint_relay → ros_gz_bridge → gz JointPositionController (sim only) |
+| `/diagnostics` | `diagnostic_msgs/DiagnosticArray` | diagnostics_node → RViz / rqt / web (component liveness, 1 Hz) |
 | `/tf`, `/tf_static` | `tf2_msgs/TFMessage` | robot_state_publisher |
 | `/robot_description` | `std_msgs/String` | robot_state_publisher |
 

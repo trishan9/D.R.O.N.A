@@ -1,0 +1,14 @@
+{
+  "n_pathways": 39,
+  "n_modules": 10,
+  "n_postings": 30,
+  "sft_train": 450,
+  "sft_val": 50,
+  "demo_episodes": 150,
+  "demo_frames": 5000,
+  "salary_outliers_flagged": 0,
+  "duplicates_dropped": {
+    "pathways": 0,
+    "postings": 0
+  }
+}

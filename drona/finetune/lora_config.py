@@ -1,42 +1,54 @@
 """
-LoRA / PEFT configuration for fine-tuning Phi-3.5-mini on a Colab T4 (16 GB).
+LoRA / PEFT configuration for fine-tuning the advising LLM on Colab (A100/T4).
 
-Defaults are sized for a free Colab T4: 4-bit base (QLoRA), rank-16 adapters on
-the attention + MLP projections, small per-device batch with gradient
-accumulation to reach an effective batch of 16, bf16/fp16 mixed precision.
+Base model default: **Qwen/Qwen3-4B-Instruct-2507** (Apache-2.0) - the
+strongest ~4B open instruct model at selection time (mid-2025 refresh,
+non-thinking variant so JSON output stays clean), and it still serves locally
+on CPU via Ollama after Q4 quantisation. Previous default
+(microsoft/Phi-3.5-mini-instruct) remains a one-line swap.
+
+``target_modules="all-linear"`` (QLoRA paper best practice) makes the adapter
+architecture-agnostic - Qwen/Phi/Llama/Gemma all work without editing module
+lists. Explicit per-architecture lists are kept in ``ARCH_TARGET_MODULES`` for
+reference and ablations.
+
+Sizing: on an A100 the notebook trains in full bf16; on a T4 it flips to
+4-bit QLoRA. Effective batch stays 16 in both modes so runs are comparable.
 
 The dataclass is pure (no heavy imports). ``to_peft_config()`` /
 ``to_bnb_config()`` / ``to_training_args()`` build the real objects lazily so
 this module imports fine without peft/transformers/trl installed.
 
-References: QLoRA (Dettmers et al. 2023) for 4-bit + LoRA on consumer GPUs;
-target modules per the Phi-3 architecture (qkv_proj, o_proj, gate_up_proj, down_proj).
+References: QLoRA (Dettmers et al. 2023) - 4-bit + LoRA, all-linear targeting.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
+# Explicit per-architecture projection lists (reference / ablations). The
+# default config uses "all-linear" instead, which covers all of these.
+ARCH_TARGET_MODULES: dict[str, list[str]] = {
+    "phi3": ["qkv_proj", "o_proj", "gate_up_proj", "down_proj"],
+    "qwen": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+    "llama": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+}
 
 
 @dataclass
 class DronaLoraConfig:
     """Hyperparameters for the advising LoRA fine-tune."""
 
-    base_model: str = "microsoft/Phi-3.5-mini-instruct"
-    output_dir: str = "models/phi35-lora-advising"
+    base_model: str = "Qwen/Qwen3-4B-Instruct-2507"
+    output_dir: str = "models/advising-lora"
 
     # LoRA
     r: int = 16
     lora_alpha: int = 32
     lora_dropout: float = 0.05
-    target_modules: list[str] = field(
-        default_factory=lambda: [
-            "qkv_proj",
-            "o_proj",
-            "gate_up_proj",
-            "down_proj",
-        ]
-    )
+    # "all-linear" = LoRA on every linear layer (QLoRA paper best practice);
+    # works across architectures. Use ARCH_TARGET_MODULES for explicit lists.
+    target_modules: list[str] | str = "all-linear"
 
     # Quantization (QLoRA)
     load_in_4bit: bool = True

@@ -38,7 +38,6 @@ from __future__ import annotations
 
 import json
 import math
-import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -142,7 +141,7 @@ class DemonstrationFrame:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "DemonstrationFrame":
+    def from_dict(cls, d: dict[str, Any]) -> DemonstrationFrame:
         return cls(
             episode_index=int(d["episode_index"]),
             frame_index=int(d["frame_index"]),
@@ -233,12 +232,12 @@ class DemonstrationDataset:
         )
 
     @classmethod
-    def load_jsonl(cls, path: Path, name: str = "drona_gestures") -> "DemonstrationDataset":
+    def load_jsonl(cls, path: Path, name: str = "drona_gestures") -> DemonstrationDataset:
         path = Path(path)
         ds = cls(name=name)
         episodes_map: dict[int, DemonstrationEpisode] = {}
 
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -275,7 +274,7 @@ class DemonstrationDataset:
         return True
 
     @classmethod
-    def load_hf(cls, path: Path, name: str = "drona_gestures") -> "DemonstrationDataset":
+    def load_hf(cls, path: Path, name: str = "drona_gestures") -> DemonstrationDataset:
         from datasets import load_from_disk  # type: ignore[import]
         raw = load_from_disk(str(path))
         ds = cls(name=name)

@@ -23,12 +23,11 @@ Thread safety:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from drona.advising.engine import AdvisingEngine, make_query
-from drona.contracts import AdvisingResponse, BiasFlag
-
+from drona.contracts import AdvisingResponse
 
 # ── Session entry ─────────────────────────────────────────────────────────────
 

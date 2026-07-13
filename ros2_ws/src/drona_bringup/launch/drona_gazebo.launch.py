@@ -4,12 +4,18 @@ D.R.O.N.A. in Gazebo Harmonic (gz sim) - locally-runnable simulation.
 This is the low-VRAM alternative to Isaac Sim: Gazebo Harmonic runs on CPU/iGPU
 and is the recommended sim for the student's GTX-1650 dev box.
 
-Brings up:
-    - robot_state_publisher (D.R.O.N.A. humanoid URDF)
-    - gz sim with an empty world
-    - the model spawned from /robot_description
-    - ros_gz_bridge for /clock and joint states
-    - the four D.R.O.N.A. nodes in sim mode (perception/policy/advising/orchestrator)
+Brings up the full simulation mirror of the deployment stack:
+    - robot_state_publisher (D.R.O.N.A. humanoid URDF, camera + gz control on)
+    - gz sim with the drona_advising world (physics + sensors systems, desk,
+      student figure at conversation distance)
+    - the model spawned on the desk from /robot_description
+    - ros_gz_bridge: /clock, gz joint states, head-camera image + camera_info,
+      and the six per-joint position commands
+    - gz_joint_relay: /drona/joint_states -> per-joint gz commands, so the gz
+      model performs exactly what the policy publishes
+    - the D.R.O.N.A. nodes in sim mode (use_sim_time), with perception consuming
+      the SIMULATED camera via image_topic
+    - diagnostics_node -> /diagnostics
 
 Prerequisites (Ubuntu 22.04 + ROS2 Humble):
     sudo apt install ros-humble-ros-gz gz-harmonic
@@ -22,6 +28,7 @@ or pass headless:=true. Full WSL guide: docs/wsl_setup.md.
 Usage:
     ros2 launch drona_bringup drona_gazebo.launch.py
     ros2 launch drona_bringup drona_gazebo.launch.py headless:=true
+    ros2 launch drona_bringup drona_gazebo.launch.py use_rviz:=true
 """
 
 from __future__ import annotations
@@ -40,20 +47,34 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
+_JOINTS = ["j0_base_yaw", "j1_shoulder", "j2_elbow",
+           "j3_wrist_pitch", "j4_wrist_roll", "j5_gripper"]
+
 
 def generate_launch_description() -> LaunchDescription:
     desc_share = get_package_share_directory("drona_description")
     bringup_share = get_package_share_directory("drona_bringup")
     urdf = os.path.join(desc_share, "urdf", "drona_humanoid.urdf.xacro")
+    rviz_config = os.path.join(desc_share, "rviz", "drona.rviz")
     params_file = os.path.join(bringup_share, "config", "params.yaml")
+    world = os.path.join(bringup_share, "worlds", "drona_advising.sdf")
 
     headless = LaunchConfiguration("headless")
-    headless_arg = DeclareLaunchArgument(
-        "headless", default_value="false",
-        description="Run gz sim without the GUI (server only)",
-    )
+    use_rviz = LaunchConfiguration("use_rviz")
+    args = [
+        DeclareLaunchArgument("headless", default_value="false",
+                              description="Run gz sim without the GUI (server only)"),
+        DeclareLaunchArgument("use_rviz", default_value="false",
+                              description="Also open RViz2 (TF + camera view)"),
+    ]
 
-    robot_description = {"robot_description": Command(["xacro ", urdf])}
+    sim_time = {"use_sim_time": True}
+    robot_description = {
+        "robot_description": Command(
+            ["xacro ", urdf, " use_gz_camera:=true use_gz_control:=true"]
+        ),
+        **sim_time,
+    }
 
     rsp = Node(
         package="robot_state_publisher",
@@ -62,9 +83,17 @@ def generate_launch_description() -> LaunchDescription:
         output="screen",
     )
 
+    # Drive TF from the policy's joint stream (same source as deployment).
+    jsp = Node(
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
+        parameters=[{"source_list": ["/drona/joint_states"]}, sim_time],
+        output="screen",
+    )
+
     # gz sim via ros_gz_sim; -r runs immediately, -s is server-only (headless).
     gz_args = PythonExpression(
-        ["'-r -s empty.sdf' if '", headless, "' == 'true' else '-r empty.sdf'"]
+        ["('-r -s ' if '", headless, "' == 'true' else '-r ') + '", world, "'"]
     )
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -73,10 +102,12 @@ def generate_launch_description() -> LaunchDescription:
         launch_arguments={"gz_args": gz_args}.items(),
     )
 
+    # Spawn on the desk top (z = 0.72) so the head camera clears the desk.
     spawn = Node(
         package="ros_gz_sim",
         executable="create",
-        arguments=["-topic", "robot_description", "-name", "drona_humanoid", "-z", "0.0"],
+        arguments=["-topic", "robot_description", "-name", "drona_humanoid",
+                   "-z", "0.72"],
         output="screen",
     )
 
@@ -85,27 +116,61 @@ def generate_launch_description() -> LaunchDescription:
         executable="parameter_bridge",
         arguments=[
             "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
-            "/world/empty/model/drona_humanoid/joint_state@sensor_msgs/msg/JointState[gz.msgs.Model",
+            "/world/drona_advising/model/drona_humanoid/joint_state"
+            "@sensor_msgs/msg/JointState[gz.msgs.Model",
+            "/drona/camera/image_raw@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/drona/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
+            # ROS -> GZ per-joint position commands (gz_joint_relay output).
+            *[f"/drona/gz/{j}_cmd@std_msgs/msg/Float64]gz.msgs.Double" for j in _JOINTS],
         ],
+        parameters=[sim_time],
         output="screen",
     )
 
-    # D.R.O.N.A. cognition + interaction nodes (sim mode).
-    common = dict(package="drona_ros", parameters=[params_file], output="screen")
-    perception = Node(executable="perception_node", name="drona_perception_node", **common)
+    relay = Node(
+        package="drona_ros",
+        executable="gz_joint_relay",
+        name="drona_gz_joint_relay",
+        parameters=[sim_time],
+        output="screen",
+    )
+
+    # D.R.O.N.A. cognition + interaction nodes (sim mode, sim clock).
+    common = dict(package="drona_ros", parameters=[params_file, sim_time], output="screen")
+    perception = Node(
+        executable="perception_node", name="drona_perception_node",
+        package="drona_ros",
+        # Consume the SIMULATED camera - same MediaPipe pipeline as hardware.
+        parameters=[params_file, sim_time, {"image_topic": "/drona/camera/image_raw"}],
+        output="screen",
+    )
     policy = Node(executable="policy_node", name="drona_policy_node", **common)
     advising = Node(executable="advising_node", name="drona_advising_node", **common)
     orchestrator = Node(executable="orchestrator_node", name="drona_orchestrator_node", **common)
+    diagnostics = Node(executable="diagnostics_node", name="drona_diagnostics_node", **common)
+
+    rviz = Node(
+        package="rviz2",
+        executable="rviz2",
+        arguments=["-d", rviz_config],
+        parameters=[sim_time],
+        condition=IfCondition(use_rviz),
+        output="screen",
+    )
 
     return LaunchDescription([
-        headless_arg,
-        LogInfo(msg="Starting D.R.O.N.A. in Gazebo Harmonic"),
+        *args,
+        LogInfo(msg="Starting D.R.O.N.A. in Gazebo Harmonic (drona_advising world)"),
         rsp,
+        jsp,
         gz_sim,
         spawn,
         bridge,
+        relay,
         perception,
         policy,
         advising,
         orchestrator,
+        diagnostics,
+        rviz,
     ])

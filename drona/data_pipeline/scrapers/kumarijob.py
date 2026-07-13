@@ -64,10 +64,10 @@ def _discover_job_urls(scraper: PoliteScraper, max_per_term: int = 10) -> list[s
                 href = a["href"]
                 if not href.startswith("http"):
                     href = BASE_URL + href
-                if "kumarijob.com" in href and _is_allowed(href):
-                    # Job pages tend to have numeric IDs or /job/ in path
-                    if re.search(r"/jobs?/|/vacancy/|\d{4,}", href):
-                        all_urls.add(href)
+                # Job pages tend to have numeric IDs or /job/ in path
+                if ("kumarijob.com" in href and _is_allowed(href)
+                        and re.search(r"/jobs?/|/vacancy/|\d{4,}", href)):
+                    all_urls.add(href)
                 if len(all_urls) >= max_per_term * len(_TECH_SEARCH_TERMS):
                     break
         except Exception as e:
@@ -101,11 +101,11 @@ def _parse_page(soup: BeautifulSoup, url: str) -> JobPosting | None:
     description = " ".join(paras[:15])
 
     # Skills (keyword extraction)
-    _TECH_KW = [
+    tech_kw = [
         "Python", "JavaScript", "Java", "PHP", "React", "Angular",
         "SQL", "Git", "HTML", "CSS", "Docker", "Node.js", "Linux", "AWS",
     ]
-    skills = [kw for kw in _TECH_KW if re.search(rf"\b{re.escape(kw)}\b", description, re.IGNORECASE)]
+    skills = [kw for kw in tech_kw if re.search(rf"\b{re.escape(kw)}\b", description, re.IGNORECASE)]
 
     # Salary
     sal_text = soup.get_text()

@@ -15,7 +15,6 @@ Usage:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -33,7 +32,7 @@ app = typer.Typer(name="collect-demonstrations", help="Generate ACT training dem
 @app.command()
 def main(
     episodes: int = typer.Option(10, "--episodes", "-n", help="Episodes per gesture."),
-    out_dir: Optional[str] = typer.Option(
+    out_dir: str | None = typer.Option(
         None, "--out-dir", help="Output directory for demonstration data."
     ),
     gestures: str = typer.Option(

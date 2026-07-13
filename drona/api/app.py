@@ -3,6 +3,7 @@ D.R.O.N.A. FastAPI application.
 
 Endpoints:
   GET  /health        - liveness + LLM/orchestrator/backend status
+  GET  /evaluation    - thesis evaluation results (notebook 05 + training reports)
   POST /advise        - synchronous advising (returns AdvisingResponse)
   WS   /ws/advise     - streaming advising (node-by-node progress + result)
 
@@ -74,6 +75,68 @@ async def health() -> HealthResponse:
         orchestrator=orchestrator_name(),
         vector_backend=settings.vector_backend,
     )
+
+
+@app.get("/evaluation")
+def evaluation() -> dict:
+    """Real evaluation results for the dashboard Analytics page.
+
+    Reads the artifacts written by notebook 05 (reports/evaluation_report.json)
+    and notebook 04 (reports/sft_metrics.json). Returns {"available": False}
+    until those runs exist, so the frontend can fall back gracefully.
+    """
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2]
+    out: dict = {"available": False}
+
+    report_path = root / "reports" / "evaluation_report.json"
+    if report_path.exists():
+        try:
+            rep = json.loads(report_path.read_text(encoding="utf-8"))
+            out["available"] = True
+            out["generated"] = rep.get("generated")
+            # {"ndcg@5": {"hybrid": 0.76, ...}, ...} -> rows per system
+            abl = rep.get("c1_ablation", {})
+            systems = sorted({s for col in abl.values() for s in col})
+            out["c1_ablation"] = [
+                {"method": s,
+                 **{metric.replace("@", ""): round(col.get(s, 0.0), 3)
+                    for metric, col in abl.items()}}
+                for s in systems
+            ]
+            out["c2_per_type"] = [
+                {"bias": name, "precision": round(v.get("precision", 0), 3),
+                 "recall": round(v.get("recall", 0), 3), "f1": round(v.get("f1", 0), 3)}
+                for name, v in rep.get("c2_per_type", {}).items()
+            ]
+            out["c2_macro_f1"] = rep.get("c2_macro_f1")
+            out["c3_policies"] = [
+                {"policy": name, **{k: round(float(x), 5) for k, x in v.items()}}
+                for name, v in rep.get("c3_summary", {}).items()
+            ]
+            out["c4"] = rep.get("c4", {})
+            out["verdict"] = rep.get("verdict", [])
+        except Exception as exc:  # malformed report must not kill the API
+            logger.warning(f"/evaluation: could not parse report: {exc}")
+
+    sft_path = root / "reports" / "sft_metrics.json"
+    if sft_path.exists():
+        try:
+            sft = json.loads(sft_path.read_text(encoding="utf-8"))
+            out["llm"] = {
+                "base_model": sft.get("base_model"),
+                "base_eval_loss": sft.get("base_eval_loss"),
+                "final_eval_loss": sft.get("final_eval_loss"),
+                "curve": [{"step": h["step"], "eval_loss": round(h["eval_loss"], 4)}
+                          for h in sft.get("log_history", []) if "eval_loss" in h],
+            }
+            out["available"] = True
+        except Exception as exc:
+            logger.warning(f"/evaluation: could not parse sft metrics: {exc}")
+
+    return out
 
 
 @app.post("/advise", response_model=AdvisingResponse)

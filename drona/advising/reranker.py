@@ -55,7 +55,7 @@ class Reranker:
         self._model = CrossEncoder(self._model_name, device="cpu")
         logger.info("Reranker model loaded")
 
-    def rerank_docs(self, query: str, docs: "list[_Doc]", top_n: int | None = None) -> "list[_Doc]":
+    def rerank_docs(self, query: str, docs: list[_Doc], top_n: int | None = None) -> list[_Doc]:
         """Rerank a list of _Doc objects, returning the top_n most relevant.
 
         Args:
@@ -89,7 +89,7 @@ class Reranker:
         # Apply tier boost on top of cross-encoder scores (C4: Nepal first)
         boosted = [
             (score * settings.tier_boost(d.metadata.get("tier", "international")), d)
-            for score, d in zip(scores, docs)
+            for score, d in zip(scores, docs, strict=False)
         ]
         ranked = sorted(boosted, key=lambda x: x[0], reverse=True)[:n]
 
@@ -124,7 +124,7 @@ class Reranker:
 
         boosted = [
             (score * settings.tier_boost(c.tier.value), c)
-            for score, c in zip(scores, citations)
+            for score, c in zip(scores, citations, strict=False)
         ]
         ranked = sorted(boosted, key=lambda x: x[0], reverse=True)[:n]
 

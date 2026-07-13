@@ -48,10 +48,12 @@ class GestureNode(Node):
         self.declare_parameter("use_hardware", False)
         self.declare_parameter("checkpoint_dir", "")
         self.declare_parameter("joint_pub_hz", 20.0)
+        self.declare_parameter("arm_port", "/dev/ttyUSB0")
 
         self._use_hardware = self.get_parameter("use_hardware").value
         self._checkpoint_dir = self.get_parameter("checkpoint_dir").value or None
         self._joint_pub_hz = float(self.get_parameter("joint_pub_hz").value)
+        self._arm_port = str(self.get_parameter("arm_port").value)
 
         self._dispatcher = None  # lazy init
         self._arm = None         # lazy init
@@ -100,9 +102,9 @@ class GestureNode(Node):
         if self._arm is None:
             if self._use_hardware:
                 from drona_ros.arm_interface import SO100ArmInterface
-                self._arm = SO100ArmInterface()
+                self._arm = SO100ArmInterface(port=self._arm_port)
                 self._arm.connect()
-                self.get_logger().info("SO-100 arm connected.")
+                self.get_logger().info(f"SO-100 arm connected on {self._arm_port}.")
             else:
                 from drona_ros.arm_interface import SimArmInterface
                 self._arm = SimArmInterface()

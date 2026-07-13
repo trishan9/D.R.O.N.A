@@ -41,7 +41,7 @@ Everything else (code, tests, docs, harness, notebooks, ROS2 packages, frontend)
 | Next.js frontend | ✅ | ✅ | ❌ | ❌ |
 | Streamlit dashboard (legacy) | ✅ | ✅ | ❌ | ❌ |
 | Notebooks 01–06, 10–11 (analysis) | ✅ | ✅ | optional | optional |
-| Notebook 09 LoRA fine-tune | ❌ (VRAM) | ❌ (4 GB VRAM) | ✅ **recommended** | ✅ alt |
+| Notebook 04 model training | ❌ (VRAM) | ❌ (4 GB VRAM) | ✅ **recommended** | ✅ alt |
 | Notebooks 07–08 ACT/Diffusion | ❌ (VRAM) | ❌ | ✅ **recommended** | ✅ alt |
 | `colcon build`, ROS2 nodes | ❌ (no ROS2 on Win) | ✅ **required** | ❌ | ❌ |
 | Gazebo Harmonic sim | ❌ | ✅ **required** (WSLg GUI) | ❌ | ❌ |
@@ -74,7 +74,7 @@ D.R.O.N.A/
 │   ├── checkpoints/                  # YOU copy Colab-trained weights here
 │   │   ├── act-gesture-policy/
 │   │   ├── diffusion-gesture-policy/
-│   │   └── phi35-lora-advising/
+│   │   └── advising-lora/
 │   └── evaluation/                   # eval reports saved here (auto)
 ├── .env                              # copy from .env.example, add API keys
 ├── frontend/                         # Next.js dashboard
@@ -126,7 +126,7 @@ docker compose up -d db            # Postgres + pgvector only
 
 ```powershell
 # Install from https://ollama.com - then:
-ollama pull phi3.5:3.8b-mini-instruct-q4_K_M
+ollama pull qwen3:4b-instruct-2507-q4_K_M
 ollama pull qwen2.5:3b-instruct-q4_K_M
 ollama serve                       # keep running in a terminal
 ```
@@ -365,12 +365,12 @@ python scripts/generate_qa.py --pathways data/processed/onet_career_pathways.par
 | **Time** | 10–30 min (uses local Ollama or falls back to template) |
 | **Output** | `data/processed/sft_train.jsonl`, gold review file |
 
-**Then Colab** - open `notebooks/09_lora_finetune_phi35.ipynb`:
+**Then Colab** - open `notebooks/04_model_training.ipynb`:
 
 1. Upload repo or clone from GitHub.
 2. Runtime → T4 GPU.
 3. Run all cells.
-4. Download adapter to `data/checkpoints/phi35-lora-advising/` (or `models/phi35-lora-advising/`).
+4. Download adapter to `models/advising-lora/` (or `models/advising-lora/`).
 
 | | |
 |---|---|
@@ -393,7 +393,7 @@ python scripts/collect_demonstrations.py --output data/cards/gesture_demonstrati
 
 ### E3 - ACT policy (Colab)
 
-Open `notebooks/07_lerobot_act_training.ipynb` on **Colab T4**.
+Open `notebooks/04_model_training.ipynb` on **Colab T4**.
 
 1. Run data-prep cells (uses bundled/generated demos).
 2. Train ACT.
@@ -405,7 +405,7 @@ Open `notebooks/07_lerobot_act_training.ipynb` on **Colab T4**.
 
 ### E4 - Diffusion policy ablation (Colab)
 
-Open `notebooks/08_lerobot_diffusion_policy.ipynb` - same flow as E3.
+Open `notebooks/04_model_training.ipynb` - same flow as E3.
 
 | | |
 |---|---|

@@ -28,7 +28,7 @@ from loguru import logger
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from drona.contracts import CareerPathway, DataTier, JobPosting
+from drona.contracts import CareerPathway, JobPosting
 from drona.data_pipeline import curriculum
 from drona.data_pipeline.ingest import Ingestor, print_stats
 from drona.utils.logging import setup_logging

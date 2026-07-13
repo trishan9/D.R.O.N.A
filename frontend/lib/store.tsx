@@ -46,6 +46,7 @@ export interface AppPrefs {
 export function newProfile(): ProfileDraft {
   return {
     session_id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
+    programme: "software_engineering",
     year_of_study: null,
     completed_modules: [],
     declared_interests: [],

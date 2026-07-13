@@ -222,6 +222,22 @@ class TestAdvisingGraph:
 # ── FastAPI app (requires fastapi) ────────────────────────────────────────────
 
 class TestApi:
+    def test_evaluation_endpoint(self):
+        """GET /evaluation always answers; 'available' reflects report presence."""
+        pytest.importorskip("fastapi")
+        from fastapi.testclient import TestClient
+
+        from drona.api.app import app
+
+        with TestClient(app) as client:
+            res = client.get("/evaluation")
+        assert res.status_code == 200
+        body = res.json()
+        assert "available" in body
+        if body["available"] and body.get("c1_ablation"):
+            row = body["c1_ablation"][0]
+            assert "method" in row
+
     def _client(self):
         pytest.importorskip("fastapi")
         from fastapi.testclient import TestClient

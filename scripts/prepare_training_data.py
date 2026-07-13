@@ -92,6 +92,19 @@ def main(
             v = d.get(tf)
             d[tf] = ast.literal_eval(v) if isinstance(v, str) and v not in ("None", "nan") else None
         pathways.append(CareerPathway.model_validate(d))
+    # BLS OEWS wage enrichment - applies automatically when the table is present
+    # (data/raw/bls/; notebook 01 can auto-download it). Fills the USD salary
+    # bands that are otherwise honestly empty.
+    bls_dir = ROOT / "data" / "raw" / "bls"
+    bls_files = ([p for p in bls_dir.rglob("*") if p.suffix in (".xlsx", ".xls", ".csv")]
+                 if bls_dir.exists() else [])
+    if bls_files:
+        from drona.data_pipeline import bls
+        wages = bls.load_wage_table(bls_files[0])
+        pathways = bls.enrich_pathways(pathways, wages)
+        enriched = sum(1 for p in pathways if p.international_salary_range_usd)
+        typer.echo(f"  BLS OEWS: USD wage bands attached to {enriched}/{len(pathways)} pathways")
+
     (proc / "onet_career_pathways.json").write_text(
         json.dumps([p.model_dump(mode="json") for p in pathways], ensure_ascii=False, indent=2), encoding="utf-8")
     mods = curriculum.parse_directory(ROOT / "data" / "raw" / "curriculum")

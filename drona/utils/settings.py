@@ -36,13 +36,23 @@ class DronaSettings(BaseSettings):
     data_processed_dir: Path = Field(Path("data/processed"))
     data_manual_dir: Path = Field(Path("data/manual_collection"))
 
+    # --- LLM backend selection ---
+    # "ollama" (default): GGUF via local Ollama - fastest on CPU-only boxes.
+    # "transformers": weights directly from Hugging Face (incl. the LoRA
+    # adapter, no GGUF conversion) - best on any CUDA GPU. Both local (C4).
+    llm_backend: str = Field("ollama", pattern="^(ollama|transformers)$")
+    hf_model: str = Field("Qwen/Qwen3-4B-Instruct-2507")
+    hf_adapter_path: Path = Field(Path("models/advising-lora"))
+    hf_load_4bit: bool = Field(True, description="4-bit NF4 on GPU; ignored on CPU.")
+
     # --- LLM (Ollama) ---
     ollama_host: str = Field("http://localhost:11434")
-    # Primary = Qwen2.5-3B: faster on modest hardware, robust to typos/spelling,
-    # and strong multilingual (Nepali/code-switch). Still local, no API cost.
-    ollama_model: str = Field("qwen2.5:3b-instruct-q4_K_M")
+    # Primary = Qwen3-4B-Instruct-2507: the strongest ~4B open instruct model
+    # (Apache-2.0), still fast at Q4 on modest hardware. Fallback = Qwen2.5-3B
+    # (lighter, strong multilingual/Nepali). Both local, no API cost.
+    ollama_model: str = Field("qwen3:4b-instruct-2507-q4_K_M")
     ollama_fallback_model: str = Field(
-        "phi3.5:3.8b-mini-instruct-q4_K_M",
+        "qwen2.5:3b-instruct-q4_K_M",
         description="Fallback if the primary model isn't loaded; still local, no API cost.",
     )
     llm_max_tokens: int = Field(1024, ge=64, le=4096)  # = Ollama num_predict cap
@@ -55,7 +65,9 @@ class DronaSettings(BaseSettings):
     # --- Embeddings ---
     curriculum_embed_model: str = Field("BAAI/bge-small-en-v1.5")
     career_embed_model: str = Field("TechWolf/JobBERT-v2")
-    reranker_model: str = Field("BAAI/bge-reranker-base")
+    # v2-m3: measurably better + multilingual (future Nepali queries);
+    # ~2x base's CPU latency but rerank runs once per query (LLM dominates).
+    reranker_model: str = Field("BAAI/bge-reranker-v2-m3")
 
     # --- Vector store ---
     # Backend selector lets dev run on local ChromaDB while prod/thesis demo

@@ -36,7 +36,6 @@ claim: "ACT-trained policy outperforms keyframe baseline on smoothness").
 
 from __future__ import annotations
 
-import math
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
@@ -45,13 +44,11 @@ import numpy as np
 from loguru import logger
 
 from drona.interaction.demonstration import (
-    DOF,
     GESTURE_KEYFRAMES,
     REST_POSE,
     clamp_joints,
     interpolate_keyframes,
 )
-
 
 # ── Base interface ─────────────────────────────────────────────────────────────
 
@@ -166,8 +163,10 @@ class LeRobotACTPolicy(BasePolicy):
 
     def _load(self) -> None:
         try:
-            import torch
-            from lerobot.common.policies.act.modeling_act import ACTPolicy as _ACT  # type: ignore[import]
+            import torch  # noqa: F401 - availability check; lerobot needs torch
+            from lerobot.common.policies.act.modeling_act import (  # type: ignore[import]
+                ACTPolicy as _LerobotActPolicy,
+            )
         except ImportError as exc:
             raise RuntimeError(
                 "LeRobot is not installed. Install with: "
@@ -181,7 +180,7 @@ class LeRobotACTPolicy(BasePolicy):
             )
 
         logger.info(f"Loading ACT policy from {self._checkpoint_dir} on {self._device}")
-        self._policy = _ACT.from_pretrained(str(self._checkpoint_dir))
+        self._policy = _LerobotActPolicy.from_pretrained(str(self._checkpoint_dir))
         self._policy.eval()
         if hasattr(self._policy, "to"):
             self._policy.to(self._device)
@@ -236,7 +235,14 @@ class PolicyRouter:
 
     Priority:
       1. LeRobotACTPolicy (if checkpoint exists and lerobot installed)
-      2. KeyframePolicy (always available)
+      2. OnnxBCPolicy (deployment format - exported model.onnx + onnxruntime)
+      3. BCGesturePolicy (torch BC checkpoint)
+      4. KeyframePolicy (always available)
+
+    Tiers 2-3 look under ``<checkpoint_base>/bc/<gesture>/`` - the layout that
+    ``scripts/train_bc_gesture.py`` writes and ``scripts/export_policies.py``
+    augments with ONNX/TorchScript artifacts. Tier 2 is the production path on
+    the robot: it needs onnxruntime only, no torch.
 
     Caches one policy per gesture label to avoid repeated model loading.
     """
@@ -269,6 +275,32 @@ class PolicyRouter:
                 except (RuntimeError, ImportError, FileNotFoundError) as exc:
                     logger.warning(
                         f"Could not load ACT policy for '{gesture_label}': {exc}. "
+                        "Trying the BC tiers."
+                    )
+
+            bc_dir = self._checkpoint_base / "bc"
+
+            # Deployment tier: exported ONNX served by onnxruntime (no torch).
+            from drona.interaction.exported_policy import OnnxBCPolicy, onnx_exists
+            if onnx_exists(gesture_label, bc_dir):
+                try:
+                    return OnnxBCPolicy(gesture_label, checkpoint_dir=bc_dir)
+                except RuntimeError as exc:
+                    logger.warning(
+                        f"ONNX export present but unusable for '{gesture_label}': {exc}. "
+                        "Trying the torch BC checkpoint."
+                    )
+
+            from drona.interaction.bc_policy import BCGesturePolicy, checkpoint_exists
+            if checkpoint_exists(gesture_label, bc_dir):
+                try:
+                    bc = BCGesturePolicy(gesture_label, checkpoint_dir=bc_dir,
+                                         device=self._device)
+                    if bc.is_trained:
+                        return bc
+                except (RuntimeError, ImportError, OSError) as exc:
+                    logger.warning(
+                        f"Could not load BC policy for '{gesture_label}': {exc}. "
                         "Falling back to KeyframePolicy."
                     )
         return KeyframePolicy(gesture_label)

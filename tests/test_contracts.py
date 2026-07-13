@@ -1,6 +1,5 @@
 """Smoke tests for the contracts module. Run with: pytest tests/test_contracts.py"""
 
-from datetime import datetime
 
 from drona.contracts import (
     AdvisingQuery,

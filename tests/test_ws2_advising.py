@@ -11,13 +11,11 @@ Run with:  pytest tests/test_ws2_advising.py -v
 from __future__ import annotations
 
 import uuid
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from drona.advising.bias_detector import BiasDetector, _first_matches
-from drona.advising.engine import AdvisingEngine, make_query, _build_summary, _default_speak
-from drona.advising.prompt_builder import build_prompt, _format_citations, _format_profile
+from drona.advising.engine import AdvisingEngine, _build_summary, _default_speak, make_query
+from drona.advising.prompt_builder import _format_citations, build_prompt
 from drona.contracts import (
     AdvisingQuery,
     AdvisingResponse,
@@ -27,7 +25,6 @@ from drona.contracts import (
     RetrievalCitation,
     StudentProfile,
 )
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 

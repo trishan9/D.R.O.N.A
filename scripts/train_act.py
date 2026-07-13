@@ -28,9 +28,7 @@ Output:
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 from loguru import logger
@@ -69,9 +67,9 @@ def _check_torch_gpu() -> str:
             return "cuda"
         logger.warning("No CUDA GPU found - training on CPU (will be slow).")
         return "cpu"
-    except ImportError:
+    except ImportError as exc:
         logger.error("PyTorch not installed. Run: pip install torch")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from exc
 
 
 # ── Dataset ───────────────────────────────────────────────────────────────────
@@ -294,11 +292,12 @@ def _train_gesture(
         # Older LeRobot: use torch.save
         import json as _json
         torch.save(policy.state_dict(), ckpt_path / "pytorch_model.bin")
-        _json.dump(
-            {"model_type": "act", "state_dim": DOF, "action_dim": DOF,
-             "chunk_size": chunk_size, "dim_model": dim_model},
-            open(ckpt_path / "config.json", "w"),
-        )
+        with open(ckpt_path / "config.json", "w") as fh:
+            _json.dump(
+                {"model_type": "act", "state_dim": DOF, "action_dim": DOF,
+                 "chunk_size": chunk_size, "dim_model": dim_model},
+                fh,
+            )
         logger.success(f"  Checkpoint saved (state_dict): {ckpt_path}")
 
     stats["best_loss"] = best_loss
@@ -312,10 +311,8 @@ def _train_gesture(
 def _measure_act_jerk(gesture_label: str, checkpoint_dir: Path, device: str) -> float:
     """Roll out the trained ACT policy and measure mean jerk."""
     try:
-        import torch
         from drona.evaluation.metrics import jerk_score
         from drona.interaction.act_policy import LeRobotACTPolicy
-        from drona.interaction.demonstration import REST_POSE
         from drona.interaction.mujoco_env import StubEnv
 
         policy = LeRobotACTPolicy(checkpoint_dir / gesture_label, device=device)
@@ -344,10 +341,10 @@ app = typer.Typer(name="train-act", help="Train ACT gesture policies for D.R.O.N
 
 @app.command()
 def main(
-    demo_dir: Optional[str] = typer.Option(
+    demo_dir: str | None = typer.Option(
         None, "--demo-dir", help="Directory with demonstrations.jsonl"
     ),
-    checkpoint_dir: Optional[str] = typer.Option(
+    checkpoint_dir: str | None = typer.Option(
         None, "--checkpoint-dir", help="Output directory for checkpoints"
     ),
     gestures: str = typer.Option(
@@ -367,7 +364,7 @@ def main(
     n_encoder_layers: int = typer.Option(2, "--n-enc", help="Encoder layers"),
     n_decoder_layers: int = typer.Option(2, "--n-dec", help="Decoder layers"),
     dropout: float = typer.Option(0.1, "--dropout", help="Dropout rate"),
-    device: Optional[str] = typer.Option(
+    device: str | None = typer.Option(
         None, "--device", help="torch device: cuda / cpu (auto-detected if omitted)"
     ),
     measure_jerk: bool = typer.Option(
@@ -399,7 +396,7 @@ def main(
         raise typer.Exit(1)
 
     # ── Load demonstrations ────────────────────────────────────────────────────
-    from drona.interaction.demonstration import DemonstrationDataset, GESTURE_KEYFRAMES
+    from drona.interaction.demonstration import GESTURE_KEYFRAMES, DemonstrationDataset
 
     typer.echo(f"Loading demonstrations from {jsonl} ...")
     ds = DemonstrationDataset.load_jsonl(jsonl)
@@ -486,7 +483,7 @@ def main(
             typer.secho(f"  {gesture_label:<12} ERROR: {stats['error']}", fg=typer.colors.RED)
             continue
 
-        kf_jerk = keyframe_jerks.get(gesture_label, None)
+        kf_jerk = keyframe_jerks.get(gesture_label)
         act_jerk = stats.get("act_jerk", None)
 
         parts = [

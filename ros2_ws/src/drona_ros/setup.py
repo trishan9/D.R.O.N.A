@@ -24,6 +24,8 @@ setup(
             "policy_node      = drona_ros.policy_node:main",
             "perception_node  = drona_ros.perception_node:main",
             "orchestrator_node = drona_ros.orchestrator_node:main",
+            "diagnostics_node = drona_ros.diagnostics_node:main",
+            "gz_joint_relay   = drona_ros.gz_joint_relay:main",
         ],
     },
 )

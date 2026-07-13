@@ -10,17 +10,12 @@ Run with:  pytest tests/test_ws1_data_pipeline.py -v
 from __future__ import annotations
 
 import json
-import tempfile
-from datetime import datetime
 from pathlib import Path
 
-import pytest
-
 from drona.contracts import CareerPathway, CurriculumModule, DataTier, JobPosting
-from drona.data_pipeline.data_card import DataCard
 from drona.data_pipeline.curriculum import _extract_module_code, _extract_year, parse_text
+from drona.data_pipeline.data_card import DataCard
 from drona.data_pipeline.scrapers.manual_loader import load_file
-
 
 # ── DataCard ─────────────────────────────────────────────────────────────────
 

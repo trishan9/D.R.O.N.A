@@ -40,7 +40,7 @@ def main(
     skip_placeholder: bool = typer.Option(False, "--skip-placeholder", help="Don't (re)write dummy data"),
     skip_onet: bool = typer.Option(False, "--skip-onet", help="Skip O*NET download/parse (use cached parquet)"),
     skip_ingest: bool = typer.Option(True, "--skip-ingest/--ingest", help="Also build ChromaDB (slow; not needed for training)"),
-    qa_n: int = typer.Option(500, "--qa-n", help="Number of synthetic Q&A pairs (LoRA)"),
+    qa_n: int = typer.Option(1200, "--qa-n", help="Number of synthetic Q&A pairs (LoRA)"),
     episodes: int = typer.Option(25, "--episodes", help="Demonstration episodes per gesture (ACT/Diffusion)"),
     log_level: str = typer.Option("WARNING", "--log-level"),
 ) -> None:

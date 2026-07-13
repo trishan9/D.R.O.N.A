@@ -67,8 +67,22 @@ def to_chat_example(pair: AdvisingQAPair) -> dict:
 
 
 def build_sft_dataset(pairs: list[AdvisingQAPair]) -> list[dict]:
-    """Convert all pairs into SFT examples."""
-    return [to_chat_example(p) for p in pairs]
+    """Convert pairs into SFT examples, de-duplicating by question.
+
+    The template generator can emit the same question more than once when the
+    target count exceeds the achievable question diversity; training on exact
+    duplicates just risks overfitting, so we keep the first occurrence of each
+    question (its grounded gold answer) and drop the rest.
+    """
+    seen: set[str] = set()
+    examples: list[dict] = []
+    for p in pairs:
+        q = (p.question or "").strip().lower()
+        if q in seen:
+            continue
+        seen.add(q)
+        examples.append(to_chat_example(p))
+    return examples
 
 
 def train_val_split(

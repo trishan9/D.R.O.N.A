@@ -59,6 +59,7 @@ def to_chat_example(pair: AdvisingQAPair) -> dict:
     return {
         "id": pair.id,
         "bias_type": pair.bias_type,
+        "goal": pair.profile.goal,
         "is_synthetic": pair.is_synthetic,
         "is_gold": pair.is_gold,
         "messages": messages,

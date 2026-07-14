@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { CitationDrilldown } from "@/components/pathways/citation-drilldown";
 import { ReversibilityViz } from "@/components/pathways/reversibility-viz";
 import type { Confidence, PathwayRecommendation } from "@/lib/types";
+import { GOAL_LABELS } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const CONFIDENCE_META: Record<Confidence, { label: string; dot: string; className: string }> = {
@@ -54,11 +55,16 @@ export function PathwayCard({
             <h3 className="font-semibold leading-tight">{pathway.pathway_title}</h3>
           </div>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold", conf.className)}>
             <span className={cn("h-1.5 w-1.5 rounded-full", conf.dot)} />
             {conf.label}
           </span>
+          {pathway.goal_type && GOAL_LABELS[pathway.goal_type] && (
+            <Badge variant="outline" className="text-[11px] font-medium">
+              {GOAL_LABELS[pathway.goal_type]}
+            </Badge>
+          )}
         </div>
         <p className="text-sm leading-relaxed text-muted-foreground">{pathway.rationale}</p>
       </CardHeader>

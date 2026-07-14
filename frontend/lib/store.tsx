@@ -54,6 +54,9 @@ export function newProfile(): ProfileDraft {
     self_assessed_skill_levels: {},
     aspirations: [],
     aspiration_geography: "any",
+    goal: "employment",
+    target_institutions: [],
+    timeline_years: null,
     max_pathways: 3,
     require_local_first: true,
   };

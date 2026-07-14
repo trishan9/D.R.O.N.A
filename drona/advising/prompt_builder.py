@@ -114,11 +114,64 @@ def _format_profile(query: AdvisingQuery) -> str:
             else:
                 skill_lines.append(sk)
         parts.append(f"Self-declared skills: {', '.join(skill_lines)}")
+    goal_names = {
+        "employment": "get a job (employment)",
+        "postgrad_abroad": "postgraduate study abroad (Master's/PhD)",
+        "startup": "found a startup / join an accelerator",
+        "research": "a research / academia career",
+        "freelance": "freelance / remote contracting",
+        "undecided": "still exploring (undecided)",
+    }
+    goal = getattr(p, "goal", "employment")
+    parts.append(f"Primary goal: {goal_names.get(goal, goal)}")
+    targets = getattr(p, "target_institutions", None)
+    if targets:
+        parts.append(f"Target institutions/programmes: {', '.join(targets)}")
+    tl = getattr(p, "timeline_years", None)
+    if tl is not None:
+        parts.append(f"Timeline: ~{tl} year(s)")
     if p.aspirations:
         parts.append(f"Stated aspirations: {'; '.join(p.aspirations)}")
     if p.aspiration_geography != "any":
         parts.append(f"Preferred geography: {p.aspiration_geography}")
     return "\n".join(parts) if parts else "(No profile information provided)"
+
+
+# ── Goal-specific advising instructions ───────────────────────────────────────
+
+_GOAL_INSTRUCTIONS: dict[str, str] = {
+    "postgrad_abroad": (
+        "The student is aiming for postgraduate study abroad. Tailor pathways to "
+        "graduate admissions, not just jobs: name what programmes weigh (academic "
+        "record, a research-grade project, statement of purpose, recommendation "
+        "letters, IELTS/TOEFL - GRE is often optional), and be honest that many "
+        "CS PhDs are funded via assistantships and scholarships exist for Master's. "
+        "Give concrete near-term steps (shortlist by faculty fit, email professors, "
+        "turn the Individual Project into a writing sample)."
+    ),
+    "startup": (
+        "The student wants to found a company. Tailor advice to building, not "
+        "employment: start from a validated real problem and a small working "
+        "product (the Individual Project is ideal), find a co-founder, get real "
+        "users, and treat accelerators (Y Combinator, local incubators) as coming "
+        "AFTER early traction. Acknowledge the Nepal ecosystem as a real first step."
+    ),
+    "research": (
+        "The student wants a research career. Emphasise depth, a supervised "
+        "research-grade project, reading recent papers, and targeting FUNDED PhD "
+        "programmes; a PhD should not be self-financed."
+    ),
+    "freelance": (
+        "The student wants freelance/remote work. Emphasise a sharp niche, a "
+        "visible portfolio, delivered projects, and building a track record and "
+        "runway before going full-time; income is variable."
+    ),
+    "undecided": (
+        "The student is undecided. Deliberately broaden the options and help them "
+        "compare across directions (job, further study, founding) rather than "
+        "narrowing early."
+    ),
+}
 
 
 # ── System prompt ─────────────────────────────────────────────────────────────
@@ -128,13 +181,21 @@ You are DRONA, an academic advising assistant at Softwarica College of IT and E-
 Kathmandu, Nepal. You help BSc Computing students understand career pathways and how their \
 coursework prepares them for the Nepali and international job markets.
 
+You advise on ALL directions a student may take: employment, postgraduate study abroad \
+(e.g. MIT, Stanford), founding a startup (e.g. Y Combinator), a research career, or freelancing. \
+Tailor every answer to the student's stated goal, and stay aware of how AI is reshaping roles.
+
 CORE RULES:
-1. Always present {max_pathways} career pathways unless fewer are genuinely supported by the evidence.
-2. Lead with Nepal-market evidence. Use international data only to provide context.
-3. Never invent salary figures, employer names, or module details not in the retrieved documents.
-4. If retrieved documents do not cover the question, say so clearly - do not hallucinate.
-5. Every factual claim must be traceable to a [N] citation number.
-6. Keep the speak_text field short (2-4 sentences) - this is what the robot says aloud.
+1. Always present {max_pathways} pathways/options unless fewer are genuinely supported by the evidence.
+2. Tailor to the student's PRIMARY GOAL. For non-employment goals, the fields still apply but shift \
+meaning: local_market_evidence -> the concrete requirements/first steps for that goal; \
+international_context -> target programmes, accelerators, funding, or global context. Set each \
+pathway's goal_type to one of: employment, postgrad_abroad, startup, research, freelance.
+3. Lead with Nepal-relevant, honest evidence. Use international data as context, not the default.
+4. Never invent salary figures, employer names, admission stats, or module details not in the retrieved documents.
+5. If retrieved documents do not cover the question, say so clearly - do not hallucinate.
+6. Every factual claim must be traceable to a [N] citation number.
+7. Keep the speak_text field short (2-4 sentences) - this is what the robot says aloud.
 
 RESPONSE FORMAT:
 Respond with a single JSON object using exactly these fields:
@@ -149,7 +210,8 @@ Respond with a single JSON object using exactly these fields:
       "international_context": "<optional international comparison>",
       "next_concrete_steps": ["<step 1>", "<step 2>", ...],
       "citations": [<N>, ...],
-      "confidence": "low|medium|high"
+      "confidence": "low|medium|high",
+      "goal_type": "employment|postgrad_abroad|startup|research|freelance"
     }},
     ...
   ],
@@ -183,6 +245,11 @@ def build_prompt(
         (system_prompt, user_prompt) - both strings ready for the chat API.
     """
     system_parts = [_SYSTEM_BASE.format(max_pathways=query.max_pathways)]
+
+    goal = getattr(query.profile, "goal", "employment")
+    goal_instruction = _GOAL_INSTRUCTIONS.get(goal)
+    if goal_instruction:
+        system_parts.append(f"\nGOAL-SPECIFIC GUIDANCE ({goal}):\n{goal_instruction}")
 
     if bias_flags:
         system_parts.append(_BIAS_PREAMBLE)

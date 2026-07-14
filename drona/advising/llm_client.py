@@ -72,6 +72,7 @@ def _parse_pathways(
                 next_concrete_steps=raw.get("next_concrete_steps", []),
                 citations=resolved,
                 confidence=conf,  # type: ignore[arg-type]
+                goal_type=(raw.get("goal_type") or None),
             )
             result.append(pr)
         except Exception as exc:

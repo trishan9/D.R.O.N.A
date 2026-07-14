@@ -81,6 +81,9 @@ export function ChatPanel({ profile, onResponse, onQuerySent }: ChatPanelProps) 
       self_assessed_skill_levels: profile.self_assessed_skill_levels,
       aspirations: profile.aspirations,
       aspiration_geography: profile.aspiration_geography,
+      goal: profile.goal,
+      target_institutions: profile.target_institutions,
+      timeline_years: profile.timeline_years,
       max_pathways: profile.max_pathways,
       require_local_first: profile.require_local_first,
     };

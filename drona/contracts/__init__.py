@@ -143,6 +143,29 @@ class StudentProfile(BaseModel):
     self_assessed_skill_levels: dict[str, int] = Field(default_factory=dict)  # skill → 1-5
     aspirations: list[str] = Field(default_factory=list)  # free-text goals
     aspiration_geography: Literal["nepal", "regional", "international", "any"] = "any"
+    # Primary post-graduation direction the advice should be tailored to. This is
+    # the coarse "track" the student is on; `aspirations` still holds free text.
+    #   employment      - get a job (Nepal-first or international via geography)
+    #   postgrad_abroad - Master's/PhD abroad (e.g. MIT, Stanford, ETH)
+    #   startup         - found a company / join an accelerator (e.g. Y Combinator)
+    #   research        - research / academia career
+    #   freelance       - independent / remote contracting
+    #   undecided       - still exploring (advisor should broaden, not narrow)
+    goal: Literal[
+        "employment", "postgrad_abroad", "startup", "research", "freelance", "undecided"
+    ] = "employment"
+    # Concrete targets for the goal, e.g. ["MIT", "Stanford"] or ["Y Combinator"].
+    target_institutions: list[str] = Field(default_factory=list)
+    # Rough horizon in years, e.g. 2 = "within ~2 years of graduating".
+    timeline_years: int | None = Field(default=None, ge=0, le=15)
+
+
+# Canonical student-goal tracks (kept in sync with StudentProfile.goal and the
+# web ProfileDraft). Exported so the SFT generator and API validate against one
+# source of truth.
+STUDENT_GOALS: tuple[str, ...] = (
+    "employment", "postgrad_abroad", "startup", "research", "freelance", "undecided",
+)
 
 
 class AdvisingQuery(DronaMessage):
@@ -180,6 +203,9 @@ class PathwayRecommendation(BaseModel):
     next_concrete_steps: list[str] = Field(default_factory=list)
     citations: list[RetrievalCitation] = Field(default_factory=list)
     confidence: Literal["low", "medium", "high"] = "medium"
+    # Which aspiration this recommendation serves (job, grad school, startup, ...).
+    # None = generic/employment. Lets the UI label mixed-goal advice.
+    goal_type: str | None = None
 
 
 class BiasFlag(BaseModel):

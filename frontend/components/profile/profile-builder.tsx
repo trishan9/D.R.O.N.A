@@ -14,8 +14,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { TokenInput } from "@/components/token-input";
-import type { AspirationGeography, ProfileDraft, Programme } from "@/lib/types";
-import { PROGRAMME_LABELS } from "@/lib/types";
+import type { AspirationGeography, ProfileDraft, Programme, StudentGoal } from "@/lib/types";
+import { PROGRAMME_LABELS, GOAL_LABELS } from "@/lib/types";
 
 interface ProfileBuilderProps {
   profile: ProfileDraft;
@@ -29,6 +29,25 @@ const GEOGRAPHIES: { value: AspirationGeography; label: string }[] = [
   { value: "regional", label: "Region" },
   { value: "international", label: "Global" },
 ];
+
+const GOALS: StudentGoal[] = [
+  "employment",
+  "postgrad_abroad",
+  "startup",
+  "research",
+  "freelance",
+  "undecided",
+];
+
+// Goals for which naming concrete targets (schools / accelerators) helps.
+const GOAL_WANTS_TARGETS: Record<StudentGoal, string | null> = {
+  employment: null,
+  postgrad_abroad: "Target universities (e.g. MIT, Stanford, TU Munich)",
+  research: "Target PhD programmes / labs",
+  startup: "Target accelerators (e.g. Y Combinator, a local incubator)",
+  freelance: "Target platforms / markets (e.g. Upwork, Toptal)",
+  undecided: null,
+};
 
 export function ProfileBuilder({ profile, onChange, onReset }: ProfileBuilderProps) {
   const patch = (p: Partial<ProfileDraft>) => onChange({ ...profile, ...p });
@@ -148,6 +167,55 @@ export function ProfileBuilder({ profile, onChange, onReset }: ProfileBuilderPro
             placeholder="e.g. 4001COMP, 5002COMP…"
           />
         </div>
+
+        <div className="space-y-2">
+          <Label>What is your main goal after graduation?</Label>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {GOALS.map((g) => (
+              <Button
+                key={g}
+                type="button"
+                variant={profile.goal === g ? "default" : "outline"}
+                size="sm"
+                onClick={() => patch({ goal: g })}
+              >
+                {GOAL_LABELS[g]}
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            The advisor tailors every answer to this - a job, grad school abroad, a startup,
+            research, or freelancing.
+          </p>
+        </div>
+
+        {GOAL_WANTS_TARGETS[profile.goal] && (
+          <div className="space-y-2">
+            <Label>{GOAL_WANTS_TARGETS[profile.goal]}</Label>
+            <TokenInput
+              values={profile.target_institutions}
+              onChange={(v) => patch({ target_institutions: v })}
+              placeholder="type a name and press Enter…"
+            />
+            <Label className="pt-1">Timeline (years from now)</Label>
+            <div className="flex gap-2">
+              {[1, 2, 3, 5].map((y) => (
+                <Button
+                  key={y}
+                  type="button"
+                  variant={profile.timeline_years === y ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1"
+                  onClick={() =>
+                    patch({ timeline_years: profile.timeline_years === y ? null : y })
+                  }
+                >
+                  {y}y
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label>Aspirations</Label>

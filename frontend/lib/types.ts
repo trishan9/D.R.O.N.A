@@ -13,6 +13,24 @@ export type Confidence = "low" | "medium" | "high";
 
 export type AspirationGeography = "nepal" | "regional" | "international" | "any";
 
+/** Post-graduation direction; mirrors StudentProfile.goal / STUDENT_GOALS. */
+export type StudentGoal =
+  | "employment"
+  | "postgrad_abroad"
+  | "startup"
+  | "research"
+  | "freelance"
+  | "undecided";
+
+export const GOAL_LABELS: Record<StudentGoal, string> = {
+  employment: "Get a job",
+  postgrad_abroad: "Postgraduate study abroad (MS/PhD)",
+  startup: "Found a startup / accelerator",
+  research: "Research / academia",
+  freelance: "Freelance / remote work",
+  undecided: "Still exploring",
+};
+
 export type BiasType =
   | "availability_heuristic"
   | "anchoring"
@@ -38,6 +56,7 @@ export interface PathwayRecommendation {
   next_concrete_steps: string[];
   citations: RetrievalCitation[];
   confidence: Confidence;
+  goal_type?: StudentGoal | null;
 }
 
 export interface BiasFlag {
@@ -81,6 +100,9 @@ export interface AdviseRequest {
   self_assessed_skill_levels: Record<string, number>;
   aspirations: string[];
   aspiration_geography: AspirationGeography;
+  goal: StudentGoal;
+  target_institutions: string[];
+  timeline_years: number | null;
   max_pathways: number;
   require_local_first: boolean;
 }
@@ -99,6 +121,9 @@ export interface ProfileDraft {
   self_assessed_skill_levels: Record<string, number>;
   aspirations: string[];
   aspiration_geography: AspirationGeography;
+  goal: StudentGoal;
+  target_institutions: string[];
+  timeline_years: number | null;
   max_pathways: number;
   require_local_first: boolean;
 }

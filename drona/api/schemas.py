@@ -33,6 +33,11 @@ class AdviseRequest(BaseModel):
     self_assessed_skill_levels: dict[str, int] = Field(default_factory=dict)
     aspirations: list[str] = Field(default_factory=list)
     aspiration_geography: Literal["nepal", "regional", "international", "any"] = "any"
+    goal: Literal[
+        "employment", "postgrad_abroad", "startup", "research", "freelance", "undecided"
+    ] = "employment"
+    target_institutions: list[str] = Field(default_factory=list)
+    timeline_years: int | None = Field(default=None, ge=0, le=15)
     max_pathways: int = Field(default=3, ge=1, le=6)
     require_local_first: bool = True
 
@@ -47,6 +52,9 @@ class AdviseRequest(BaseModel):
             self_assessed_skill_levels=self.self_assessed_skill_levels,
             aspirations=self.aspirations,
             aspiration_geography=self.aspiration_geography,
+            goal=self.goal,
+            target_institutions=self.target_institutions,
+            timeline_years=self.timeline_years,
         )
         return AdvisingQuery(
             query_id=str(uuid.uuid4()),

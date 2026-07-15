@@ -34,10 +34,15 @@ class LeRobotDiffusionPolicy(BasePolicy):
         self._load()
 
     def _load(self) -> None:
-        try:
-            from lerobot.common.policies.diffusion.modeling_diffusion import (  # type: ignore[import]
-                DiffusionPolicy as _Diffusion,
-            )
+        try:  # newer lerobot dropped `common`; support both layouts
+            try:
+                from lerobot.policies.diffusion.modeling_diffusion import (  # type: ignore[import]
+                    DiffusionPolicy as _Diffusion,
+                )
+            except ImportError:
+                from lerobot.common.policies.diffusion.modeling_diffusion import (  # type: ignore[import]
+                    DiffusionPolicy as _Diffusion,
+                )
         except ImportError as exc:
             raise RuntimeError(
                 "LeRobot not installed. Install with: "

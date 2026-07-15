@@ -73,13 +73,18 @@ def build_lerobot_dataset(
     episode is written then closed with `save_episode()`; the gesture label is
     passed as the per-frame `task`.
     """
-    try:
-        from lerobot.common.datasets.lerobot_dataset import LeRobotDataset  # type: ignore[import]
-    except ImportError as exc:  # pragma: no cover - exercised only in Colab
-        raise RuntimeError(
-            "LeRobot not installed. Install with: "
-            "pip install git+https://github.com/huggingface/lerobot.git"
-        ) from exc
+    try:  # newer lerobot dropped the `common` subpackage; support both layouts
+        from lerobot.datasets.lerobot_dataset import LeRobotDataset  # type: ignore[import]
+    except ImportError:
+        try:
+            from lerobot.common.datasets.lerobot_dataset import (  # type: ignore[import]
+                LeRobotDataset,
+            )
+        except ImportError as exc:  # pragma: no cover - exercised only in Colab
+            raise RuntimeError(
+                "LeRobot not installed. Install with: "
+                "pip install git+https://github.com/huggingface/lerobot.git"
+            ) from exc
 
     lerobot_ds = LeRobotDataset.create(
         repo_id=repo_id,

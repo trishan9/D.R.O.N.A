@@ -118,9 +118,13 @@ def _build_torch_dataset(episodes: list, chunk_size: int):  # type: ignore[retur
 def _make_act_policy(dof: int, chunk_size: int, dim_model: int, n_heads: int,
                      n_encoder_layers: int, n_decoder_layers: int, dropout: float):
     """Instantiate an ACTPolicy with config appropriate for our 6-DOF arm."""
-    try:
-        from lerobot.common.policies.act.configuration_act import ACTConfig
-        from lerobot.common.policies.act.modeling_act import ACTPolicy
+    try:  # newer lerobot dropped `common`; support both layouts
+        try:
+            from lerobot.policies.act.configuration_act import ACTConfig
+            from lerobot.policies.act.modeling_act import ACTPolicy
+        except ImportError:
+            from lerobot.common.policies.act.configuration_act import ACTConfig
+            from lerobot.common.policies.act.modeling_act import ACTPolicy
     except ImportError as exc:
         raise RuntimeError(
             "Could not import LeRobot ACT classes. "

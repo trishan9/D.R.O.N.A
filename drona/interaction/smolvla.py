@@ -80,9 +80,14 @@ class SmolVLAPolicy(BasePolicy):
     def _load(self, allow_fallback: bool) -> None:
         try:
             import torch  # noqa: F401
-            from lerobot.common.policies.smolvla.modeling_smolvla import (  # type: ignore[import]
-                SmolVLAPolicy as _SmolVLA,
-            )
+            try:  # newer lerobot dropped `common`; support both layouts
+                from lerobot.policies.smolvla.modeling_smolvla import (  # type: ignore[import]
+                    SmolVLAPolicy as _SmolVLA,
+                )
+            except ImportError:
+                from lerobot.common.policies.smolvla.modeling_smolvla import (  # type: ignore[import]
+                    SmolVLAPolicy as _SmolVLA,
+                )
 
             logger.info(f"Loading pre-trained SmolVLA '{self._pretrained}' on {self._device}")
             self._policy = _SmolVLA.from_pretrained(self._pretrained)

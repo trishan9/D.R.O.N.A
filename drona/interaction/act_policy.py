@@ -164,9 +164,14 @@ class LeRobotACTPolicy(BasePolicy):
     def _load(self) -> None:
         try:
             import torch  # noqa: F401 - availability check; lerobot needs torch
-            from lerobot.common.policies.act.modeling_act import (  # type: ignore[import]
-                ACTPolicy as _LerobotActPolicy,
-            )
+            try:  # newer lerobot dropped `common`; support both layouts
+                from lerobot.policies.act.modeling_act import (  # type: ignore[import]
+                    ACTPolicy as _LerobotActPolicy,
+                )
+            except ImportError:
+                from lerobot.common.policies.act.modeling_act import (  # type: ignore[import]
+                    ACTPolicy as _LerobotActPolicy,
+                )
         except ImportError as exc:
             raise RuntimeError(
                 "LeRobot is not installed. Install with: "

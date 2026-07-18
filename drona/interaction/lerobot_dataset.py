@@ -97,12 +97,14 @@ def build_lerobot_dataset(
 
     for ep in dataset.episodes:
         for frame in ep.frames:
+            # lerobot >= 0.3 takes `task` as a separate arg (and rejects unknown
+            # keys in the frame dict), so it must not live inside the frame.
             lerobot_ds.add_frame(
                 {
                     "observation.state": np.asarray(frame.observation_state, dtype=np.float32),
                     "action": np.asarray(frame.action, dtype=np.float32),
-                    "task": ep.gesture_label,
-                }
+                },
+                task=ep.gesture_label,
             )
         lerobot_ds.save_episode()
 

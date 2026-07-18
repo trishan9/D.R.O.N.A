@@ -80,8 +80,13 @@ def download_zip(dest_path: Path | None = None, force: bool = False) -> Path:
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
     if dest_path.exists() and not force:
-        logger.info(f"O*NET zip already cached at {dest_path} - skipping download")
-        return dest_path
+        # Validate the cache: a partial/failed download leaves a non-zip file that
+        # blows up later with BadZipFile. Re-download instead of trusting it.
+        if zipfile.is_zipfile(dest_path):
+            logger.info(f"O*NET zip already cached at {dest_path} - skipping download")
+            return dest_path
+        logger.warning(f"Cached O*NET zip at {dest_path} is corrupt - re-downloading")
+        dest_path.unlink()
 
     logger.info(f"Downloading O*NET {ONET_VERSION} from {ONET_DOWNLOAD_URL}")
     with httpx.stream("GET", ONET_DOWNLOAD_URL, follow_redirects=True, timeout=120) as r:

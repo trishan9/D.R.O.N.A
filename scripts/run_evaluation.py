@@ -13,13 +13,18 @@ The report is saved as JSON for reproducibility and inclusion in the thesis appe
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import typer
 
-from drona.evaluation.harness import EvaluationHarness
-from drona.utils.logging import setup_logging
-from drona.utils.settings import settings
+# Run-as-script bootstrap: `python scripts/x.py` puts scripts/ on sys.path, not
+# the repo root, so `import drona` fails unless the package is pip-installed.
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from drona.evaluation.harness import EvaluationHarness  # noqa: E402
+from drona.utils.logging import setup_logging  # noqa: E402
+from drona.utils.settings import settings  # noqa: E402
 
 app = typer.Typer(name="drona-eval", help="Run D.R.O.N.A. evaluation harness.")
 

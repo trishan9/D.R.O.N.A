@@ -9,11 +9,18 @@ Usage:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import typer
 
-from drona.advising.engine import AdvisingEngine, make_query
-from drona.utils.logging import setup_logging
-from drona.utils.settings import settings
+# Run-as-script bootstrap: `python scripts/x.py` puts scripts/ on sys.path, not
+# the repo root, so `import drona` fails unless the package is pip-installed.
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from drona.advising.engine import AdvisingEngine, make_query  # noqa: E402
+from drona.utils.logging import setup_logging  # noqa: E402
+from drona.utils.settings import settings  # noqa: E402
 
 app = typer.Typer(name="drona-advise", help="Run the D.R.O.N.A. advising engine.")
 

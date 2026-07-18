@@ -14,17 +14,22 @@ Usage:
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import typer
 
-from drona.interaction.demonstration import (
+# Run-as-script bootstrap: `python scripts/x.py` puts scripts/ on sys.path, not
+# the repo root, so `import drona` fails unless the package is pip-installed.
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from drona.interaction.demonstration import (  # noqa: E402
     GESTURE_KEYFRAMES,
     DemonstrationDataset,
     record_keyframe_episode,
 )
-from drona.utils.logging import setup_logging
-from drona.utils.settings import settings
+from drona.utils.logging import setup_logging  # noqa: E402
+from drona.utils.settings import settings  # noqa: E402
 
 app = typer.Typer(name="collect-demonstrations", help="Generate ACT training demonstrations.")
 

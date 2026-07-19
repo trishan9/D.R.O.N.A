@@ -26,6 +26,7 @@ setup(
             "orchestrator_node = drona_ros.orchestrator_node:main",
             "diagnostics_node = drona_ros.diagnostics_node:main",
             "gz_joint_relay   = drona_ros.gz_joint_relay:main",
+            "approach_node    = drona_ros.approach_node:main",
         ],
     },
 )

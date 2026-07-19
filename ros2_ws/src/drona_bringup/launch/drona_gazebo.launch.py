@@ -63,6 +63,7 @@ def generate_launch_description() -> LaunchDescription:
     headless = LaunchConfiguration("headless")
     use_rviz = LaunchConfiguration("use_rviz")
     advisor_remote_url = LaunchConfiguration("advisor_remote_url")
+    mobile = LaunchConfiguration("mobile")
     args = [
         DeclareLaunchArgument("headless", default_value="false",
                               description="Run gz sim without the GUI (server only)"),
@@ -72,6 +73,11 @@ def generate_launch_description() -> LaunchDescription:
             "advisor_remote_url", default_value="",
             description="GPU-served advising API URL (e.g. the Colab T4 tunnel). "
                         "Empty = run the advising engine in-process."),
+        DeclareLaunchArgument(
+            "mobile", default_value="false",
+            description="Wheeled mobile base: the robot spawns on the floor and "
+                        "drives to the student (approach_node -> /cmd_vel) instead "
+                        "of sitting on the desk."),
     ]
 
     sim_time = {"use_sim_time": True}
@@ -81,7 +87,9 @@ def generate_launch_description() -> LaunchDescription:
         # launch aborts with "Unable to parse the value of parameter
         # robot_description as yaml".
         "robot_description": ParameterValue(
-            Command(["xacro ", urdf, " use_gz_camera:=true use_gz_control:=true"]),
+            Command(["xacro ", urdf,
+                     " use_gz_camera:=true use_gz_control:=true",
+                     " use_mobile_base:=", mobile]),
             value_type=str,
         ),
         **sim_time,
@@ -113,12 +121,15 @@ def generate_launch_description() -> LaunchDescription:
         launch_arguments={"gz_args": gz_args}.items(),
     )
 
-    # Spawn on the desk top (z = 0.72) so the head camera clears the desk.
+    # Desk mode spawns on the desk top (z = 0.72) so the head camera clears the
+    # desk; the mobile base stands on the floor and drives (z = 0.08, wheel
+    # radius clearance) - spawning it at desk height would drop it onto the desk.
+    spawn_z = PythonExpression(["'0.08' if '", mobile, "' == 'true' else '0.72'"])
     spawn = Node(
         package="ros_gz_sim",
         executable="create",
         arguments=["-topic", "robot_description", "-name", "drona_humanoid",
-                   "-z", "0.72"],
+                   "-z", spawn_z],
         output="screen",
     )
 
@@ -133,6 +144,11 @@ def generate_launch_description() -> LaunchDescription:
             "/drona/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
             # ROS -> GZ per-joint position commands (gz_joint_relay output).
             *[f"/drona/gz/{j}_cmd@std_msgs/msg/Float64]gz.msgs.Double" for j in _JOINTS],
+            # Mobile base: ROS -> GZ velocity commands, GZ -> ROS odometry.
+            # Inert when mobile:=false (no DiffDrive plugin is loaded), so these
+            # can be bridged unconditionally.
+            "/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist",
+            "/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry",
         ],
         parameters=[sim_time],
         output="screen",
@@ -173,6 +189,14 @@ def generate_launch_description() -> LaunchDescription:
         parameters=[params_file, sim_time, {"use_hardware": False}],
         output="screen",
     )
+    # Mobile-base locomotion: drives toward the student on /cmd_vel and stops at
+    # conversation range. Only launched with mobile:=true (no base otherwise).
+    approach = Node(
+        package="drona_ros", executable="approach_node", name="drona_approach_node",
+        parameters=[params_file, sim_time],
+        condition=IfCondition(mobile),
+        output="screen",
+    )
 
     rviz = Node(
         package="rviz2",
@@ -195,6 +219,7 @@ def generate_launch_description() -> LaunchDescription:
         perception,
         policy,
         gesture,
+        approach,
         advising,
         orchestrator,
         diagnostics,

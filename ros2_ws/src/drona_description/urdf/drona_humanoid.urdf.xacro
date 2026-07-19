@@ -18,6 +18,12 @@
                         (relayed by drona_ros gz_joint_relay). -->
   <xacro:arg name="use_gz_camera" default="false"/>
   <xacro:arg name="use_gz_control" default="false"/>
+  <!-- Wheeled mobile base (Pepper-style differential drive). When true, a
+       chassis with two drive wheels + a caster becomes the root link and the
+       torso rides on top, so the robot drives to the student instead of sitting
+       on a desk. Deliberately opt-in: the desk-mounted configuration stays the
+       default so existing launches are unchanged. -->
+  <xacro:arg name="use_mobile_base" default="false"/>
 
   <!-- ── Materials ─────────────────────────────────────────────────────────── -->
   <material name="drona_crimson"><color rgba="0.78 0.10 0.23 1.0"/></material>
@@ -268,6 +274,102 @@
       <xacro:gz_joint_pid joint="j3_wrist_pitch"/>
       <xacro:gz_joint_pid joint="j4_wrist_roll"/>
       <xacro:gz_joint_pid joint="j5_gripper"/>
+    </gazebo>
+  </xacro:if>
+
+  <!-- ── Wheeled mobile base (optional) ───────────────────────────────────────
+       A differential-drive chassis: two driven wheels on a common axis plus a
+       front caster for static stability. This is deliberately NOT a bipedal
+       walker - social service robots (Pepper, TIAGo, temi) all use wheeled
+       bases, and a wheeled base is what actually transfers to hardware. The
+       torso (base_link) is mounted on top, so every gesture/perception
+       behaviour above works unchanged while the robot can now drive. -->
+  <xacro:if value="$(arg use_mobile_base)">
+    <xacro:property name="wheel_radius" value="0.075"/>
+    <xacro:property name="wheel_sep"    value="0.34"/>
+    <xacro:property name="chassis_h"    value="0.10"/>
+
+    <link name="mobile_base_link">
+      <visual>
+        <origin xyz="0 0 ${chassis_h/2}"/>
+        <geometry><box size="0.36 0.30 ${chassis_h}"/></geometry>
+        <material name="drona_base"><color rgba="0.25 0.28 0.35 1"/></material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${chassis_h/2}"/>
+        <geometry><box size="0.36 0.30 ${chassis_h}"/></geometry>
+      </collision>
+      <xacro:box_inertial mass="6.0"/>
+    </link>
+
+    <!-- Torso rides on the chassis; base_link stops being the root. -->
+    <joint name="torso_mount" type="fixed">
+      <parent link="mobile_base_link"/>
+      <child link="base_link"/>
+      <origin xyz="0 0 ${chassis_h}"/>
+    </joint>
+
+    <xacro:macro name="drive_wheel" params="name y_sign">
+      <link name="${name}_wheel">
+        <visual>
+          <origin rpy="1.5708 0 0"/>
+          <geometry><cylinder radius="${wheel_radius}" length="0.04"/></geometry>
+          <material name="drona_wheel"><color rgba="0.1 0.1 0.12 1"/></material>
+        </visual>
+        <collision>
+          <origin rpy="1.5708 0 0"/>
+          <geometry><cylinder radius="${wheel_radius}" length="0.04"/></geometry>
+        </collision>
+        <xacro:box_inertial mass="0.6"/>
+      </link>
+      <joint name="${name}_wheel_joint" type="continuous">
+        <parent link="mobile_base_link"/>
+        <child link="${name}_wheel"/>
+        <origin xyz="0 ${y_sign*wheel_sep/2} 0"/>
+        <axis xyz="0 1 0"/>
+      </joint>
+    </xacro:macro>
+    <xacro:drive_wheel name="left"  y_sign="1"/>
+    <xacro:drive_wheel name="right" y_sign="-1"/>
+
+    <!-- Front caster: a low-friction sphere so the chassis is statically stable
+         without needing a third driven wheel. -->
+    <link name="caster">
+      <visual><geometry><sphere radius="0.03"/></geometry></visual>
+      <collision>
+        <geometry><sphere radius="0.03"/></geometry>
+        <surface><friction><ode><mu>0.0</mu><mu2>0.0</mu2></ode></friction></surface>
+      </collision>
+      <xacro:box_inertial mass="0.2"/>
+    </link>
+    <joint name="caster_joint" type="fixed">
+      <parent link="mobile_base_link"/>
+      <child link="caster"/>
+      <origin xyz="0.14 0 ${-(wheel_radius-0.03)}"/>
+    </joint>
+
+    <gazebo reference="caster">
+      <mu1>0.0</mu1><mu2>0.0</mu2>
+    </gazebo>
+
+    <!-- Differential drive: consumes /cmd_vel (gz.msgs.Twist, bridged from ROS
+         geometry_msgs/Twist) and publishes odometry + odom->base TF. This is the
+         standard interface every ROS2 mobile base exposes, so the same approach
+         behaviour drives a real Pepper/TIAGo unchanged. -->
+    <gazebo>
+      <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+        <left_joint>left_wheel_joint</left_joint>
+        <right_joint>right_wheel_joint</right_joint>
+        <wheel_separation>${wheel_sep}</wheel_separation>
+        <wheel_radius>${wheel_radius}</wheel_radius>
+        <topic>cmd_vel</topic>
+        <odom_topic>odom</odom_topic>
+        <tf_topic>/model/drona_humanoid/tf</tf_topic>
+        <frame_id>odom</frame_id>
+        <child_frame_id>mobile_base_link</child_frame_id>
+        <odom_publish_frequency>30</odom_publish_frequency>
+        <max_linear_acceleration>1.0</max_linear_acceleration>
+      </plugin>
     </gazebo>
   </xacro:if>
 

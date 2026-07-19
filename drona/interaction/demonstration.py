@@ -327,20 +327,61 @@ def interpolate_keyframes(
     return frames
 
 
+def minimum_jerk_interpolate(
+    keyframes: list[tuple[list[float], float]],
+    dt: float = 0.05,
+) -> list[tuple[np.ndarray, float]]:
+    """Minimum-jerk (5th-order) interpolation between keyframes.
+
+    Each segment follows the classic minimum-jerk profile
+        q(s) = q0 + (qf - q0) * (10 s^3 - 15 s^4 + 6 s^5),  s = step / n_steps
+    which has **zero velocity and acceleration at both endpoints**, so there are
+    no velocity discontinuities (jerk spikes) at the waypoints - unlike the linear
+    interpolation above. Minimum-jerk is the biologically-motivated standard for
+    smooth reaching motion, and is the "expert" demonstration style the imitation
+    policies learn from (while the keyframe *baseline* stays linear).
+    """
+    if not keyframes:
+        return []
+
+    frames: list[tuple[np.ndarray, float]] = []
+    t = 0.0
+    prev_q = np.array(keyframes[0][0], dtype=np.float32)
+
+    for target_list, hold in keyframes:
+        target_q = np.array(target_list, dtype=np.float32)
+        n_steps = max(1, int(hold / dt))
+        for step in range(n_steps):
+            s = step / n_steps
+            blend = 10.0 * s**3 - 15.0 * s**4 + 6.0 * s**5
+            q = prev_q + blend * (target_q - prev_q)
+            frames.append((clamp_joints(q), t))
+            t += dt
+        prev_q = target_q
+
+    return frames
+
+
 def record_keyframe_episode(
     gesture_label: str,
     episode_index: int,
     dt: float = 0.05,
+    smooth: bool = True,
 ) -> DemonstrationEpisode:
     """Generate a demonstration episode from the pre-programmed keyframes.
 
-    This is the seed data for ACT training. Real demonstrations would be
-    recorded from teleoperation; these serve as initial references.
+    This is the seed data for imitation learning (BC / ACT / Diffusion). Real
+    demonstrations would come from teleoperation; these serve as references.
 
     Args:
         gesture_label: One of the keys in GESTURE_KEYFRAMES.
         episode_index: Index for this episode in the dataset.
         dt: Simulation timestep in seconds.
+        smooth: If True (default) the demonstration uses a **minimum-jerk**
+            profile - the smooth "expert" motion the learned policies imitate.
+            The keyframe *baseline* deliberately stays linear, so a learned
+            policy that reproduces the demonstrations is genuinely smoother than
+            the baseline (the C3 claim). Set False for raw linear demonstrations.
 
     Returns:
         A DemonstrationEpisode ready to add to a DemonstrationDataset.
@@ -352,12 +393,14 @@ def record_keyframe_episode(
         )
 
     keyframes = GESTURE_KEYFRAMES[gesture_label]
-    traj = interpolate_keyframes(keyframes, dt=dt)
+    traj = (minimum_jerk_interpolate(keyframes, dt=dt) if smooth
+            else interpolate_keyframes(keyframes, dt=dt))
 
     episode = DemonstrationEpisode(
         episode_index=episode_index,
         gesture_label=gesture_label,
-        metadata={"source": "keyframe_interpolation", "dt": dt},
+        metadata={"source": "minimum_jerk" if smooth else "keyframe_interpolation",
+                  "dt": dt},
     )
 
     for i, (q, t) in enumerate(traj):

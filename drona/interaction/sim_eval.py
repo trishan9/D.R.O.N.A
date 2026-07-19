@@ -53,15 +53,25 @@ def gesture_apex_pose(gesture_label: str) -> np.ndarray:
     return best
 
 
-def rollout(policy: BasePolicy, env: BaseEnv, n_steps: int) -> list[np.ndarray]:
-    """Reset policy + env and roll out for n_steps, returning observed poses."""
+def rollout(policy: BasePolicy, env: BaseEnv, n_steps: int,
+            return_commands: bool = False):
+    """Reset policy + env and roll out for n_steps, returning observed poses.
+
+    If ``return_commands`` is True, also returns the raw actions the policy
+    issued (the control signal the motors receive), so command smoothness can be
+    measured separately from the env-filtered achieved motion.
+    """
     policy.reset()
     obs = env.reset()
     positions = [np.asarray(obs, dtype=np.float32)]
+    commands: list[np.ndarray] = []
     for _ in range(n_steps):
-        action = policy.select_action({"observation.state": obs})
+        action = np.asarray(policy.select_action({"observation.state": obs}), dtype=np.float32)
+        commands.append(action)
         obs, _done = env.step(action)
         positions.append(np.asarray(obs, dtype=np.float32))
+    if return_commands:
+        return positions, commands
     return positions
 
 
@@ -74,9 +84,10 @@ class GestureMetrics:
     returned_to_rest: bool
     apex_error: float
     final_rest_error: float
-    jerk: float
-    path_length: float
-    n_steps: int
+    jerk: float                 # smoothness of achieved motion (env-filtered)
+    command_jerk: float = 0.0   # smoothness of the issued control signal (motor stress)
+    path_length: float = 0.0
+    n_steps: int = 0
 
 
 def evaluate_gesture(
@@ -86,7 +97,7 @@ def evaluate_gesture(
     n_steps: int = 120,
 ) -> GestureMetrics:
     """Roll out one gesture and compute success + quality metrics."""
-    positions = rollout(policy, env, n_steps)
+    positions, commands = rollout(policy, env, n_steps, return_commands=True)
     arr = np.stack(positions)
 
     if gesture_label == "idle":
@@ -113,6 +124,7 @@ def evaluate_gesture(
         apex_error=round(apex_error, 4),
         final_rest_error=round(final_rest_error, 4),
         jerk=round(trajectory_smoothness(positions), 6),
+        command_jerk=round(trajectory_smoothness(commands), 6),
         path_length=round(trajectory_path_length(positions), 4),
         n_steps=n_steps,
     )
@@ -123,7 +135,8 @@ class SimEvalReport:
     policy_label: str
     per_gesture: dict[str, dict] = field(default_factory=dict)
     success_rate: float = 0.0
-    mean_jerk: float = 0.0
+    mean_jerk: float = 0.0            # achieved-motion smoothness (env-filtered)
+    mean_command_jerk: float = 0.0    # control-signal smoothness (motor-relevant)
     mean_path_length: float = 0.0
 
     def to_dict(self) -> dict:
@@ -161,6 +174,7 @@ def evaluate_policy(
         per_gesture={m.gesture: asdict(m) for m in metrics},
         success_rate=round(sum(m.success for m in metrics) / n, 4) if n else 0.0,
         mean_jerk=round(sum(m.jerk for m in metrics) / n, 6) if n else 0.0,
+        mean_command_jerk=round(sum(m.command_jerk for m in metrics) / n, 6) if n else 0.0,
         mean_path_length=round(sum(m.path_length for m in metrics) / n, 4) if n else 0.0,
     )
     logger.info(

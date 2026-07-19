@@ -160,6 +160,23 @@ def evaluation() -> dict:
     return out
 
 
+@app.get("/corpus/stats")
+def corpus() -> dict:
+    """Aggregates over the ACTUAL ingested corpus, for the dashboard.
+
+    Curriculum / pathway / posting counts, tier splits, top employers and
+    skills, plus the market-vs-curriculum **skill gap**. All measured from the
+    ingested artefacts - the dashboard never renders illustrative numbers.
+    """
+    from drona.api.corpus_stats import corpus_stats
+
+    try:
+        return corpus_stats()
+    except Exception as exc:  # noqa: BLE001 - analytics must not break the API
+        logger.warning(f"/corpus/stats failed: {exc}")
+        return {"available": False}
+
+
 @app.post("/advise", response_model=AdvisingResponse)
 async def advise(req: AdviseRequest, advisor: Advisor = Depends(get_advisor)) -> AdvisingResponse:
     """Run the full advising pipeline synchronously (off the event loop)."""

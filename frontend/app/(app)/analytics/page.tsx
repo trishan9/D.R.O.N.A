@@ -5,7 +5,7 @@ import { Activity, ShieldAlert, Route, MapPin, Timer, Gauge, Trophy } from "luci
 
 import { useStore } from "@/lib/store";
 import { CONTRIBUTIONS, liveSummary } from "@/lib/analytics";
-import { getEvaluation, type EvaluationData } from "@/lib/api";
+import { getCorpusStats, getEvaluation, type CorpusStats, type EvaluationData } from "@/lib/api";
 import { StatCard } from "@/components/shared/stat-card";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import {
   TierDonut,
 } from "@/components/analytics/charts";
 import { ValidationPanel } from "@/components/analytics/validation-panel";
+import { CorpusPanel } from "@/components/analytics/corpus-panel";
 
 function SourceBadge({ live, thesis }: { live?: boolean; thesis?: boolean }) {
   if (thesis) {
@@ -39,12 +40,16 @@ export default function AnalyticsPage() {
   const { response } = useStore();
   const s = liveSummary(response);
   const [evalData, setEvalData] = useState<EvaluationData | null>(null);
+  const [corpus, setCorpus] = useState<CorpusStats | null>(null);
 
   useEffect(() => {
     const ctrl = new AbortController();
     getEvaluation(ctrl.signal)
       .then((d) => setEvalData(d.available ? d : null))
       .catch(() => setEvalData(null));
+    getCorpusStats(ctrl.signal)
+      .then((d) => setCorpus(d.available ? d : null))
+      .catch(() => setCorpus(null));
     return () => ctrl.abort();
   }, []);
 

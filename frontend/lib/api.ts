@@ -123,6 +123,47 @@ export interface BiasMitigationRow {
   nepal_first_rate?: number;
 }
 
+export interface NameCount {
+  name: string;
+  count: number;
+}
+
+export interface SkillGapRow {
+  skill: string;
+  demand: number;
+  covered: boolean;
+  taught: number;
+  gap: number;
+}
+
+/** Aggregates over the real ingested corpus (curriculum, pathways, postings). */
+export interface CorpusStats {
+  available: boolean;
+  totals?: {
+    modules: number;
+    pathways: number;
+    postings: number;
+    total_credits: number;
+    distinct_skills_demanded: number;
+    employers: number;
+  };
+  modules_by_programme?: NameCount[];
+  modules_by_year?: NameCount[];
+  postings_by_tier?: NameCount[];
+  pathways_by_tier?: NameCount[];
+  top_employers?: NameCount[];
+  top_locations?: NameCount[];
+  top_skills_demanded?: NameCount[];
+  skill_gap?: SkillGapRow[];
+  skill_coverage_rate?: number;
+}
+
+export async function getCorpusStats(signal?: AbortSignal): Promise<CorpusStats> {
+  const res = await fetch(`${apiBaseUrl()}/corpus/stats`, { signal, cache: "no-store" });
+  if (!res.ok) throw new Error(`Corpus stats fetch failed: ${res.status}`);
+  return (await res.json()) as CorpusStats;
+}
+
 export async function getEvaluation(signal?: AbortSignal): Promise<EvaluationData> {
   const res = await fetch(`${apiBaseUrl()}/evaluation`, { signal, cache: "no-store" });
   if (!res.ok) throw new Error(`Evaluation fetch failed: ${res.status}`);

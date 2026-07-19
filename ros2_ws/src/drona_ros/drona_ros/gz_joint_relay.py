@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Gazebo Joint Relay - ROS2 Humble
+D.R.O.N.A. Gazebo Joint Relay - ROS2 Jazzy
 
 Bridges the policy's joint stream into Gazebo's per-joint position controllers
 so the simulated robot performs exactly the motion the policy commands - the

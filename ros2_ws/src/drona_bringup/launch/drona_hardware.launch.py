@@ -7,7 +7,7 @@ drona_system.launch.py / the Gazebo sim - only the parameter file changes
 makes behaviour transfer from simulation: no code path is hardware-specific
 beyond the arm serial driver and the webcam index.
 
-Usage (on Ubuntu 22.04 with ROS2 Humble, arm connected via USB):
+Usage (on Ubuntu 24.04 with ROS2 Jazzy, arm connected via USB):
     ros2 launch drona_bringup drona_hardware.launch.py
     ros2 launch drona_bringup drona_hardware.launch.py arm_port:=/dev/ttyUSB1
     ros2 launch drona_bringup drona_hardware.launch.py use_rviz:=true rosbridge:=true

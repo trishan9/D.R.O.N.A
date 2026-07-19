@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Diagnostics Node - ROS2 Humble
+D.R.O.N.A. Diagnostics Node - ROS2 Jazzy
 
 System health monitor: watches the liveness of every core D.R.O.N.A. stream and
 publishes standard diagnostics that RViz's diagnostics panel, rqt_runtime_monitor,

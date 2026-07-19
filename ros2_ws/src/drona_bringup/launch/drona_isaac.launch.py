@@ -19,7 +19,7 @@ REQUIRES ≥ 8 GB VRAM (RTX class GPU). On the GTX-1650 (4 GB) use Gazebo
 Usage:
     # Terminal 1 (Isaac python):
     ./python.sh <repo>/ros2_ws/src/drona_bringup/isaac/drona_isaac_stage.py
-    # Terminal 2 (ROS2 Humble sourced):
+    # Terminal 2 (ROS2 Jazzy sourced):
     ros2 launch drona_bringup drona_isaac.launch.py
 """
 

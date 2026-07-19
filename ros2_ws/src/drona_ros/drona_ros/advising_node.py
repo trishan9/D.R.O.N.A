@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Advising Node - ROS2 Humble
+D.R.O.N.A. Advising Node - ROS2 Jazzy
 
 Wraps drona.advising.engine.AdvisingEngine as a ROS2 node.
 Provides both pub/sub and service interfaces.
@@ -12,8 +12,10 @@ Services:
     /drona/advise  (drona_msgs/Advise)
 
 Parameters:
-    log_level       : INFO
-    max_pathways    : 3
+    log_level           : INFO
+    max_pathways        : 3
+    advisor_remote_url  : "" - if set, advise via a GPU-served API (keeps this
+                          node thin); empty runs the engine in-process.
 """
 
 from __future__ import annotations

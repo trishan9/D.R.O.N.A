@@ -119,7 +119,7 @@ def generate_launch_description() -> LaunchDescription:
     )
 
     # rosbridge websocket - bridges the ROS2 graph to the browser (Robot Control
-    # page). Requires `sudo apt install ros-humble-rosbridge-suite`.
+    # page). Requires `sudo apt install ros-jazzy-rosbridge-suite`.
     rosbridge_node = Node(
         package="rosbridge_server",
         executable="rosbridge_websocket",

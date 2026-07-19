@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Orchestrator Node - ROS2 Humble
+D.R.O.N.A. Orchestrator Node - ROS2 Jazzy
 
 Central coordinator. Subscribes to engagement detections, drives the session
 state machine, and dispatches gesture commands and advising queries.

@@ -4,7 +4,7 @@
   <name>drona_ros</name>
   <version>0.1.0</version>
   <description>
-    ROS2 Humble node implementations for D.R.O.N.A. Phase 2.
+    ROS2 Jazzy node implementations for D.R.O.N.A. Phase 2.
 
     Each node is a thin transport wrapper around Phase 1 Python logic:
       advising_node    - wraps drona.advising.engine.AdvisingEngine

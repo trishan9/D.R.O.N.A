@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Gesture Node - ROS2 Humble
+D.R.O.N.A. Gesture Node - ROS2 Jazzy
 
 Wraps drona.interaction.gesture_dispatcher.GestureDispatcher.
 Publishes joint states during execution so visualizers / hardware drivers

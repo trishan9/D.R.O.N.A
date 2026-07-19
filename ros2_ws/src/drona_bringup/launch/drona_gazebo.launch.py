@@ -17,11 +17,11 @@ Brings up the full simulation mirror of the deployment stack:
       the SIMULATED camera via image_topic
     - diagnostics_node -> /diagnostics
 
-Prerequisites (Ubuntu 22.04 + ROS2 Humble):
-    sudo apt install ros-humble-ros-gz gz-harmonic
+Prerequisites (Ubuntu 24.04 + ROS2 Jazzy):
+    sudo apt install ros-jazzy-ros-gz gz-harmonic
 See docs/sim_setup_gazebo.md for the full guide.
 
-On Windows with no dual-boot: run this inside WSL2 (Ubuntu 22.04); Windows 11's
+On Windows with no dual-boot: run this inside WSL2 (Ubuntu 24.04); Windows 11's
 WSLg renders the GUI window. If GL fails under WSL, `export LIBGL_ALWAYS_SOFTWARE=1`
 or pass headless:=true. Full WSL guide: docs/wsl_setup.md.
 
@@ -61,11 +61,16 @@ def generate_launch_description() -> LaunchDescription:
 
     headless = LaunchConfiguration("headless")
     use_rviz = LaunchConfiguration("use_rviz")
+    advisor_remote_url = LaunchConfiguration("advisor_remote_url")
     args = [
         DeclareLaunchArgument("headless", default_value="false",
                               description="Run gz sim without the GUI (server only)"),
         DeclareLaunchArgument("use_rviz", default_value="false",
                               description="Also open RViz2 (TF + camera view)"),
+        DeclareLaunchArgument(
+            "advisor_remote_url", default_value="",
+            description="GPU-served advising API URL (e.g. the Colab T4 tunnel). "
+                        "Empty = run the advising engine in-process."),
     ]
 
     sim_time = {"use_sim_time": True}
@@ -145,7 +150,12 @@ def generate_launch_description() -> LaunchDescription:
         output="screen",
     )
     policy = Node(executable="policy_node", name="drona_policy_node", **common)
-    advising = Node(executable="advising_node", name="drona_advising_node", **common)
+    advising = Node(
+        package="drona_ros", executable="advising_node", name="drona_advising_node",
+        parameters=[params_file, sim_time,
+                    {"advisor_remote_url": advisor_remote_url}],
+        output="screen",
+    )
     orchestrator = Node(executable="orchestrator_node", name="drona_orchestrator_node", **common)
     diagnostics = Node(executable="diagnostics_node", name="drona_diagnostics_node", **common)
 

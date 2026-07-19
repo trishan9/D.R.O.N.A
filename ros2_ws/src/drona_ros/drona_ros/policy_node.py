@@ -1,5 +1,5 @@
 """
-D.R.O.N.A. Policy Node - ROS2 Humble (Research Contribution C3)
+D.R.O.N.A. Policy Node - ROS2 Jazzy (Research Contribution C3)
 
 Wraps LeRobot gesture-policy inference (drona.interaction) as a ROS2 **action
 server**. This is the action-based counterpart to gesture_node's blocking

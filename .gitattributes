@@ -1,0 +1,37 @@
+# Keep line endings sane across Windows + WSL/Linux.
+#
+# Shell scripts, ROS launch/config, and anything executed by Linux tooling MUST
+# stay LF - CRLF makes bash fail with "set: pipefail: invalid option name" and
+# breaks colcon/ros2. This repo is developed on Windows but runs in WSL2, so
+# force LF for everything the Linux side touches.
+
+# Default: let git decide, but normalise text on commit.
+* text=auto
+
+# Always LF (executed or parsed by Linux):
+*.sh        text eol=lf
+*.bash      text eol=lf
+*.py        text eol=lf
+*.launch.py text eol=lf
+*.xml       text eol=lf
+*.xacro     text eol=lf
+*.urdf      text eol=lf
+*.sdf       text eol=lf
+*.world     text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.cfg       text eol=lf
+*.msg       text eol=lf
+*.srv       text eol=lf
+*.action    text eol=lf
+Dockerfile  text eol=lf
+
+# Binary (never touch):
+*.safetensors binary
+*.bin       binary
+*.onnx      binary
+*.pt        binary
+*.parquet   binary
+*.png       binary
+*.jpg       binary
+*.zip       binary

@@ -1,0 +1,64 @@
+{
+  "generated": "2026-07-20T03:12:01",
+  "set": "held-out (author-constructed, detector not tuned on it)",
+  "n_items": 32,
+  "n_biased": 24,
+  "n_neutral": 8,
+  "per_bias": {
+    "availability_heuristic": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666,
+      "tp": 3,
+      "fp": 0,
+      "fn": 3
+    },
+    "anchoring": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0
+    },
+    "confirmation": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.888888888888889,
+      "tp": 4,
+      "fp": 0,
+      "fn": 1
+    },
+    "dunning_kruger": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0
+    },
+    "loss_aversion": {
+      "precision": 1.0,
+      "recall": 0.75,
+      "f1": 0.8571428571428571,
+      "tp": 3,
+      "fp": 0,
+      "fn": 1
+    },
+    "consistency": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.7499999999999999,
+      "tp": 3,
+      "fp": 0,
+      "fn": 2
+    }
+  },
+  "macro_avg": {
+    "precision": 1.0,
+    "recall": 0.775,
+    "f1": 0.8604497354497355
+  },
+  "n_missed": 7,
+  "n_false_positive": 0
+}

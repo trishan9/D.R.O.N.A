@@ -145,17 +145,51 @@ false-positive guard on neutral queries.
 | consistency | 1.000 | 1.000 | 1.000 |
 | **Macro** | **1.000** | **1.000** | **1.000** |
 
-Reached by widening patterns to how students *actually* phrase things — hedged
-under-confidence ("I'm **probably** not smart enough"), narrowing ("**focus only
-on** AI"), numeric salary anchors ("earning **Rs 80,000**"), and appeals to
-consensus ("**Everyone says** cloud is the future"). Earlier iterations scored
-macro-F1 0.86 (anchoring R=0.50, confirmation R=0.33).
+> ⚠️ **This is a DEVELOPMENT-set score and must be reported as such.** The
+> detector's patterns were widened until these 16 queries passed, so 1.000
+> measures fit, not generalisation. Quoting it alone would invite the obvious
+> viva question ("who wrote the queries, and did you tune on them?").
 
-**Demo:** `python scripts/demo_bias_detection.py` → 6/6 types fire, **0 false
-positives** on the neutral control.
+#### Held-out result (the number to defend)
 
-> Precision 1.000 matters as much as recall here: falsely accusing a student of a
-> cognitive bias would be worse than missing one.
+`python scripts/eval_heldout_bias.py` scores a set the detector was **not** tuned
+against (`drona/evaluation/heldout_queries.py`, 32 items: 24 biased, 8 neutral):
+
+| Bias type | Precision | Recall | F1 |
+|---|---|---|---|
+| anchoring | 1.000 | 1.000 | 1.000 |
+| dunning_kruger | 1.000 | 1.000 | 1.000 |
+| confirmation | 1.000 | 0.800 | 0.889 |
+| loss_aversion | 1.000 | 0.750 | 0.857 |
+| consistency | 1.000 | 0.600 | 0.750 |
+| availability_heuristic | 1.000 | 0.500 | 0.667 |
+| **Macro** | **1.000** | **0.775** | **0.860** |
+
+**0 false positives on 8 neutral controls.**
+
+**Read it this way.** Precision 1.000 with recall 0.775 is the right shape for
+this application: the system never falsely accuses a student of a cognitive bias,
+and errs toward silence when unsure. A false accusation damages trust far more
+than a missed flag.
+
+**The misses are reported, not patched** (patching them would turn the held-out
+set into a second development set). They cluster into three honest limitations:
+
+1. **Media/authority anecdotes are missed** — "I keep seeing news about AI
+   replacing programmers", "A YouTuber said a bootcamp is better". The
+   availability patterns catch *personal* anecdotes ("my friend/senior") but not
+   media-sourced ones.
+2. **Bias detection is English-only.** The Nepali item
+   (*"मेरो साथीले Deerwalk मा job पायो…"*) was not flagged. The system advises
+   bilingually but debiases monolingually — a real gap for a bilingual advisor.
+3. **Commitment phrasing is narrow** — "I told my whole family…" is missed while
+   "I've told everyone…" is caught.
+
+These are the strongest *future work* items in the dissertation: Nepali bias
+patterns, and replacing/augmenting regexes with a learned classifier.
+
+**Demo:** `python scripts/demo_bias_detection.py` → 6/6 types fire, 0 false
+positives on the neutral control.
 
 ### C3 — Gesture quality (imitation learning)
 
@@ -330,7 +364,7 @@ range, fail-safe on student loss.
 | ID | Contribution | Evidence |
 |---|---|---|
 | **C1** | Hybrid retrieval beats single-retriever baselines for curriculum-grounded advising | NDCG@5 0.941 vs 0.871/0.909 |
-| **C2** | Rule-based cognitive-bias detection with prompt-level mitigation | **macro-F1 1.000** (P=R=1.000) over 6 types, 0 false positives |
+| **C2** | Rule-based cognitive-bias detection with prompt-level mitigation | **held-out macro-F1 0.860** (P=1.000, R=0.775), 0 false positives; dev-set 1.000 |
 | **C3** | Demonstration-learned gestures are smoother than scripted playback | 100 % success; 13 % lower command jerk |
 | **C4** | Local-first, zero-cost, privacy-preserving deployment | Nepal citation ratio 1.00; all open-weight, no paid API |
 | **C5** | *(systems)* Bilingual (English/Nepali) bias-aware advising, RAG-grounded in the local curriculum | Nepali pathways citing real Softwarica modules |

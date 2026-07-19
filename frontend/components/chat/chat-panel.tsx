@@ -16,9 +16,11 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { streamAdvise } from "@/lib/api";
+import { detectLanguage, SAMPLE_PROMPTS } from "@/lib/language";
 import type { AdviseRequest, AdvisingResponse, ProfileDraft } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -218,7 +220,7 @@ export function ChatPanel({ profile, onResponse, onQuerySent }: ChatPanelProps) 
                 send(draft);
               }
             }}
-            placeholder="Type your question…  (Enter to send, Shift+Enter for a new line)"
+            placeholder="Type your question in English or नेपाली…  (Enter to send, Shift+Enter for a new line)"
             className="max-h-40 min-h-[2.5rem] resize-none border-0 bg-transparent px-2 py-1.5 shadow-none focus-visible:ring-0"
             rows={1}
             disabled={busy}
@@ -226,6 +228,30 @@ export function ChatPanel({ profile, onResponse, onQuerySent }: ChatPanelProps) 
           <Button size="icon" className="h-9 w-9 shrink-0 rounded-lg" onClick={() => send(draft)} disabled={busy || !draft.trim()}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
+        </div>
+        {/* Bilingual: the backend detects the query language and routes Nepali to
+            the Nepali-specialised model. Surfacing it here so the student can see
+            which language they'll be answered in before they hit send. */}
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {draft.trim() ? (
+            <Badge variant="outline" className="text-[10px]">
+              {detectLanguage(draft) === "ne"
+                ? "नेपाली detected → answering in Nepali"
+                : "English detected"}
+            </Badge>
+          ) : (
+            SAMPLE_PROMPTS.map((p) => (
+              <button
+                key={p.text}
+                type="button"
+                onClick={() => setDraft(p.text)}
+                className="rounded-full border border-border/60 px-2.5 py-1 text-[11px] text-muted-foreground transition hover:border-brand/50 hover:text-foreground"
+              >
+                {p.lang === "ne" ? "नेपाली · " : "EN · "}
+                {p.text.length > 42 ? `${p.text.slice(0, 42)}…` : p.text}
+              </button>
+            ))
+          )}
         </div>
       </div>
     </Card>

@@ -31,6 +31,8 @@ interface PendingService {
 
 export class RosBridge {
   private ws: WebSocket | null = null;
+  /** Topics we've already advertised (rosbridge needs it before publish). */
+  private advertised = new Set<string>();
   private url: string;
   private idCounter = 0;
   private subs = new Map<string, SubCallback>();
@@ -66,6 +68,7 @@ export class RosBridge {
     ws.onopen = () => {
       this.statusCb?.("connected");
       // Re-subscribe everything that was registered before connect.
+      this.advertised.clear();  // a fresh socket has no advertisements
       for (const topic of this.subs.keys()) this.sendSubscribe(topic);
     };
     ws.onclose = () => {
@@ -118,6 +121,30 @@ export class RosBridge {
     this.send({ op: "unsubscribe", topic });
   }
 
+  /**
+   * Publish a message, advertising the topic once first.
+   *
+   * rosbridge requires an `advertise` before the first `publish` on a topic;
+   * we remember what we've advertised so repeated calls (e.g. a 10 Hz /cmd_vel
+   * teleop stream) only pay that once. Silently no-ops when disconnected, so a
+   * control panel degrades to "buttons do nothing" instead of throwing.
+   */
+  publish(topic: string, type: string, msg: AnyMsg): void {
+    if (!this.connected) return;
+    if (!this.advertised.has(topic)) {
+      this.send({ op: "advertise", topic, type, id: this.nextId("adv") });
+      this.advertised.add(topic);
+    }
+    this.send({ op: "publish", topic, msg, id: this.nextId("pub") });
+  }
+
+  /** Stop advertising a topic (e.g. when a control panel unmounts). */
+  unadvertise(topic: string): void {
+    if (!this.advertised.has(topic)) return;
+    this.advertised.delete(topic);
+    this.send({ op: "unadvertise", topic });
+  }
+
   /** Call a ROS2 service; resolves with the response `values`. */
   callService(service: string, type: string, args: AnyMsg, timeoutMs = 8000): Promise<AnyMsg> {
     return new Promise((resolve, reject) => {
@@ -168,6 +195,29 @@ export const DRONA_TOPICS = {
   sessionState: "/drona/session_state",
   engagement: "/drona/engagement",
 } as const;
+
+/** Topics the control centre PUBLISHES to (command surface). */
+export const DRONA_COMMAND_TOPICS = {
+  cmdVel: { name: "/cmd_vel", type: "geometry_msgs/Twist" },
+  gesture: { name: "/drona/gesture_command", type: "drona_msgs/GestureCommand" },
+  ask: { name: "/drona/ask", type: "std_msgs/String" },
+  say: { name: "/drona/say", type: "std_msgs/String" },
+} as const;
+
+/** Zero-velocity Twist - the emergency stop payload. */
+export function zeroTwist() {
+  return {
+    linear: { x: 0, y: 0, z: 0 },
+    angular: { x: 0, y: 0, z: 0 },
+  };
+}
+
+export function twist(linearX: number, angularZ: number) {
+  return {
+    linear: { x: linearX, y: 0, z: 0 },
+    angular: { x: 0, y: 0, z: angularZ },
+  };
+}
 
 export const DRONA_GESTURE_SERVICE = {
   name: "/drona/execute_gesture",

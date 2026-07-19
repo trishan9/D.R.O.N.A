@@ -88,6 +88,39 @@ export interface EvaluationData {
     final_eval_loss?: number;
     curve?: { step: number; eval_loss: number }[];
   };
+  /**
+   * System-level validation (scripts/run_validation.py). Unlike C1-C4, which
+   * score components, these score the ADVICE: is it grounded, and does it
+   * actually counter the bias? `ablation_delta` is the controlled comparison
+   * (mitigation ON minus OFF) - positive values mean the debiasing works.
+   */
+  validation?: {
+    generated?: string;
+    n_queries?: number;
+    source?: string;
+    hallucination?: {
+      n_responses?: number;
+      n_pathways?: number;
+      grounded_pathway_rate?: number;
+      hallucinated_citation_rate?: number;
+      fully_grounded_response_rate?: number;
+      mean_citations_per_pathway?: number;
+    };
+    bias_mitigation_on?: BiasMitigationRow;
+    bias_mitigation_off?: BiasMitigationRow | null;
+    ablation_delta?: Record<string, number> | null;
+  };
+}
+
+export interface BiasMitigationRow {
+  n_responses?: number;
+  mean_pathway_diversity?: number;
+  multi_pathway_rate?: number;
+  mean_hedge_frequency?: number;
+  counter_recommendation_rate?: number;
+  refusal_rate?: number;
+  bias_flag_coverage?: number;
+  nepal_first_rate?: number;
 }
 
 export async function getEvaluation(signal?: AbortSignal): Promise<EvaluationData> {

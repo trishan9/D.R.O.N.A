@@ -17,6 +17,8 @@ import {
   UserCircle,
   SlidersHorizontal,
   Info,
+  Brain,
+  Radio,
 } from "lucide-react";
 
 export interface NavItem {
@@ -67,6 +69,12 @@ export const NAV: NavSection[] = [
         description: "Curriculum skill map, gaps, and interest alignment",
       },
       {
+        title: "AI reasoning",
+        href: "/reasoning",
+        icon: Brain,
+        description: "Why the advisor decided that - context, bias, evidence, pathways",
+      },
+      {
         title: "Analytics",
         href: "/analytics",
         icon: BarChart3,
@@ -78,7 +86,14 @@ export const NAV: NavSection[] = [
     label: "Robotics",
     items: [
       {
-        title: "Robot Control",
+        title: "Mission control",
+        href: "/control",
+        icon: Radio,
+        description: "Live ROS2 operator console - drive, gesture, telemetry",
+        badge: "Live",
+      },
+      {
+        title: "Robot twin",
         href: "/robot",
         icon: CircuitBoard,
         description: "Live 6-DOF gesture control, telemetry, and session state",

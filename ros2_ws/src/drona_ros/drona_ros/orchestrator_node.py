@@ -24,10 +24,6 @@ import queue
 import uuid
 
 import rclpy
-from rclpy.node import Node
-from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
-from std_msgs.msg import String
-
 from drona_msgs.msg import (
     AdvisingQuery,
     AdvisingResponse,
@@ -36,17 +32,20 @@ from drona_msgs.msg import (
     GestureResult,
     SessionState,
 )
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from rclpy.node import Node
+from std_msgs.msg import String
+
+from drona_ros.msg_bridge import (
+    advising_query_to_ros,
+    session_state_to_ros,
+)
 
 # What the robot says out loud when it greets a student. The advising answer's
 # own speak_text is used verbatim for the response turn.
 _GREETING_UTTERANCE = (
     "Hello! I'm D.R.O.N.A., your academic advisor. "
     "Ask me anything about your studies, career, or where you want to go next."
-)
-
-from drona_ros.msg_bridge import (
-    advising_query_to_ros,
-    session_state_to_ros,
 )
 
 
@@ -110,7 +109,7 @@ class OrchestratorNode(Node):
     # ── Inbound ────────────────────────────────────────────────────────────────
 
     def _on_engagement(self, msg: EngagementDetection) -> None:
-        from drona.perception.mediapipe_detector import StudentDetection, EngagementState
+        from drona.perception.mediapipe_detector import EngagementState, StudentDetection
         try:
             eng_state = EngagementState(msg.state)
         except ValueError:
@@ -209,7 +208,8 @@ class OrchestratorNode(Node):
         self.get_logger().info(f"Gesture command sent: {label}")
 
     def _send_query(self, text: str) -> None:
-        from drona.contracts import AdvisingQuery as PydanticQuery, StudentProfile
+        from drona.contracts import AdvisingQuery as PydanticQuery
+        from drona.contracts import StudentProfile
         pydantic_q = PydanticQuery(
             query_id=str(uuid.uuid4()),
             query_text=text,

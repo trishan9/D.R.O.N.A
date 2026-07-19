@@ -115,6 +115,8 @@ class LLMClient:
         self._fallback_model = fallback_model or settings.ollama_fallback_model
         self._host = host or settings.ollama_host
         self._client: Any = None  # lazy import
+        # None = untested, False = client rejects think= (old lib / test double)
+        self._supports_think: bool | None = None
 
     def _ensure_client(self) -> None:
         if self._client is not None:
@@ -160,25 +162,28 @@ class LLMClient:
             usable.append(self._fallback_model)
         return usable or [self._model]
 
-    def _think_kwarg(self) -> dict:
-        """{"think": False} when the ollama client supports it, else {}.
+    def _chat(self, **kwargs):
+        """Call ollama chat with thinking disabled, degrading if unsupported.
 
         Reasoning models (e.g. Himalaya Gemma) otherwise emit a long
         chain-of-thought and never reach the actual answer within the token
         budget - producing EMPTY content. Advising wants the structured answer
-        directly, so we turn thinking off. Detected once; degrades on older
-        ollama-python that lacks the parameter.
+        directly, so `think=False`.
+
+        Older ollama-python (and test doubles) do not accept the parameter, so
+        the first TypeError about it permanently drops it for this client rather
+        than failing the call. Signature inspection is deliberately NOT used - it
+        misreports mocks.
         """
-        if getattr(self, "_supports_think", None) is None:
-            import inspect
+        if self._supports_think is not False:
             try:
-                params = inspect.signature(self._client.chat).parameters
-                self._supports_think = "think" in params or any(
-                    p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
-                )
-            except (ValueError, TypeError):
+                return self._client.chat(think=False, **kwargs)
+            except TypeError as exc:
+                if "think" not in str(exc):
+                    raise
+                logger.debug("ollama client does not accept think=; continuing without it")
                 self._supports_think = False
-        return {"think": False} if self._supports_think else {}
+        return self._client.chat(**kwargs)
 
     def complete(self, prompt: str, max_tokens: int = 256, temperature: float = 0.0) -> str:
         """Raw single-turn completion (not structured advising).
@@ -188,11 +193,10 @@ class LLMClient:
         """
         try:
             self._ensure_client()
-            resp = self._client.chat(
+            resp = self._chat(
                 model=self._model,
                 messages=[{"role": "user", "content": prompt}],
                 keep_alive=settings.ollama_keep_alive,
-                **self._think_kwarg(),
                 # Match generate()'s num_ctx so the model is NOT reloaded between a
                 # utility call (e.g. NE->EN translation) and the advising call -
                 # a reload with a different context size on a tight GPU can corrupt
@@ -235,17 +239,12 @@ class LLMClient:
             for attempt in range(max_retries + 1):
                 t0 = time.monotonic()
                 try:
-                    response = self._client.chat(
+                    response = self._chat(
                         model=model,
                         messages=messages,
                         # keep_alive holds the model in memory between requests
                         # so only the FIRST query pays the cold-load cost.
                         keep_alive=settings.ollama_keep_alive,
-                        # think=False disables reasoning models' chain-of-thought
-                        # (e.g. Himalaya Gemma). Advising wants the structured JSON
-                        # directly; without this a reasoning model spends its whole
-                        # token budget "thinking" and returns empty content.
-                        **self._think_kwarg(),
                         options={
                             "temperature": settings.llm_temperature,
                             "num_ctx": settings.ollama_num_ctx,

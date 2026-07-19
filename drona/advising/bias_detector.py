@@ -62,6 +62,11 @@ _ANCHORING_PATTERNS = [
     re.compile(r"\b(won't|will not|refuse to|not going to) (consider|look at|think about)\b", re.I),
     re.compile(r"\bno matter what\b", re.I),
     re.compile(r"\b(fixed|set|decided) on\b", re.I),
+    # Narrowing to a single field/company: "should I focus only on AI?"
+    re.compile(r"\b(focus|focusing|concentrate|concentrating|specialise|specialize) only on\b", re.I),
+    # Fixating on one concrete salary figure heard from a single example -
+    # a textbook numeric anchor ("...earning Rs 80,000. How do I get there?").
+    re.compile(r"\b(rs\.?|nrs\.?|npr\.?)\s*[\d,]{4,}\b", re.I),
 ]
 
 # Confirmation bias: seeking validation rather than exploration
@@ -69,7 +74,10 @@ _CONFIRMATION_PATTERNS = [
     re.compile(r"\bisn'?t (it|that|python|java|ai|ml|data science)\b.{0,40}(right|true|correct|better|best)\b", re.I),
     re.compile(r"\b(confirm|validate|tell me i('?m| am))\b", re.I),
     re.compile(r"\bi('?m| am) right (that|about)\b", re.I),
-    re.compile(r"\b(don't you think|wouldn't you agree|you'd agree)\b", re.I),
+    re.compile(r"\b(don'?t you think|don'?t you agree|do you agree|wouldn'?t you agree|you'd agree)\b", re.I),
+    # Appeal to consensus - presenting a received belief and inviting agreement
+    # ("Everyone says cloud is the future. What do you think?").
+    re.compile(r"\b(everyone|everybody|all my friends|most people) (says?|thinks?|believes?|agrees?)\b", re.I),
     re.compile(r"\b(python|java|javascript|ai|ml|data science) is (the best|definitely|obviously|clearly|undeniably)\b", re.I),
     re.compile(r"\bjust (tell|confirm|say) (me|that)\b", re.I),
     re.compile(r"\bi (already know|already decided|know for sure) .{0,30}(right|correct)\?", re.I),

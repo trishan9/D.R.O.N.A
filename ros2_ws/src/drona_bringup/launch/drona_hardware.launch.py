@@ -33,6 +33,7 @@ from launch.actions import DeclareLaunchArgument, LogInfo
 from launch.conditions import IfCondition
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description() -> LaunchDescription:
@@ -59,7 +60,7 @@ def generate_launch_description() -> LaunchDescription:
     ]
 
     # TF from the physical robot's joint stream - RViz / web twin mirror reality.
-    robot_description = {"robot_description": Command(["xacro ", urdf])}
+    robot_description = {"robot_description": ParameterValue(Command(["xacro ", urdf]), value_type=str)}
     rsp = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",

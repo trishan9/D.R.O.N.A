@@ -46,6 +46,7 @@ from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 _JOINTS = ["j0_base_yaw", "j1_shoulder", "j2_elbow",
            "j3_wrist_pitch", "j4_wrist_roll", "j5_gripper"]
@@ -75,8 +76,13 @@ def generate_launch_description() -> LaunchDescription:
 
     sim_time = {"use_sim_time": True}
     robot_description = {
-        "robot_description": Command(
-            ["xacro ", urdf, " use_gz_camera:=true use_gz_control:=true"]
+        # ROS2 Jazzy parses parameter values as YAML; the xacro-generated URDF
+        # is a plain string, so it must be declared with value_type=str or the
+        # launch aborts with "Unable to parse the value of parameter
+        # robot_description as yaml".
+        "robot_description": ParameterValue(
+            Command(["xacro ", urdf, " use_gz_camera:=true use_gz_control:=true"]),
+            value_type=str,
         ),
         **sim_time,
     }

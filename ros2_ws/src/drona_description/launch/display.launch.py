@@ -20,6 +20,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description() -> LaunchDescription:
@@ -33,7 +34,7 @@ def generate_launch_description() -> LaunchDescription:
         description="Use joint_state_publisher_gui sliders instead of /drona/joint_states",
     )
 
-    robot_description = {"robot_description": Command(["xacro ", urdf])}
+    robot_description = {"robot_description": ParameterValue(Command(["xacro ", urdf]), value_type=str)}
 
     rsp = Node(
         package="robot_state_publisher",

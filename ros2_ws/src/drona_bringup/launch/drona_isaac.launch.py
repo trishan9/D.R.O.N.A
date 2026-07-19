@@ -32,6 +32,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, LogInfo
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description() -> LaunchDescription:
@@ -43,7 +44,7 @@ def generate_launch_description() -> LaunchDescription:
     log_level = LaunchConfiguration("log_level")
     log_level_arg = DeclareLaunchArgument("log_level", default_value="INFO")
 
-    robot_description = {"robot_description": Command(["xacro ", urdf]), "use_sim_time": True}
+    robot_description = {"robot_description": ParameterValue(Command(["xacro ", urdf]), value_type=str), "use_sim_time": True}
 
     rsp = Node(
         package="robot_state_publisher",

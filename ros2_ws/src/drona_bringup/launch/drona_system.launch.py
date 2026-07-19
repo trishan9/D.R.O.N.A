@@ -32,6 +32,7 @@ from launch.actions import DeclareLaunchArgument, ExecuteProcess, LogInfo
 from launch.conditions import IfCondition
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 # Topics captured when record:=true.
 _RECORD_TOPICS = [
@@ -75,7 +76,7 @@ def generate_launch_description() -> LaunchDescription:
                                           "Next.js Robot Control page can drive the live robot"),
     ]
 
-    robot_description = {"robot_description": Command(["xacro ", urdf])}
+    robot_description = {"robot_description": ParameterValue(Command(["xacro ", urdf]), value_type=str)}
 
     rsp = Node(
         package="robot_state_publisher",

@@ -5,7 +5,7 @@ Isaac Sim it runs comfortably on CPU / integrated graphics, so it is the
 recommended sim for the student's **GTX-1650 (4 GB)** dev box and for CI smoke
 tests.
 
-> **Platform:** Ubuntu 22.04 LTS + ROS2 Humble. **On Windows with no dual-boot,
+> **Platform:** Ubuntu 24.04 LTS + ROS2 Jazzy. **On Windows with no dual-boot,
 > run this inside WSL2** - Windows 11's WSLg shows the Gazebo/RViz windows on your
 > desktop with no extra X-server. Do `docs/wsl_setup.md` first, then every command
 > below is identical. Phase 1 sim (`scripts/run_simulation.py`) is the
@@ -16,11 +16,11 @@ tests.
 ## 1. Install
 
 ```bash
-# ROS2 Humble pairs with Gazebo Harmonic via the ros_gz bridge.
+# ROS2 Jazzy pairs with Gazebo Harmonic via the ros_gz bridge.
 sudo apt update
-sudo apt install -y ros-humble-ros-gz gz-harmonic \
-  ros-humble-robot-state-publisher ros-humble-joint-state-publisher \
-  ros-humble-xacro ros-humble-rviz2
+sudo apt install -y ros-jazzy-ros-gz gz-harmonic \
+  ros-jazzy-robot-state-publisher ros-jazzy-joint-state-publisher \
+  ros-jazzy-xacro ros-jazzy-rviz2
 ```
 
 Verify:

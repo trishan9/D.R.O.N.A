@@ -2,9 +2,9 @@
 
 **This is the recommended ROS2 path now that there is no Ubuntu dual-boot.**
 
-ROS2 Humble only runs on Ubuntu 22.04 - it does **not** run natively on Windows.
+ROS2 Jazzy only runs on Ubuntu 24.04 - it does **not** run natively on Windows.
 But you do **not** need a dual-boot partition. **WSL2 (Windows Subsystem for Linux
-2)** runs a real Ubuntu 22.04 kernel inside Windows 11, and **WSLg** (bundled with
+2)** runs a real Ubuntu 24.04 kernel inside Windows 11, and **WSLg** (bundled with
 Windows 11, all editions including Home) gives Linux GUI apps a window on your
 Windows desktop. That means **RViz2 and the Gazebo GUI just open as normal
 windows** - no VcXsrv / X-server fiddling required.
@@ -20,7 +20,7 @@ windows** - no VcXsrv / X-server fiddling required.
 
 | Old (dual-boot) | New (WSL2) |
 |---|---|
-| Reboot into Ubuntu 22.04 | Stay in Windows; open an **Ubuntu (WSL)** terminal |
+| Reboot into Ubuntu 24.04 | Stay in Windows; open an **Ubuntu (WSL)** terminal |
 | Native GPU + display | **WSLg** provides the display; NVIDIA **WSL driver** provides the GPU |
 | Repo on the Ubuntu partition | Repo lives on Windows; access it from WSL (see §3) |
 | `colcon build` on bare metal | Identical commands, run **inside** the WSL Ubuntu shell |
@@ -31,32 +31,32 @@ inside the WSL Ubuntu shell. The only new steps are §1–§3 below.
 
 ---
 
-## 1. Install WSL2 + Ubuntu 22.04
+## 1. Install WSL2 + Ubuntu 24.04
 
 Open **PowerShell as Administrator** (Windows side) and run:
 
 ```powershell
-wsl --install -d Ubuntu-22.04
+wsl --install -d Ubuntu-24.04
 ```
 
-This installs WSL2 and Ubuntu 22.04. Reboot if prompted. On first launch Ubuntu
+This installs WSL2 and Ubuntu 24.04. Reboot if prompted. On first launch Ubuntu
 asks you to create a Linux username + password (this is separate from your
 Windows login - remember it; `sudo` needs it).
 
 Confirm you are on WSL **2** (not 1 - ROS2/Gazebo need 2) and that WSLg is present:
 
 ```powershell
-wsl --list --verbose          # VERSION column must say 2 for Ubuntu-22.04
+wsl --list --verbose          # VERSION column must say 2 for Ubuntu-24.04
 wsl --update                   # ensures latest WSL + WSLg kernel
 ```
 
 If `VERSION` shows `1`, convert it:
 
 ```powershell
-wsl --set-version Ubuntu-22.04 2
+wsl --set-version Ubuntu-24.04 2
 ```
 
-From here on, **open the "Ubuntu 22.04" app** from the Start menu (or run `wsl` in
+From here on, **open the "Ubuntu 24.04" app** from the Start menu (or run `wsl` in
 any terminal) - that drops you into the Linux shell where all ROS2 commands run.
 
 ---
@@ -102,13 +102,13 @@ cd /mnt/c/Users/trish/Documents/Developer/D.R.O.N.A/ros2_ws
 
 ---
 
-## 4. Install ROS2 Humble + Gazebo (inside WSL)
+## 4. Install ROS2 Jazzy + Gazebo (inside WSL)
 
 Run these **inside the Ubuntu shell**. This is the same as `docs/ros2_setup.md`
 §1 and `docs/sim_setup_gazebo.md` §1, collected here:
 
 ```bash
-# --- ROS2 Humble ---
+# --- ROS2 Jazzy ---
 sudo apt update && sudo apt install -y locales curl gnupg lsb-release
 sudo locale-gen en_US en_US.UTF-8 && sudo update-locale LANG=en_US.UTF-8
 sudo add-apt-repository universe -y
@@ -118,20 +118,20 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" \
   | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 sudo apt update
-sudo apt install -y ros-humble-desktop ros-dev-tools \
+sudo apt install -y ros-jazzy-desktop ros-dev-tools \
   python3-colcon-common-extensions python3-rosdep
 
 # --- Gazebo Harmonic + ROS2<->Gazebo bridge + viz ---
-sudo apt install -y ros-humble-ros-gz gz-harmonic \
-  ros-humble-robot-state-publisher ros-humble-joint-state-publisher-gui \
-  ros-humble-xacro ros-humble-rviz2
+sudo apt install -y ros-jazzy-ros-gz gz-harmonic \
+  ros-jazzy-robot-state-publisher ros-jazzy-joint-state-publisher-gui \
+  ros-jazzy-xacro ros-jazzy-rviz2
 
 # --- rosdep (once) ---
 sudo rosdep init 2>/dev/null; rosdep update
 
 # --- source ROS2 in every shell ---
-echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc
-source /opt/ros/humble/setup.bash
+echo 'source /opt/ros/jazzy/setup.bash' >> ~/.bashrc
+source /opt/ros/jazzy/setup.bash
 ```
 
 Sanity check:
@@ -193,7 +193,7 @@ taskbar). Record this for your demo video - see `docs/demo_video_script.md`.
 | `gz sim` GL3+ / Ogre2 errors | `export QT_QPA_PLATFORM=xcb` and `export LIBGL_ALWAYS_SOFTWARE=1`, relaunch. Or use `headless:=true` and view via RViz/rosbag. |
 | `nvidia-smi: command not found` in WSL | Update the **Windows** GeForce driver; do **not** apt-install a Linux GPU driver inside WSL. |
 | `colcon build` very slow / file-watcher errors | You are on `/mnt/c`. Clone into the native WSL home (`~`) per §3, or raise `fs.inotify.max_user_watches`. |
-| Build was on WSL1 | `wsl --set-version Ubuntu-22.04 2` (WSL1 cannot run Gazebo). |
+| Build was on WSL1 | `wsl --set-version Ubuntu-24.04 2` (WSL1 cannot run Gazebo). |
 | Editing files: which path? | Windows path `C:\Users\trish\...\D.R.O.N.A` == WSL path `/mnt/c/Users/trish/.../D.R.O.N.A`. VS Code: install the "WSL" extension and `code .` from the WSL shell. |
 | ROS2 nodes can't see each other | All nodes must run in the **same** WSL distro and have ROS2 sourced. Set a matching `export ROS_DOMAIN_ID=42` in each terminal if you isolate runs. |
 
@@ -225,7 +225,7 @@ service to trigger gestures.
 
 ```bash
 # inside WSL2, once:
-sudo apt install ros-humble-rosbridge-suite
+sudo apt install ros-jazzy-rosbridge-suite
 
 # start the full stack WITH the bridge on :9090:
 ros2 launch drona_bringup drona_system.launch.py rosbridge:=true

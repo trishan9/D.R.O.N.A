@@ -33,7 +33,7 @@ Everything else (code, tests, docs, harness, notebooks, ROS2 packages, frontend)
 
 ## Where to run what (environment matrix)
 
-| Work | Windows (dev) | WSL2 (Ubuntu 22.04) | Colab Free T4 | Kaggle GPU |
+| Work | Windows (dev) | WSL2 (Ubuntu 24.04) | Colab Free T4 | Kaggle GPU |
 |---|---|---|---|---|
 | `pip install`, `pytest` | ✅ primary | ✅ | ○ | ○ |
 | Data download + ingest | ✅ | ✅ | ○ | ○ |
@@ -48,7 +48,7 @@ Everything else (code, tests, docs, harness, notebooks, ROS2 packages, frontend)
 | Isaac Sim | ❌ | ○ if ≥8 GB VRAM | ○ cloud GPU | ○ |
 
 **Your machine:** Windows 11 + GTX 1650 4 GB, 16 GB RAM. **No Ubuntu dual-boot -
-ROS2 runs in WSL2** (real Ubuntu 22.04 inside Windows; WSLg shows the Gazebo/RViz
+ROS2 runs in WSL2** (real Ubuntu 24.04 inside Windows; WSLg shows the Gazebo/RViz
 windows). Local = **inference** only; all **training** on Colab T4 (or Kaggle);
 Isaac Sim = cloud only. Full WSL setup: **`docs/wsl_setup.md`**.
 
@@ -150,21 +150,21 @@ cd ..
 
 ### A6. ROS2 via WSL2 (do once - you no longer need a dual-boot)
 
-You have Windows + WSL, not a dual-boot. ROS2 runs in **WSL2 (Ubuntu 22.04)** and
+You have Windows + WSL, not a dual-boot. ROS2 runs in **WSL2 (Ubuntu 24.04)** and
 WSLg displays the Gazebo/RViz windows. **Full guide: `docs/wsl_setup.md`.** Short
 version:
 
 ```powershell
 # Windows PowerShell (admin) - one time:
-wsl --install -d Ubuntu-22.04
+wsl --install -d Ubuntu-24.04
 wsl --update
 ```
 
 ```bash
 # Then INSIDE the Ubuntu (WSL) shell:
-sudo apt update && sudo apt install -y ros-humble-desktop ros-humble-ros-gz \
-  gz-harmonic python3-colcon-common-extensions ros-humble-xacro ros-humble-rviz2
-echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc && source ~/.bashrc
+sudo apt update && sudo apt install -y ros-jazzy-desktop ros-jazzy-ros-gz \
+  gz-harmonic python3-colcon-common-extensions ros-jazzy-xacro ros-jazzy-rviz2
+echo 'source /opt/ros/jazzy/setup.bash' >> ~/.bashrc && source ~/.bashrc
 cd /mnt/c/Users/trish/Documents/Developer/D.R.O.N.A/ros2_ws   # repo via /mnt/c
 colcon build --symlink-install && source install/setup.bash
 ```
@@ -172,7 +172,7 @@ colcon build --symlink-install && source install/setup.bash
 | Step | Time |
 |---|---|
 | `wsl --install` + Ubuntu first boot | 10–20 min |
-| ROS2 Humble + Gazebo install | 30–60 min |
+| ROS2 Jazzy + Gazebo install | 30–60 min |
 | colcon build | 2–5 min |
 
 ---
@@ -461,7 +461,7 @@ python scripts/run_evaluation.py --all --llm
 
 **When:** After Python advising works and (optionally) after Colab policy training.
 
-**Where:** Inside the **WSL2 Ubuntu 22.04 shell** - not the Windows PowerShell, and
+**Where:** Inside the **WSL2 Ubuntu 24.04 shell** - not the Windows PowerShell, and
 no dual-boot needed. One-time WSL/ROS2 install is in Part A6 and **`docs/wsl_setup.md`**.
 WSLg shows the Gazebo/RViz windows on your Windows desktop automatically.
 
@@ -470,7 +470,7 @@ WSLg shows the Gazebo/RViz windows on your Windows desktop automatically.
 ```bash
 # repo on the Windows drive is reachable from WSL at /mnt/c:
 cd /mnt/c/Users/trish/Documents/Developer/D.R.O.N.A/ros2_ws
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 colcon build --symlink-install
 source install/setup.bash
 ```
@@ -539,7 +539,7 @@ See `docs/sim_setup_isaac.md` and `ros2_ws/src/drona_bringup/isaac/drona_isaac_s
 | Ollama connection refused | Start `ollama serve`; check `OLLAMA_HOST` in `.env` |
 | Frontend can't reach API | Set `NEXT_PUBLIC_API_URL=http://127.0.0.1:8000` in `frontend/.env.local` |
 | Embedding download slow/fails | Retry; need ~2 GB disk; use stable connection |
-| `colcon build` fails | Must be inside WSL2 Ubuntu 22.04 with ROS2 Humble sourced (`source /opt/ros/humble/setup.bash`) |
+| `colcon build` fails | Must be inside WSL2 Ubuntu 24.04 with ROS2 Jazzy sourced (`source /opt/ros/jazzy/setup.bash`) |
 | WSL: no GUI window / Gazebo black screen | `wsl --update` + `wsl --shutdown`; or `export LIBGL_ALWAYS_SOFTWARE=1`. See `wsl_setup.md` §7 |
 | Gazebo blank / no model | Check `drona_description` package installed; see `sim_setup_gazebo.md` |
 | Colab disconnects | Save checkpoints to Drive; reduce batch size in notebook |
@@ -572,5 +572,5 @@ See `docs/sim_setup_isaac.md` and `ros2_ws/src/drona_bringup/isaac/drona_isaac_s
 | [`viva_prep.md`](./viva_prep.md) | Examiner Q&A |
 | [`wsl_setup.md`](./wsl_setup.md) | **ROS2 + Gazebo on Windows via WSL2 (start here for sim)** |
 | [`sim_setup_gazebo.md`](./sim_setup_gazebo.md) | Gazebo launch details (runs in WSL2) |
-| [`ros2_setup.md`](./ros2_setup.md) | ROS2 Humble install + topic/node reference |
+| [`ros2_setup.md`](./ros2_setup.md) | ROS2 Jazzy install + topic/node reference |
 | [`PROGRESS.md`](../PROGRESS.md) | What the build already shipped |

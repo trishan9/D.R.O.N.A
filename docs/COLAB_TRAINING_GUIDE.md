@@ -190,7 +190,7 @@ python scripts/run_evaluation.py --c2 --c3      # bias-mitigation + gesture metr
 ## 6. Gazebo / RViz embodied sim (WSL2)
 
 ROS2 only runs on Linux; on Windows 11 use **WSL2** (full guide: `docs/wsl_setup.md`).
-Summary once ROS2 Humble + Gazebo Harmonic are installed in WSL2:
+Summary once ROS2 Jazzy + Gazebo Harmonic are installed in WSL2:
 ```bash
 cd ros2_ws
 colcon build --symlink-install

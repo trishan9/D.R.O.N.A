@@ -1,8 +1,8 @@
 # ROS2 Setup Guide
 
-D.R.O.N.A. ROS2 uses **ROS2 Humble** on **Ubuntu 22.04 LTS** (the officially supported combination). This guide covers installing ROS2, building the workspace, and running the nodes.
+D.R.O.N.A. ROS2 uses **ROS2 Jazzy** on **Ubuntu 24.04 LTS** (the officially supported combination). This guide covers installing ROS2, building the workspace, and running the nodes.
 
-> **On Windows (no Ubuntu dual-boot)?** Use **WSL2** - it runs a real Ubuntu 22.04
+> **On Windows (no Ubuntu dual-boot)?** Use **WSL2** - it runs a real Ubuntu 24.04
 > inside Windows 11, and WSLg shows the RViz/Gazebo windows on your desktop. Start
 > with **[`wsl_setup.md`](wsl_setup.md)** (WSL install + GPU + repo access), then
 > the commands below run unchanged inside the WSL Ubuntu shell. The pure-Python
@@ -13,15 +13,15 @@ D.R.O.N.A. ROS2 uses **ROS2 Humble** on **Ubuntu 22.04 LTS** (the officially sup
 
 ## Prerequisites
 
-- Ubuntu 22.04 LTS - **bare-metal _or_ WSL2 on Windows 11** (see `wsl_setup.md`)
-- Python 3.10 (ships with Ubuntu 22.04)
+- Ubuntu 24.04 LTS - **bare-metal _or_ WSL2 on Windows 11** (see `wsl_setup.md`)
+- Python 3.12 (ships with Ubuntu 24.04)
 - The D.R.O.N.A. repository cloned and Python dependencies installed
 
 ---
 
-## 1. Install ROS2 Humble
+## 1. Install ROS2 Jazzy
 
-Follow the official Humble installation guide exactly. The quick path:
+Follow the official Jazzy installation guide exactly. The quick path:
 
 ```bash
 # Locale
@@ -39,7 +39,7 @@ sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.or
 
 # Install
 sudo apt update
-sudo apt install -y ros-humble-desktop ros-humble-ros-base \
+sudo apt install -y ros-jazzy-desktop ros-jazzy-ros-base \
   ros-dev-tools python3-colcon-common-extensions python3-rosdep
 
 # Init rosdep
@@ -47,7 +47,7 @@ sudo rosdep init
 rosdep update
 
 # Source in every shell (add to ~/.bashrc)
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 ```
 
 ---
@@ -112,7 +112,7 @@ ros2 topic list
 While the nodes are running, in a second terminal:
 
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source ~/D.R.O.N.A/ros2_ws/install/setup.bash
 
 ros2 topic pub --once /drona/student_query std_msgs/msg/String \

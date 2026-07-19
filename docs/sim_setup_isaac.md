@@ -13,7 +13,7 @@ rendering and accurate articulation dynamics in the evaluation chapter. It is
 > in-browser **Robot Control** page in the Next.js app (faithful 6-DOF twin).
 >
 > **About WSL2:** NVIDIA *does* officially support Isaac Sim on WSL2 (Ubuntu
-> 22.04) - so if you later get an RTX card (≥8 GB), you can run §3 inside WSL2
+> 24.04) - so if you later get an RTX card (≥8 GB), you can run §3 inside WSL2
 > exactly as written. The blocker here is the GPU class (GTX vs RTX), not WSL.
 
 ---
@@ -37,12 +37,12 @@ does this automatically, but it must be available in your Isaac install.
 
 ## 2. Architecture: two processes, one bridge
 
-Isaac runs in its own Python; the D.R.O.N.A. nodes run in ROS2 Humble. They talk
+Isaac runs in its own Python; the D.R.O.N.A. nodes run in ROS2 Jazzy. They talk
 over the **Isaac ROS2 bridge**:
 
 ```
 ┌────────────────────────┐         ROS2 (DDS)          ┌────────────────────────┐
-│  Isaac Sim (python.sh) │  /clock, /isaac/joint_state │   ROS2 Humble world     │
+│  Isaac Sim (python.sh) │  /clock, /isaac/joint_state │   ROS2 Jazzy world     │
 │  drona_isaac_stage.py  │ ──────────────────────────▶ │  drona_isaac.launch.py  │
 │  • URDF articulation   │ ◀────────────────────────── │  • policy/advising/...  │
 │  • OmniGraph ROS2 nodes │    /drona/joint_states      │  • robot_state_publisher│
@@ -95,7 +95,7 @@ For machines without a capable GPU (incl. the GTX-1650):
      ./python.sh /workspace/drona/ros2_ws/src/drona_bringup/isaac/drona_isaac_stage.py \
        --urdf /workspace/drona/.../drona_humanoid.urdf --headless
    ```
-3. **Bridge ROS2** either inside the same container (install ros-humble) or via a
+3. **Bridge ROS2** either inside the same container (install ros-jazzy) or via a
    second container on the same Docker network with `ROS_DOMAIN_ID` matched.
 4. **Record** the session as a rosbag (see `ros2_topics_actions.md`) and pull it
    back to the laptop for offline analysis - no local GPU needed for the writeup.

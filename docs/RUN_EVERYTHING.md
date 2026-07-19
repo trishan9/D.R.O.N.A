@@ -321,7 +321,7 @@ PYTHONUTF8=1 python scripts/advise.py --query "Career paths for a Python + ML st
 ## 8. (Optional) Gazebo / ROS2 robot sim
 
 ROS2 only runs on Linux; on Windows 11 use **WSL2**. Full one-time install:
-[`docs/wsl_setup.md`](wsl_setup.md). Once ROS2 Humble + Gazebo Harmonic are in WSL2:
+[`docs/wsl_setup.md`](wsl_setup.md). Once ROS2 Jazzy + Gazebo Harmonic are in WSL2:
 ```bash
 # inside WSL2 (Ubuntu), in the repo's ros2_ws:
 cd ros2_ws

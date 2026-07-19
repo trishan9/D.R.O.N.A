@@ -210,20 +210,29 @@ def make_query(
     skills: list[str] | None = None,
     geography: str = "any",
     max_pathways: int = 3,
+    programme: str = "software_engineering",
+    goal: str = "employment",
+    target_institutions: list[str] | None = None,
+    timeline_years: int | None = None,
 ) -> AdvisingQuery:
     """Helper to construct an AdvisingQuery without boilerplate.
 
-    Useful for CLI scripts and tests.
+    Useful for CLI scripts and tests. Carries the goal taxonomy (programme, goal,
+    target_institutions, timeline) so goal-aware advising is reachable here too.
     """
     from drona.contracts import StudentProfile
 
     sid = session_id or str(uuid.uuid4())
     profile = StudentProfile(
         session_id=sid,
+        programme=programme,
         year_of_study=year,
         completed_modules=completed or [],
         declared_skills=skills or [],
         aspiration_geography=geography,  # type: ignore[arg-type]
+        goal=goal,  # type: ignore[arg-type]
+        target_institutions=target_institutions or [],
+        timeline_years=timeline_years,
     )
     return AdvisingQuery(
         query_id=str(uuid.uuid4()),

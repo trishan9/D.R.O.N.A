@@ -109,8 +109,14 @@ class LanguageRoutingClient:
     # ── LLMClient interface ─────────────────────────────────────────────────────
 
     def is_available(self) -> bool:
-        # Available if the primary is up; the primary also backstops Nepali.
-        return self._primary.is_available()
+        # Available if EITHER backend can serve: an English-only box has the
+        # primary; a Nepali-only box (e.g. only the Gemma model pulled) has the
+        # Nepali client. Short-circuits on the primary so English-only never
+        # eagerly creates the Nepali client.
+        if self._primary.is_available():
+            return True
+        ne = self._nepali_client()
+        return ne is not None and ne.is_available()
 
     def generate(
         self,

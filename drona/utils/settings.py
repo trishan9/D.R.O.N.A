@@ -82,11 +82,14 @@ class DronaSettings(BaseSettings):
         "auto", pattern="^(auto|en|ne)$",
         description="Language to advise in: auto|en|ne.",
     )
-    # Himalaya Gemma (Nepali) served via Ollama. Pull with:
-    #   ollama pull hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf
+    # Himalaya Gemma (Nepali) served via Ollama. Pull the Q4_K_M quant (~3.4 GB) -
+    # the bare tag resolves to the bf16 build (9.3 GB) which needs > 4 GB VRAM and
+    # crashes when split across GPU/CPU (Gemma-3n GGML_SCHED assert):
+    #   ollama pull hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf:Q4_K_M
+    # Fits fully on a T4 (fast); on a 4 GB laptop it runs but slowly (CPU offload).
     nepali_ollama_model: str = Field(
-        "hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf",
-        description="Ollama model id for Nepali advising (Himalaya Gemma GGUF).",
+        "hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf:Q4_K_M",
+        description="Ollama model id for Nepali advising (Himalaya Gemma GGUF, Q4_K_M).",
     )
     # Context budget for the Nepali model. Gemma 3n E2B has a 32k window, but
     # Devanagari is token-dense, so the retrieved context is trimmed to fit this

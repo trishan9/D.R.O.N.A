@@ -180,6 +180,9 @@ def generate_launch_description() -> LaunchDescription:
     )
     orchestrator = Node(executable="orchestrator_node", name="drona_orchestrator_node", **common)
     diagnostics = Node(executable="diagnostics_node", name="drona_diagnostics_node", **common)
+    # Voice: speaks /drona/say. Defaults to offline espeak; set tts_backend:=http
+    # + http_url/http_auth (or a params.yaml entry) for a natural cloud voice.
+    speech = Node(executable="speech_node", name="drona_speech_node", **common)
     # gesture_node consumes /drona/gesture_command (what the orchestrator emits)
     # and streams /drona/joint_states -> gz_joint_relay -> the arm. In sim it uses
     # the SimArmInterface (use_hardware:=false), so no hardware is touched. Without
@@ -223,5 +226,6 @@ def generate_launch_description() -> LaunchDescription:
         advising,
         orchestrator,
         diagnostics,
+        speech,
         rviz,
     ])

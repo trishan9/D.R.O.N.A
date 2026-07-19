@@ -42,7 +42,10 @@ def advising_query_to_ros(pydantic_query) -> "RosAdvisingQuery":
     msg.year_of_study = p.year_of_study or 0
     msg.completed_modules = list(p.completed_modules or [])
     msg.declared_skills = list(p.declared_skills or [])
-    msg.geography_preference = p.geography_preference or "any"
+    # ROS msg field is geography_preference; the pydantic contract renamed this
+    # to aspiration_geography. Map explicitly so a rename never silently breaks
+    # the bridge again.
+    msg.geography_preference = p.aspiration_geography or "any"
     msg.max_pathways = pydantic_query.max_pathways
     return msg
 
@@ -54,7 +57,7 @@ def ros_to_advising_query(msg: "RosAdvisingQuery"):
         year_of_study=msg.year_of_study if msg.year_of_study > 0 else None,
         completed_modules=list(msg.completed_modules),
         declared_skills=list(msg.declared_skills),
-        geography_preference=msg.geography_preference or "any",
+        aspiration_geography=msg.geography_preference or "any",
     )
     return AdvisingQuery(
         query_id=msg.query_id or str(uuid.uuid4()),

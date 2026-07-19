@@ -26,6 +26,7 @@ import uuid
 import rclpy
 from rclpy.node import Node
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from std_msgs.msg import String
 
 from drona_msgs.msg import (
     AdvisingQuery,
@@ -34,6 +35,13 @@ from drona_msgs.msg import (
     GestureCommand,
     GestureResult,
     SessionState,
+)
+
+# What the robot says out loud when it greets a student. The advising answer's
+# own speak_text is used verbatim for the response turn.
+_GREETING_UTTERANCE = (
+    "Hello! I'm D.R.O.N.A., your academic advisor. "
+    "Ask me anything about your studies, career, or where you want to go next."
 )
 
 from drona_ros.msg_bridge import (
@@ -79,11 +87,18 @@ class OrchestratorNode(Node):
             GestureResult, "/drona/gesture_result", self._on_gesture_result, 10,
             callback_group=cb,
         )
+        # Student question input: any source (web UI, a keyboard CLI, or a
+        # speech-to-text node) publishes the raw question here as a String.
+        self.create_subscription(
+            String, "/drona/ask", self._on_ask, 10, callback_group=cb,
+        )
 
         # Publishers
         self._gesture_pub = self.create_publisher(GestureCommand, "/drona/gesture_command", 10)
         self._query_pub = self.create_publisher(AdvisingQuery, "/drona/student_query", 10)
         self._state_pub = self.create_publisher(SessionState, "/drona/session_state", 10)
+        # What the robot should say out loud; speech_node turns this into audio.
+        self._say_pub = self.create_publisher(String, "/drona/say", 10)
 
         # Main tick timer
         self._timer = self.create_timer(1.0 / tick_hz, self._tick, callback_group=cb)
@@ -123,6 +138,12 @@ class OrchestratorNode(Node):
             f"Advising response received: {len(msg.pathways)} pathways, "
             f"bias={[b.bias_type for b in msg.bias_flags]}"
         )
+        # Say the answer out loud (natural-voice TTS via speech_node). Prefer the
+        # robot-ready speak_text; fall back to the summary if the engine left it
+        # empty (e.g. a refusal path).
+        spoken = msg.speak_text.strip() or msg.summary.strip()
+        if spoken:
+            self._say(spoken)
         self._machine.mark_response_delivered()
         self._publish_session_state()
         # Queue farewell after delivering the response
@@ -154,6 +175,7 @@ class OrchestratorNode(Node):
         from drona.orchestrator.session_machine import SessionState as SS
         if state == SS.GREETING:
             self._send_gesture("greet")
+            self._say(_GREETING_UTTERANCE)
         elif state == SS.NEEDS_ASSESSMENT:
             self._send_gesture("listen")
         elif state == SS.CLOSURE:
@@ -203,7 +225,21 @@ class OrchestratorNode(Node):
         msg = session_state_to_ros(self._machine, self.get_clock())
         self._state_pub.publish(msg)
 
+    def _say(self, text: str) -> None:
+        """Publish an utterance for the speech node to voice."""
+        m = String()
+        m.data = text
+        self._say_pub.publish(m)
+        self.get_logger().info(f'Say: "{text[:70]}{"..." if len(text) > 70 else ""}"')
+
     # ── External interface ─────────────────────────────────────────────────────
+
+    def _on_ask(self, msg: String) -> None:
+        """A student's question arrived (from the web UI, a CLI, or an STT node)."""
+        text = msg.data.strip()
+        if text:
+            self.get_logger().info(f"Student asked: {text[:70]}")
+            self.submit_student_query(text)
 
     def submit_student_query(self, text: str) -> None:
         """Inject a student query from an external source (dashboard / CLI)."""

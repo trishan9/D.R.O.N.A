@@ -142,25 +142,28 @@ class HFLocalClient:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ]
-        inputs = self._tokenizer.apply_chat_template(
-            messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
+        # return_dict=True yields a BatchEncoding (input_ids + attention_mask)
+        # consistently. transformers >= 5 returns a dict from apply_chat_template
+        # anyway (older versions returned a bare tensor), so this is version-safe.
+        enc = self._tokenizer.apply_chat_template(
+            messages, tokenize=True, add_generation_prompt=True,
+            return_tensors="pt", return_dict=True,
         ).to(self._model.device)
+        input_len = enc["input_ids"].shape[1]
 
         do_sample = settings.llm_temperature > 0
+        gen_kwargs = dict(max_new_tokens=settings.llm_max_tokens, do_sample=do_sample,
+                          pad_token_id=self._tokenizer.pad_token_id)
+        if do_sample:
+            gen_kwargs["temperature"] = settings.llm_temperature
         last_error: str | None = None
         for attempt in range(max_retries + 1):
             t0 = time.monotonic()
             try:
                 with torch.no_grad():
-                    out = self._model.generate(
-                        inputs,
-                        max_new_tokens=settings.llm_max_tokens,
-                        do_sample=do_sample,
-                        temperature=settings.llm_temperature if do_sample else None,
-                        pad_token_id=self._tokenizer.pad_token_id,
-                    )
+                    out = self._model.generate(**enc, **gen_kwargs)
                 raw_text = self._tokenizer.decode(
-                    out[0][inputs.shape[1]:], skip_special_tokens=True
+                    out[0][input_len:], skip_special_tokens=True
                 )
                 elapsed_ms = int((time.monotonic() - t0) * 1000)
                 logger.debug(

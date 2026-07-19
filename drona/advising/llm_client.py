@@ -245,9 +245,12 @@ def make_llm_client():
                           embedding models), incl. the LoRA adapter with no
                           GGUF conversion; best on any CUDA GPU.
     Both are local and open-source - the no-paid-API invariant (C4) holds.
-    """
-    if settings.llm_backend == "transformers":
-        from drona.advising.hf_client import HFLocalClient
 
-        return HFLocalClient()
-    return LLMClient()
+    Returns a LanguageRoutingClient: English/primary requests use the backend
+    above; Nepali requests route to the Himalaya Gemma model (falling back to the
+    multilingual primary if it isn't installed). English-only deployments never
+    touch the Nepali path, so this is transparent for them.
+    """
+    from drona.advising.router_client import LanguageRoutingClient
+
+    return LanguageRoutingClient()

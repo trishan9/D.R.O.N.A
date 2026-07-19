@@ -73,6 +73,28 @@ class DronaSettings(BaseSettings):
     ollama_keep_alive: str = Field("30m", description="How long Ollama keeps the model loaded.")
     ollama_num_ctx: int = Field(4096, ge=512, le=32768)
 
+    # --- Bilingual advising (English + Nepali) ---
+    # advisor_language: 'auto' detects Nepali (Devanagari) vs English per query;
+    # 'en'/'ne' force one. When Nepali is served, the query is routed to a
+    # Nepali-specialised model (Himalaya Gemma) while retrieval stays shared, so
+    # answers are grounded in the same Softwarica curriculum in either language.
+    advisor_language: str = Field(
+        "auto", pattern="^(auto|en|ne)$",
+        description="Language to advise in: auto|en|ne.",
+    )
+    # Himalaya Gemma (Nepali) served via Ollama. Pull with:
+    #   ollama pull hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf
+    nepali_ollama_model: str = Field(
+        "hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf",
+        description="Ollama model id for Nepali advising (Himalaya Gemma GGUF).",
+    )
+    # Context budget for the Nepali model. Gemma 3n E2B has a 32k window, but
+    # Devanagari is token-dense, so the retrieved context is trimmed to fit this
+    # many *characters* (a safe proxy) before prompting. Keeps us well inside the
+    # window with headroom for the system prompt + generation.
+    nepali_context_char_budget: int = Field(6000, ge=1000, le=40000)
+    english_context_char_budget: int = Field(9000, ge=1000, le=60000)
+
     # --- Embeddings ---
     curriculum_embed_model: str = Field("BAAI/bge-small-en-v1.5")
     career_embed_model: str = Field("TechWolf/JobBERT-v2")

@@ -27,6 +27,7 @@ Constructs the system + user prompt sent to the local LLM. Key design decisions:
 from __future__ import annotations
 
 from drona.contracts import AdvisingQuery, BiasFlag, RetrievalCitation
+from drona.utils.settings import settings
 
 # ── Bias-specific counter-instructions ────────────────────────────────────────
 
@@ -71,7 +72,17 @@ _BIAS_INSTRUCTIONS: dict[str, str] = {
 
 # ── Citation formatter ────────────────────────────────────────────────────────
 
-def _format_citations(citations: list[RetrievalCitation]) -> str:
+def _format_citations(
+    citations: list[RetrievalCitation], char_budget: int | None = None
+) -> str:
+    """Format the retrieved documents, trimmed to fit a character budget.
+
+    char_budget bounds the total size of the retrieval block so the prompt stays
+    inside the model's context window (Devanagari is token-dense, so the Nepali
+    model gets a smaller budget - see settings). Highest-priority tiers are kept
+    first; lower-priority citations are dropped once the budget is exhausted,
+    rather than truncating mid-citation.
+    """
     if not citations:
         return "(No retrieved documents - answer only from general knowledge and flag uncertainty.)"
 
@@ -80,12 +91,19 @@ def _format_citations(citations: list[RetrievalCitation]) -> str:
     sorted_cits = sorted(citations, key=lambda c: tier_order.get(c.tier.value, 99))
 
     lines: list[str] = []
+    used = 0
     for i, cit in enumerate(sorted_cits, start=1):
         tier_label = f"[{cit.tier.value.upper()}]"
-        lines.append(
+        block = (
             f"[{i}] {tier_label} {cit.source_type} | id:{cit.source_id}\n"
             f"    {cit.excerpt.strip()}"
         )
+        if char_budget is not None and used + len(block) > char_budget and lines:
+            # Budget exhausted - keep what fits, note the rest exists.
+            lines.append(f"... (+{len(sorted_cits) - i + 1} more sources omitted to fit context)")
+            break
+        lines.append(block)
+        used += len(block)
     return "\n\n".join(lines)
 
 
@@ -229,10 +247,28 @@ _QUERY_SECTION = "\nSTUDENT PROFILE:\n{profile}\n\nSTUDENT QUESTION:\n{query_tex
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
+# Language instruction appended to the system prompt for Nepali turns. The JSON
+# STRUCTURE stays identical (keys in English so parsing is unchanged); only the
+# human-readable VALUES - rationale, steps, speak_text, summary - are Nepali.
+_LANGUAGE_INSTRUCTIONS = {
+    "ne": (
+        "\nLANGUAGE:\n"
+        "Respond to the student in NEPALI (Devanagari script). Keep the JSON keys "
+        "exactly as specified in English, but write all human-readable VALUES - "
+        "pathway titles, rationale, next steps, summary, and speak_text - in "
+        "natural, respectful Nepali. Use everyday Nepali; keep well-known technical "
+        "terms and company/module names in English where that is how students say "
+        "them. The spoken 'speak_text' must sound warm and natural, not translated."
+    ),
+    "en": "",
+}
+
+
 def build_prompt(
     query: AdvisingQuery,
     citations: list[RetrievalCitation],
     bias_flags: list[BiasFlag],
+    language: str = "en",
 ) -> tuple[str, str]:
     """Build (system_prompt, user_prompt) for the LLM.
 
@@ -240,6 +276,9 @@ def build_prompt(
         query: The AdvisingQuery with student profile.
         citations: Top-N reranked citations (already in order).
         bias_flags: Detected biases from BiasDetector.
+        language: "en" or "ne" - controls the response-language instruction and
+            the retrieval context budget (Nepali is token-dense, so it gets a
+            smaller character budget to stay inside the model's window).
 
     Returns:
         (system_prompt, user_prompt) - both strings ready for the chat API.
@@ -258,10 +297,18 @@ def build_prompt(
             if instruction:
                 system_parts.append(f"- {flag.bias_type.upper()}: {instruction}")
 
+    lang_instruction = _LANGUAGE_INSTRUCTIONS.get(language, "")
+    if lang_instruction:
+        system_parts.append(lang_instruction)
+
     system_prompt = "\n".join(system_parts)
 
+    budget = (
+        settings.nepali_context_char_budget if language == "ne"
+        else settings.english_context_char_budget
+    )
     user_parts = [
-        _RETRIEVAL_SECTION.format(citations=_format_citations(citations)),
+        _RETRIEVAL_SECTION.format(citations=_format_citations(citations, char_budget=budget)),
         _QUERY_SECTION.format(
             profile=_format_profile(query),
             query_text=query.query_text,

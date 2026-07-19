@@ -120,7 +120,13 @@ class AdvisingEngine:
             )
 
         # Stage 4: Generate
-        system_prompt, user_prompt = build_prompt(query, citations, bias_flags)
+        # Resolve the response language (auto-detects Nepali/Devanagari) and build
+        # the prompt for it; the LLM router sends the turn to the matching model.
+        from drona.utils.language import resolve_language
+        language = resolve_language(settings.advisor_language, query.query_text)
+        system_prompt, user_prompt = build_prompt(
+            query, citations, bias_flags, language=language
+        )
 
         if not self._llm.is_available():
             elapsed_ms = int((time.monotonic() - t_total) * 1000)

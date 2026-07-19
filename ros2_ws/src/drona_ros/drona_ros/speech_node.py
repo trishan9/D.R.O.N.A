@@ -8,15 +8,19 @@ Topics:
     sub  /drona/say  (std_msgs/String)   - text the robot should speak
 
 Parameters:
-    tts_backend : "espeak"   espeak | piper | http | log
+    tts_backend : "espeak"   espeak | piper | elevenlabs | http | log
     voice       : ""         backend-specific voice id (empty = backend default)
     rate_wpm    : 165        words-per-minute (espeak)
     volume      : 1.0        0..1
-    http_url    : ""         POST endpoint for the "http" backend (VAPI/ElevenLabs/etc.)
-    http_auth   : ""         Authorization header value, or "env:VAPI_API_KEY" to
-                             read it from the environment (never store keys in
-                             launch files / params)
+    http_url    : ""         POST endpoint for the generic "http" backend
+    http_auth   : ""         auth header value, or "env:NAME" to read it from the
+                             environment (never store keys in launch files/params)
+    el_model    : "eleven_multilingual_v2"  ElevenLabs model (multilingual = Nepali)
     audio_player: "auto"     auto | ffplay | aplay | paplay | none
+
+ElevenLabs (natural voice, incl. Nepali) - set:
+    tts_backend:=elevenlabs  voice:=<voice_id>
+    export ELEVENLABS_API_KEY=...   (read from the env, never a param file)
 
 Design:
   - Every utterance is ALWAYS logged, so the robot's speech is visible in logs
@@ -62,6 +66,7 @@ class SpeechNode(Node):
         self.declare_parameter("volume", 1.0)
         self.declare_parameter("http_url", "")
         self.declare_parameter("http_auth", "")
+        self.declare_parameter("el_model", "eleven_multilingual_v2")
         self.declare_parameter("audio_player", "auto")
 
         self._backend = str(self.get_parameter("tts_backend").value).lower()
@@ -70,12 +75,21 @@ class SpeechNode(Node):
         self._volume = float(self.get_parameter("volume").value)
         self._http_url = str(self.get_parameter("http_url").value)
         self._http_auth = _resolve_auth(str(self.get_parameter("http_auth").value))
+        self._el_model = str(self.get_parameter("el_model").value)
+        # ElevenLabs key comes from the environment, never a param file.
+        self._el_key = os.environ.get("ELEVENLABS_API_KEY", "")
         self._player = self._pick_player(str(self.get_parameter("audio_player").value))
 
         # If a cloud backend was requested but not configured, fall back cleanly.
         if self._backend == "http" and not self._http_url:
             self.get_logger().warn(
                 "tts_backend=http but http_url is empty - falling back to espeak."
+            )
+            self._backend = "espeak"
+        if self._backend == "elevenlabs" and not self._el_key:
+            self.get_logger().warn(
+                "tts_backend=elevenlabs but ELEVENLABS_API_KEY is unset - "
+                "falling back to espeak."
             )
             self._backend = "espeak"
         if self._backend == "espeak" and not shutil.which("espeak-ng") \
@@ -122,6 +136,8 @@ class SpeechNode(Node):
             self._speak_espeak(text)
         elif self._backend == "piper":
             self._speak_piper(text)
+        elif self._backend == "elevenlabs":
+            self._speak_elevenlabs(text)
         elif self._backend == "http":
             self._speak_http(text)
 
@@ -147,6 +163,27 @@ class SpeechNode(Node):
                        input=text.encode(), check=True)
         self._play(wav)
         os.unlink(wav)
+
+    def _speak_elevenlabs(self, text: str) -> None:
+        # Natural, multilingual TTS (handles Nepali via eleven_multilingual_v2).
+        # Default voice is a widely-available preset; set `voice` to any voice_id.
+        import httpx
+
+        voice_id = self._voice or "21m00Tcm4TlvDq8ikWAM"
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+        headers = {"xi-api-key": self._el_key, "Content-Type": "application/json"}
+        body = {
+            "text": text,
+            "model_id": self._el_model,
+            "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
+        }
+        r = httpx.post(url, json=body, headers=headers, timeout=30.0)
+        r.raise_for_status()
+        with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
+            f.write(r.content)
+            audio = f.name
+        self._play(audio)
+        os.unlink(audio)
 
     def _speak_http(self, text: str) -> None:
         # Provider-agnostic cloud TTS: POST the text, receive audio bytes, play

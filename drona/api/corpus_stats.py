@@ -16,6 +16,7 @@ cheap to poll.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 from collections import Counter
@@ -70,10 +71,8 @@ def corpus_stats() -> dict[str, Any]:
         by_programme[str(m.get("programme") or "unspecified")] += 1
         yr = m.get("year")
         by_year[f"Year {yr}" if yr else "unspecified"] += 1
-        try:
+        with contextlib.suppress(TypeError, ValueError):
             total_credits += int(m.get("credits") or 0)
-        except (TypeError, ValueError):
-            pass
 
     # ── Market (postings) ─────────────────────────────────────────────────────
     posting_tiers: Counter[str] = Counter()

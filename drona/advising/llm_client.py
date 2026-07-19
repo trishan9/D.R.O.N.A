@@ -193,7 +193,15 @@ class LLMClient:
                 messages=[{"role": "user", "content": prompt}],
                 keep_alive=settings.ollama_keep_alive,
                 **self._think_kwarg(),
-                options={"temperature": temperature, "num_predict": max_tokens},
+                # Match generate()'s num_ctx so the model is NOT reloaded between a
+                # utility call (e.g. NE->EN translation) and the advising call -
+                # a reload with a different context size on a tight GPU can corrupt
+                # the next generation.
+                options={
+                    "temperature": temperature,
+                    "num_ctx": settings.ollama_num_ctx,
+                    "num_predict": max_tokens,
+                },
             )
             return (resp.message.content or "").strip()
         except Exception as exc:  # noqa: BLE001 - utility call, degrade quietly

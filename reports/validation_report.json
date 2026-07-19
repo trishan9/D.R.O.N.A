@@ -1,0 +1,29 @@
+{
+  "generated": "2026-07-20T01:55:34",
+  "n_queries": 6,
+  "source": "http://localhost:8098",
+  "elapsed_s": 14.4,
+  "hallucination": {
+    "n_responses": 6,
+    "n_pathways": 6,
+    "grounded_pathway_rate": 1.0,
+    "hallucinated_citation_rate": 0.0,
+    "fully_grounded_response_rate": 1.0,
+    "mean_citations_per_pathway": 1.0,
+    "issues": []
+  },
+  "bias_mitigation_on": {
+    "n_responses": 6,
+    "mean_pathway_diversity": 1.0,
+    "multi_pathway_rate": 0.0,
+    "mean_hedge_frequency": 0.0,
+    "counter_recommendation_rate": 0.0,
+    "refusal_rate": 0.0,
+    "bias_flag_coverage": 0.0,
+    "tier_citation_distribution": {
+      "nepal": 1.0
+    },
+    "nepal_first_rate": 1.0
+  },
+  "ablation_skipped": "ablation needs the local engine (prompt is built server-side)"
+}

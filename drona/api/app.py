@@ -136,6 +136,27 @@ def evaluation() -> dict:
         except Exception as exc:
             logger.warning(f"/evaluation: could not parse sft metrics: {exc}")
 
+    # System-level validation (scripts/run_validation.py): hallucination
+    # resistance, bias MITIGATION (not just detection), and the bias on/off
+    # ablation. These are the thesis-defence numbers about the ADVICE itself,
+    # as opposed to the C1-C4 component metrics above.
+    val_path = root / "reports" / "validation_report.json"
+    if val_path.exists():
+        try:
+            val = json.loads(val_path.read_text(encoding="utf-8"))
+            out["validation"] = {
+                "generated": val.get("generated"),
+                "n_queries": val.get("n_queries"),
+                "source": val.get("source"),
+                "hallucination": val.get("hallucination", {}),
+                "bias_mitigation_on": val.get("bias_mitigation_on", {}),
+                "bias_mitigation_off": val.get("bias_mitigation_off"),
+                "ablation_delta": val.get("ablation_delta"),
+            }
+            out["available"] = True
+        except Exception as exc:
+            logger.warning(f"/evaluation: could not parse validation report: {exc}")
+
     return out
 
 

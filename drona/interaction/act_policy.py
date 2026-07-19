@@ -239,6 +239,7 @@ class PolicyRouter:
     """Selects and caches the best available policy for each gesture.
 
     Priority:
+      0. SmolVLAPolicy   (opt-in: a LoRA/PEFT fine-tuned SmolVLA at <base>/smolvla)
       1. LeRobotACTPolicy (if checkpoint exists and lerobot installed)
       2. OnnxBCPolicy (deployment format - exported model.onnx + onnxruntime)
       3. BCGesturePolicy (torch BC checkpoint)
@@ -273,6 +274,22 @@ class PolicyRouter:
 
     def _load_policy(self, gesture_label: str) -> BasePolicy:
         if self._checkpoint_base is not None:
+            # Tier 0 (opt-in): a LoRA/PEFT fine-tuned SmolVLA, used only when its
+            # checkpoint is actually present - training one is a deliberate act.
+            # allow_fallback=False so failures fall through to ACT/BC here rather
+            # than SmolVLA silently degrading to keyframe on its own.
+            smolvla_dir = self._checkpoint_base / "smolvla"
+            if smolvla_dir.exists():
+                try:
+                    from drona.interaction.smolvla import SmolVLAPolicy
+                    return SmolVLAPolicy(gesture_label, pretrained=str(smolvla_dir),
+                                         device=self._device, allow_fallback=False)
+                except Exception as exc:
+                    logger.warning(
+                        f"SmolVLA checkpoint present but unusable for '{gesture_label}': "
+                        f"{exc}. Trying the ACT/BC tiers."
+                    )
+
             ckpt = self._checkpoint_base / gesture_label
             if ckpt.exists():
                 try:

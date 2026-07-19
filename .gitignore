@@ -121,3 +121,4 @@ data/processed/embeddings/
 drona_private_data.zip
 drona_trained_models.zip
 drona_encoder_models.zip
+drona_deploy.zip

@@ -1,4 +1,5 @@
 component,candidates,winner,evidence
-retrieval (C1),"bm25-only, dense-only, hybrid",hybrid,"ndcg@5: bm25-only=0.60, dense-only=0.60, hybrid=0.76"
+retrieval (C1),"bm25-only, dense-only, hybrid",hybrid,"ndcg@5: bm25-only=0.87, dense-only=0.91, hybrid=0.94"
 bias detection (C2),rule-based detector,rule-based detector,macro-F1=0.86 over 6 bias types
 gesture policy (C3),"bc, keyframe",bc,"jerk 0.0005 vs keyframe 0.0005, success 100%"
+advising LLM,"base Qwen3-4B-Instruct-2507, +LoRA",+LoRA,val CE 0.121 vs base 2.259

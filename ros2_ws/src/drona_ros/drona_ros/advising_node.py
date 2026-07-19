@@ -44,6 +44,11 @@ class AdvisingNode(Node):
 
         self.declare_parameter("log_level", "INFO")
         self.declare_parameter("max_pathways", 3)
+        # Where the brain runs. Set to a GPU-served advising API (the Colab T4
+        # notebook, or a deployed server) to keep this node thin - the robot's
+        # SBC cannot hold ChromaDB + a cross-encoder + a 4B LLM. Empty falls back
+        # to the in-process AdvisingEngine. Also read from ADVISOR_REMOTE_URL.
+        self.declare_parameter("advisor_remote_url", "")
 
         self._engine = None  # lazy init
         self._cb_group = ReentrantCallbackGroup()
@@ -75,11 +80,28 @@ class AdvisingNode(Node):
         self.get_logger().info("AdvisingNode ready.")
 
     def _get_engine(self):
+        """Lazily build the advisor: remote GPU brain if configured, else local.
+
+        Kept lazy so the node starts (and the rest of the robot runs) even when
+        the brain is unreachable - the advise call then returns a refusal rather
+        than preventing bring-up.
+        """
         if self._engine is None:
-            self.get_logger().info("Initialising AdvisingEngine (first call) ...")
-            from drona.advising.engine import AdvisingEngine
-            self._engine = AdvisingEngine()
-            self.get_logger().info("AdvisingEngine ready.")
+            url = (
+                self.get_parameter("advisor_remote_url")
+                .get_parameter_value()
+                .string_value
+            ).strip()
+            from drona.advising.remote import make_advisor
+
+            if url:
+                self.get_logger().info(f"Advising via remote brain: {url}")
+            else:
+                self.get_logger().info(
+                    "Initialising in-process AdvisingEngine (first call) ..."
+                )
+            self._engine = make_advisor(url or None)
+            self.get_logger().info("Advisor ready.")
         return self._engine
 
     def _on_query(self, msg: AdvisingQuery) -> None:

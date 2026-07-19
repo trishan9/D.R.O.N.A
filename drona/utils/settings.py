@@ -45,6 +45,17 @@ class DronaSettings(BaseSettings):
     hf_adapter_path: Path = Field(Path("models/advising-lora"))
     hf_load_4bit: bool = Field(True, description="4-bit NF4 on GPU; ignored on CPU.")
 
+    # --- Remote advising brain (robot deployment) ---
+    # When set, the robot stops running the engine in-process and becomes a thin
+    # client against a GPU-served advising API (e.g. the Colab T4 notebook, or a
+    # deployed server). Empty = run the engine locally.
+    #   ADVISOR_REMOTE_URL=https://xyz.trycloudflare.com
+    # Rationale: the robot's SBC cannot hold ChromaDB + a cross-encoder + a 4B
+    # LLM, but it can make one HTTP call. See drona/advising/remote.py.
+    advisor_remote_url: str = Field(
+        "", description="Base URL of a remote advising API; empty = run locally."
+    )
+
     # --- LLM (Ollama) ---
     ollama_host: str = Field("http://localhost:11434")
     # Primary = Qwen3-4B-Instruct-2507: the strongest ~4B open instruct model

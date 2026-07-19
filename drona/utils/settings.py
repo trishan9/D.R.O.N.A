@@ -95,11 +95,14 @@ class DronaSettings(BaseSettings):
         "hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf:Q4_K_M",
         description="Ollama model id for Nepali advising (Himalaya Gemma GGUF, Q4_K_M).",
     )
-    # Context budget for the Nepali model. Gemma 3n E2B has a 32k window, but
-    # Devanagari is token-dense, so the retrieved context is trimmed to fit this
-    # many *characters* (a safe proxy) before prompting. Keeps us well inside the
-    # window with headroom for the system prompt + generation.
-    nepali_context_char_budget: int = Field(6000, ge=1000, le=40000)
+    # Character budget for the retrieved context, per language. This must leave
+    # room INSIDE num_ctx for the system prompt AND a full generated answer:
+    #   prompt(system ~1.2k tok + citations) + answer(up to llm_max_tokens) <= num_ctx
+    # Nepali is token-dense and its answers are long, so on a 4k-context serve the
+    # citation block is kept small (3000 chars ~ 750 tok): 750 + ~1.2k system +
+    # ~1.8k answer ~ 3.75k, inside 4096. Raise it when serving with a bigger
+    # num_ctx (e.g. on the T4). Too big here truncates the answer -> JSON won't parse.
+    nepali_context_char_budget: int = Field(3000, ge=1000, le=40000)
     english_context_char_budget: int = Field(9000, ge=1000, le=60000)
 
     # --- Embeddings ---

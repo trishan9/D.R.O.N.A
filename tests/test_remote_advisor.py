@@ -15,16 +15,6 @@ from drona.advising.remote import RemoteAdvisor, _query_to_payload, make_advisor
 from drona.api.schemas import AdviseRequest
 
 
-def _mock_advisor(handler) -> RemoteAdvisor:
-    """A RemoteAdvisor whose httpx calls are served by `handler`."""
-    transport = httpx.MockTransport(handler)
-    adv = RemoteAdvisor("http://brain.local", timeout=5, retries=1)
-    # Patch httpx.get/post to route through the mock transport.
-    client = httpx.Client(transport=transport)
-    adv._client = client  # not used by impl, kept for clarity
-    return adv, transport
-
-
 def test_payload_matches_api_schema():
     """The client's request body must validate against the API's AdviseRequest."""
     q = make_query(
@@ -60,7 +50,6 @@ def test_advise_round_trip(monkeypatch):
         })
 
     transport = httpx.MockTransport(handler)
-    real_post = httpx.post
 
     def fake_post(url, **kw):
         return httpx.Client(transport=transport).post(url, **kw)

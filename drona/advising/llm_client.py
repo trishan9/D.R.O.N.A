@@ -160,6 +160,25 @@ class LLMClient:
             usable.append(self._fallback_model)
         return usable or [self._model]
 
+    def complete(self, prompt: str, max_tokens: int = 256, temperature: float = 0.0) -> str:
+        """Raw single-turn completion (not structured advising).
+
+        Used for short utility calls like translating a Nepali query to English
+        for retrieval. Returns "" on any failure so callers can fall back.
+        """
+        try:
+            self._ensure_client()
+            resp = self._client.chat(
+                model=self._model,
+                messages=[{"role": "user", "content": prompt}],
+                keep_alive=settings.ollama_keep_alive,
+                options={"temperature": temperature, "num_predict": max_tokens},
+            )
+            return (resp.message.content or "").strip()
+        except Exception as exc:  # noqa: BLE001 - utility call, degrade quietly
+            logger.warning(f"complete() failed: {exc}")
+            return ""
+
     def generate(
         self,
         system_prompt: str,

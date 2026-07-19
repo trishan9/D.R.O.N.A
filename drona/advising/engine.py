@@ -71,9 +71,22 @@ class AdvisingEngine:
         t_total = time.monotonic()
         logger.info(f"Advising session [{query.query_id}]: {query.query_text[:80]}…")
 
-        # Stage 1: Retrieve
+        # Resolve response language up front (auto-detects Nepali/Devanagari).
+        from drona.utils.language import resolve_language
+        language = resolve_language(settings.advisor_language, query.query_text)
+
+        # Stage 1: Retrieve. The curriculum is embedded with an English model, so
+        # a pure-Nepali query grounds poorly - translate it to English for
+        # retrieval (the answer is still generated in Nepali). We search on BOTH
+        # the original and the translation so code-switched queries keep working.
+        retrieval_text = query.query_text
+        if language == "ne" and hasattr(self._llm, "translate_to_english"):
+            english = self._llm.translate_to_english(query.query_text)
+            if english:
+                retrieval_text = f"{query.query_text} {english}"
+                logger.info(f"Nepali query -> EN for retrieval: {english[:60]}")
         raw_docs = self._retriever.retrieve_raw(
-            query.query_text,
+            retrieval_text,
             top_k=settings.retrieval_top_k,
         )
 
@@ -119,11 +132,8 @@ class AdvisingEngine:
                 f"Bias flags: {[f.bias_type for f in bias_flags]}"
             )
 
-        # Stage 4: Generate
-        # Resolve the response language (auto-detects Nepali/Devanagari) and build
-        # the prompt for it; the LLM router sends the turn to the matching model.
-        from drona.utils.language import resolve_language
-        language = resolve_language(settings.advisor_language, query.query_text)
+        # Stage 4: Generate. Build the prompt for the resolved language (above);
+        # the LLM router sends the turn to the matching model (Nepali -> Gemma).
         system_prompt, user_prompt = build_prompt(
             query, citations, bias_flags, language=language
         )

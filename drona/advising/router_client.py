@@ -77,6 +77,35 @@ class LanguageRoutingClient:
         )
         return self._primary, "ne-fallback"
 
+    # ── Cross-lingual retrieval ─────────────────────────────────────────────────
+
+    def translate_to_english(self, text: str) -> str:
+        """Translate a Nepali query to English for retrieval.
+
+        The curriculum is embedded with an English model, so a pure-Nepali query
+        retrieves poorly; translating it to English first fixes grounding while
+        the answer is still generated in Nepali. Best-effort: returns "" if no
+        model can translate, so the engine falls back to the raw query (which
+        still works for the code-switched Nepali students usually type).
+        """
+        prompt = (
+            "Translate this Nepali student question into a concise English search "
+            "query. Keep technical terms and proper nouns. Output ONLY the English "
+            f"translation, nothing else.\n\n{text}"
+        )
+        # Prefer the Nepali model (bilingual NE<->EN); fall back to the primary.
+        for client in (self._nepali_client(), self._primary):
+            if client is not None and hasattr(client, "complete"):
+                try:
+                    if not client.is_available():
+                        continue
+                    out = client.complete(prompt, max_tokens=80).strip().strip('"')
+                    if out:
+                        return out
+                except Exception:  # noqa: BLE001 - try the next client
+                    continue
+        return ""
+
     # ── LLMClient interface ─────────────────────────────────────────────────────
 
     def is_available(self) -> bool:

@@ -77,6 +77,7 @@ class C1Result:
     improvement:         dict[str, float]   # hybrid - dense_only per metric
     collection_balance:  dict[str, float]   # fraction from each collection
     n_queries:           int
+    bm25_only_metrics:   dict[str, float] | None = None
     skipped:             bool = False
     skip_reason:         str = ""
 
@@ -171,65 +172,59 @@ class EvaluationHarness:
                 skipped=True, skip_reason=f"Retriever init failed: {exc}",
             )
 
-        hybrid_all: list[dict[str, float]] = []
-        dense_all: list[dict[str, float]] = []
+        from drona.data_pipeline.ingest import COLL_CAREER, COLL_CURRICULUM
+
+        per_system: dict[str, list[dict[str, float]]] = {"hybrid": [], "dense": [], "bm25": []}
         collection_counts: dict[str, int] = {"curriculum": 0, "career": 0, "unknown": 0}
         n_processed = 0
+        depth = max(top_k * 4, 20)   # retrieve deep, then score the top_k MODULES
+
+        def _modules(docs) -> list[str]:
+            """Ordered unique module codes (content chunks collapse to their module)."""
+            out: list[str] = []
+            for d in docs:
+                mc = (getattr(d, "metadata", None) or {}).get("module_code")
+                if mc and mc not in out:
+                    out.append(mc)
+            return out
 
         for q in C1_QUERIES:
+            relevant = set(q.relevant_modules)
+            if not relevant:
+                continue          # only score queries carrying ground truth
             try:
-                # Hybrid: full pipeline
-                hybrid_docs = retriever.retrieve_raw(q.query_text, top_k=top_k)
-
-                # Dense-only: only curriculum dense retrieval (simplest baseline)
-                from drona.data_pipeline.ingest import COLL_CAREER, COLL_CURRICULUM
-                dense_docs = retriever._dense_retrieve(
-                    q.query_text, retriever._coll_curriculum, COLL_CURRICULUM, top_k
-                )
-
-                if not hybrid_docs:
-                    logger.warning(f"No hybrid results for {q.query_id}")
-                    continue
-
-                # Build relevance labels from collection membership
-                relevant_collections = _expected_collections(q.expected_relevance)
-                hybrid_ids = [d.id for d in hybrid_docs]
-                hybrid_relevant = {
-                    d.id for d in hybrid_docs if d.collection in relevant_collections
+                retriever._ensure_bm25()
+                runs = {
+                    "hybrid": retriever.retrieve_raw(q.query_text, top_k=depth),
+                    "dense": retriever._dense_retrieve(
+                        q.query_text, retriever._coll_curriculum, COLL_CURRICULUM, depth),
+                    "bm25": retriever._bm25_retrieve(q.query_text, depth),
                 }
-                dense_ids = [d.id for d in dense_docs]
-                dense_relevant = {
-                    d.id for d in dense_docs if d.collection in relevant_collections
-                }
-
-                h_metrics = retrieval_metrics(hybrid_ids, hybrid_relevant, k=top_k)
-                d_metrics = retrieval_metrics(dense_ids, dense_relevant, k=top_k)
-
-                hybrid_all.append(h_metrics)
-                dense_all.append(d_metrics)
-
-                # Track collection distribution
-                for d in hybrid_docs[:top_k]:
-                    col = d.collection
-                    if COLL_CURRICULUM in col:
-                        collection_counts["curriculum"] += 1
-                    elif COLL_CAREER in col:
-                        collection_counts["career"] += 1
-                    else:
-                        collection_counts["unknown"] += 1
-
-                n_processed += 1
-
             except Exception as exc:
                 logger.warning(f"C1 skipping {q.query_id}: {exc}")
+                continue
 
+            for name, docs in runs.items():
+                per_system[name].append(
+                    retrieval_metrics(_modules(docs)[:top_k], relevant, k=top_k))
+
+            for d in runs["hybrid"][:top_k]:
+                col = d.collection
+                if COLL_CURRICULUM in col:
+                    collection_counts["curriculum"] += 1
+                elif COLL_CAREER in col:
+                    collection_counts["career"] += 1
+                else:
+                    collection_counts["unknown"] += 1
+            n_processed += 1
+
+        hybrid_all, dense_all = per_system["hybrid"], per_system["dense"]
         if not hybrid_all:
             return C1Result(
                 hybrid_metrics={}, dense_only_metrics={}, improvement={},
                 collection_balance={}, n_queries=0,
                 skipped=True, skip_reason="ChromaDB appears empty - run ingest_data.py first.",
             )
-
         h_mean = mean_metrics(hybrid_all)
         d_mean = mean_metrics(dense_all)
         improvement = {k: h_mean[k] - d_mean.get(k, 0.0) for k in h_mean}
@@ -248,6 +243,7 @@ class EvaluationHarness:
             improvement=improvement,
             collection_balance=balance,
             n_queries=n_processed,
+            bm25_only_metrics=mean_metrics(per_system["bm25"]) if per_system["bm25"] else None,
         )
 
     # ── C2: Bias detection ────────────────────────────────────────────────────

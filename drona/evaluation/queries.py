@@ -54,6 +54,10 @@ class EvalQuery:
     expected_biases: list[BiasType] = field(default_factory=list)
     # C4: should primarily retrieve Nepal-tier data
     prefers_local: bool = True
+    # C1 GROUND TRUTH: module codes that genuinely answer this query. Retrieval is
+    # scored against these (module level, so content chunks collapse to their
+    # module). Empty = query is not part of the labelled C1 bank.
+    relevant_modules: frozenset[str] = frozenset()
     # Metadata
     category: str = "general"
     notes: str = ""
@@ -64,85 +68,76 @@ class EvalQuery:
 # base. "curriculum" queries should rank curriculum documents highly; "career"
 # queries should rank job postings and pathways highly; "both" queries need both.
 
+def _c1(qid: str, text: str, modules: set[str]) -> EvalQuery:
+    """Build a labelled C1 retrieval query (curriculum ground truth)."""
+    return EvalQuery(query_id=qid, query_text=text, expected_relevance="curriculum",
+                     relevant_modules=frozenset(modules), category="c1_labelled")
+
+
 C1_QUERIES: list[EvalQuery] = [
-    EvalQuery(
-        query_id="c1_001",
-        query_text="What modules teach Python programming at Softwarica?",
-        expected_relevance="curriculum",
-        prefers_local=True,
-        category="curriculum_lookup",
-        notes="Should retrieve programming/software modules.",
-    ),
-    EvalQuery(
-        query_id="c1_002",
-        query_text="machine learning algorithms taught in BSc Computing",
-        expected_relevance="curriculum",
-        prefers_local=True,
-        category="curriculum_lookup",
-        notes="ML-adjacent curriculum content.",
-    ),
-    EvalQuery(
-        query_id="c1_003",
-        query_text="software developer jobs in Kathmandu salary Nepal",
-        expected_relevance="career",
-        prefers_local=True,
-        category="job_market",
-        notes="Should surface Nepal job postings.",
-    ),
-    EvalQuery(
-        query_id="c1_004",
-        query_text="data scientist job requirements skills experience",
-        expected_relevance="career",
-        prefers_local=False,
-        category="job_market",
-        notes="Generic job market query.",
-    ),
-    EvalQuery(
-        query_id="c1_005",
-        query_text="how do database modules prepare me for backend developer roles",
-        expected_relevance="both",
-        prefers_local=True,
-        category="curriculum_to_career",
-        notes="Bridge query - needs both curriculum and career docs.",
-    ),
-    EvalQuery(
-        query_id="c1_006",
-        query_text="career pathways for computing graduates in Nepal fintech",
-        expected_relevance="both",
-        prefers_local=True,
-        category="curriculum_to_career",
-        notes="Nepal fintech sector - eSewa, Khalti etc.",
-    ),
-    EvalQuery(
-        query_id="c1_007",
-        query_text="network security cybersecurity jobs Kathmandu",
-        expected_relevance="career",
-        prefers_local=True,
-        category="job_market",
-    ),
-    EvalQuery(
-        query_id="c1_008",
-        query_text="what is the difference between software engineering and computer science",
-        expected_relevance="curriculum",
-        prefers_local=False,
-        category="curriculum_lookup",
-        notes="Conceptual query - less lexical overlap with postings.",
-    ),
-    EvalQuery(
-        query_id="c1_009",
-        query_text="internship opportunities Nepal computing students",
-        expected_relevance="career",
-        prefers_local=True,
-        category="job_market",
-    ),
-    EvalQuery(
-        query_id="c1_010",
-        query_text="final year project ideas AI machine learning",
-        expected_relevance="curriculum",
-        prefers_local=False,
-        category="curriculum_lookup",
-    ),
+    # Ground-truth labelled retrieval bank. `relevant_modules` lists the module
+    # codes that genuinely answer the query, judged from the real Softwarica
+    # module titles in the index. Retrieval is scored against these at MODULE
+    # level, so a system is only credited for surfacing the right modules.
+    _c1("c1_ml", "which modules teach machine learning",
+        {"ST6006CEM", "ST5000CEM", "ST6057CEM", "ST6058CEM"}),
+    _c1("c1_nn", "neural networks and deep learning module",
+        {"ST6057CEM", "ST6006CEM"}),
+    _c1("c1_agents", "intelligent agents module", {"ST6058CEM"}),
+    _c1("c1_ai_intro", "introduction to artificial intelligence", {"ST5000CEM"}),
+    _c1("c1_python", "where do I learn Python programming",
+        {"ST4000CEM", "ST4061CEM", "ST5062CEM", "ST5008CEM", "SP4001COM"}),
+    _c1("c1_oop", "object oriented programming module", {"ST4003CEM"}),
+    _c1("c1_algo", "algorithms and data structures",
+        {"ST5003CEM", "ST4000CEM", "ST4061CEM", "ST5062CEM"}),
+    _c1("c1_math", "mathematics for computer science",
+        {"ST4002CEM", "ST4068CEM"}),
+    _c1("c1_toc", "theory of computation", {"ST5002CEM"}),
+    _c1("c1_db", "database systems module", {"ST4005CEM", "ST4056CEM"}),
+    _c1("c1_web", "web development modules",
+        {"ST5007CEM", "ST4056CEM", "ST6003CEM"}),
+    _c1("c1_webapi", "web API development", {"ST6003CEM"}),
+    _c1("c1_websec", "web security", {"ST5067CEM"}),
+    _c1("c1_mobile", "mobile app development for Android",
+        {"ST6002CEM", "SP5000COM", "SP5000C0M"}),
+    _c1("c1_ux", "user experience design module", {"ST6012CEM"}),
+    _c1("c1_se", "software engineering and agile development",
+        {"ST5001CEM", "ST5009CEM"}),
+    _c1("c1_sd", "software design module", {"ST4001CEM", "ST4067CEM"}),
+    _c1("c1_os", "operating systems module",
+        {"ST5004CEM", "ST5068CEM"}),
+    _c1("c1_net", "computer networking module",
+        {"ST5064CEM", "ST4065CEM", "ST4004CEM"}),
+    _c1("c1_ds", "data science and big data modules",
+        {"ST5005CEM", "ST5014CEM", "ST5011CEM"}),
+    _c1("c1_pentest", "penetration testing and ethical hacking",
+        {"ST5063CEM", "ST6049CEM", "ST6048CEM"}),
+    _c1("c1_exploit", "exploit development", {"ST6048CEM"}),
+    _c1("c1_crypto", "practical cryptography", {"ST6051CEM"}),
+    _c1("c1_forensics", "digital forensics",
+        {"ST4060CEM", "ST5065CEM", "SC-001"}),
+    _c1("c1_reverse", "reverse engineering module", {"ST6052CEM"}),
+    _c1("c1_secfound", "foundations of cyber security",
+        {"ST4064CEM", "ST4063CEM"}),
+    _c1("c1_secmgmt", "security management, audit and monitoring",
+        {"ST6054CEM", "ST6050CEM"}),
+    _c1("c1_seccareer", "cyber security careers", {"ST5069CEM"}),
+    _c1("c1_project", "final year individual project",
+        {"ST6001CEM", "ST6000CEM"}),
+    _c1("c1_enterprise", "enterprise project module", {"ST5010CEM"}),
+    _c1("c1_legal", "legal and ethical issues in computing", {"ST4059CEM"}),
+    _c1("c1_entrepreneur", "how do I start my own business",
+        {"STA201IAE", "STA103IAE", "STA309IAE", "GUIDE-STARTUP"}),
+    _c1("c1_grad", "how do I apply for a masters degree abroad",
+        {"GUIDE-GRAD"}),
+    _c1("c1_airoles", "will AI replace developers and what AI-era roles exist",
+        {"GUIDE-AIROLES"}),
+    _c1("c1_csai", "computer science with artificial intelligence programme",
+        {"INFO-CSAI"}),
+    _c1("c1_ehc", "ethical hacking and cybersecurity programme",
+        {"INFO-EHC"}),
 ]
+
 
 # ── C2 bias detection queries ──────────────────────────────────────────────────
 # Each query is designed to trigger a specific bias pattern. Multiple biases

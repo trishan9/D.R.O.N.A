@@ -437,7 +437,11 @@ class TestLatencyStats:
 
 class TestQueryBank:
     def test_c1_query_count(self) -> None:
-        assert len(C1_QUERIES) == 10
+        # Labelled retrieval bank: enough queries to be meaningful, and EVERY
+        # query must carry ground-truth relevant modules (C1 is scored against
+        # them, not against a collection-membership proxy).
+        assert len(C1_QUERIES) >= 30
+        assert all(q.relevant_modules for q in C1_QUERIES)
 
     def test_c2_query_count(self) -> None:
         assert len(C2_QUERIES) >= 14  # at least 11 biased + 3 clean

@@ -20,6 +20,7 @@ Topics:
 Parameters:
     use_camera      : false  (true = local webcam + MediaPipe)
     camera_index    : 0
+    camera_backend  : "auto"  (auto | opencv [USB] | picamera2 [Pi CSI])
     detection_hz    : 10.0
     image_topic     : ""     (e.g. /drona/camera/image_raw in Gazebo)
     stub_script     : ""     (comma-separated engagement states for stub mode)
@@ -44,12 +45,16 @@ class PerceptionNode(Node):
 
         self.declare_parameter("use_camera", False)
         self.declare_parameter("camera_index", 0)
+        # auto = USB/OpenCV first, then Pi CSI/picamera2. Force with
+        # "opencv" (USB webcam) or "picamera2" (ribbon camera).
+        self.declare_parameter("camera_backend", "auto")
         self.declare_parameter("detection_hz", 10.0)
         self.declare_parameter("image_topic", "")
         self.declare_parameter("stub_script", "")
 
         use_camera = self.get_parameter("use_camera").value
         camera_idx = int(self.get_parameter("camera_index").value)
+        camera_backend = str(self.get_parameter("camera_backend").value)
         hz = float(self.get_parameter("detection_hz").value)
         self._image_topic = str(self.get_parameter("image_topic").value or "")
 
@@ -67,6 +72,7 @@ class PerceptionNode(Node):
             self._detector = make_detector(
                 prefer_mediapipe=use_camera,
                 camera_index=camera_idx,
+                camera_backend=camera_backend,
             )
 
         period = 1.0 / hz

@@ -155,6 +155,96 @@ class BaseDetector(ABC):
             count += 1
 
 
+# ── Camera source (Pi Camera Module or USB) ────────────────────────────────────
+
+class CameraSource:
+    """Frame source that works on a Raspberry Pi ribbon camera *and* a USB webcam.
+
+    A **USB webcam** (the normal case, including on a Pi) works through OpenCV.
+    A Pi Camera Module on the CSI ribbon does NOT - current Raspberry Pi OS moved
+    to libcamera, whose Python API is picamera2 - so that is supported as a second
+    backend. `backend="auto"` tries OpenCV/USB first and only then picamera2, so
+    the identical perception node runs on a laptop, a Pi with a USB cam, or a Pi
+    with a ribbon cam.
+
+    read_rgb() always returns an RGB uint8 frame (MediaPipe's expected format).
+    """
+
+    def __init__(self, index: int = 0, backend: str = "auto",
+                 size: tuple[int, int] = (640, 480)) -> None:
+        self._index = index
+        self._size = size
+        self._kind: str | None = None
+        self._cap = None       # cv2.VideoCapture
+        self._picam = None     # picamera2.Picamera2
+
+        order = (["opencv", "picamera2"] if backend == "auto"
+                 else [backend])
+        errors: list[str] = []
+        for kind in order:
+            try:
+                if kind == "picamera2":
+                    self._open_picamera2()
+                else:
+                    self._open_opencv()
+                self._kind = kind
+                logger.info(f"CameraSource: {kind} (index={index}, {size[0]}x{size[1]})")
+                return
+            except Exception as exc:  # noqa: BLE001 - try the next backend
+                errors.append(f"{kind}: {exc}")
+        raise RuntimeError("No usable camera backend. Tried -> " + "; ".join(errors))
+
+    def _open_picamera2(self) -> None:
+        from picamera2 import Picamera2  # type: ignore[import]
+
+        cam = Picamera2(camera_num=self._index)
+        cam.configure(cam.create_preview_configuration(
+            main={"format": "RGB888", "size": self._size}
+        ))
+        cam.start()
+        self._picam = cam
+
+    def _open_opencv(self) -> None:
+        import cv2  # type: ignore[import]
+
+        cap = cv2.VideoCapture(self._index)
+        if not cap.isOpened():
+            cap.release()
+            raise RuntimeError(f"cv2 could not open camera {self._index}")
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, self._size[0])
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self._size[1])
+        self._cap = cap
+
+    @property
+    def backend(self) -> str:
+        return self._kind or "none"
+
+    def read_rgb(self) -> np.ndarray | None:
+        """Return one RGB frame, or None if the read failed."""
+        if self._picam is not None:
+            return self._picam.capture_array()  # already RGB888
+        if self._cap is not None:
+            import cv2  # type: ignore[import]
+
+            ok, frame = self._cap.read()
+            if not ok or frame is None:
+                return None
+            return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        return None
+
+    def close(self) -> None:
+        if self._picam is not None:
+            try:
+                self._picam.stop()
+                self._picam.close()
+            except Exception:  # noqa: BLE001
+                pass
+            self._picam = None
+        if self._cap is not None:
+            self._cap.release()
+            self._cap = None
+
+
 # ── MediaPipe backend ──────────────────────────────────────────────────────────
 
 class MediaPipeDetector(BaseDetector):
@@ -165,11 +255,12 @@ class MediaPipeDetector(BaseDetector):
     """
 
     def __init__(self, camera_index: int = 0, min_confidence: float = 0.5,
-                 open_camera: bool = True) -> None:
+                 open_camera: bool = True, camera_backend: str = "auto") -> None:
         self._camera_index = camera_index
         self._min_confidence = min_confidence
         self._open_camera = open_camera  # False = frames injected via detect(frame=...)
-        self._cap = None          # cv2.VideoCapture, lazy
+        self._camera_backend = camera_backend  # auto | picamera2 | opencv
+        self._cap = None          # CameraSource, lazy
         self._detector = None     # mp face_detection, lazy
         self._ema_conf = 0.0
         self._consecutive = 0
@@ -178,14 +269,15 @@ class MediaPipeDetector(BaseDetector):
     def _ensure_init(self) -> None:
         if self._detector is not None:
             return
+        # Only MediaPipe is needed here; the camera backend (CameraSource) checks
+        # its own dependency, so a picamera2-only Pi does not need OpenCV.
         try:
-            import cv2  # type: ignore[import]
             import mediapipe as mp  # type: ignore[import]
             from mediapipe.tasks import python as mp_python  # type: ignore[import]
             from mediapipe.tasks.python import vision as mp_vision  # type: ignore[import]
         except ImportError as exc:
             raise RuntimeError(
-                "MediaPipe and OpenCV are required: "
+                "MediaPipe is required: "
                 "pip install 'numpy<2' 'mediapipe>=0.10.9' 'opencv-contrib-python<5'"
             ) from exc
 
@@ -200,25 +292,25 @@ class MediaPipeDetector(BaseDetector):
         self._detector = mp_vision.FaceDetector.create_from_options(options)
         self._mp = mp
         if self._open_camera:
-            self._cap = cv2.VideoCapture(self._camera_index)
-            if not self._cap.isOpened():
-                raise RuntimeError(f"Could not open camera {self._camera_index}")
+            # CameraSource handles the Pi ribbon camera (picamera2/libcamera) and
+            # USB webcams (OpenCV) behind one interface.
+            self._cap = CameraSource(self._camera_index, self._camera_backend)
         logger.info(
             "MediaPipeDetector ready (Tasks API) "
-            + (f"(camera {self._camera_index})" if self._open_camera else "(injected frames)")
+            + (f"(camera {self._camera_index} via {self._cap.backend})"
+               if self._open_camera else "(injected frames)")
         )
 
     def detect(self, frame: np.ndarray | None = None) -> StudentDetection:
         self._ensure_init()
-        import cv2  # type: ignore[import]
 
         if frame is None:
             if self._cap is None:  # injected-frame mode with no frame yet
                 return self._make_detection(EngagementState.ABSENT, None, 0.0)
-            ret, frame = self._cap.read()
-            if not ret or frame is None:
+            # CameraSource returns RGB already (USB via OpenCV, or Pi CSI).
+            frame = self._cap.read_rgb()
+            if frame is None:
                 return self._make_detection(EngagementState.ABSENT, None, 0.0)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         h, w = frame.shape[:2]
         # Tasks API takes an mp.Image (SRGB, contiguous uint8).
@@ -265,7 +357,7 @@ class MediaPipeDetector(BaseDetector):
 
     def close(self) -> None:
         if self._cap is not None:
-            self._cap.release()
+            self._cap.close()   # CameraSource (not a raw cv2.VideoCapture)
         if self._detector is not None:
             self._detector.close()
         logger.info("MediaPipeDetector closed")
@@ -338,6 +430,7 @@ def make_detector(
     camera_index: int = 0,
     stub_script: list[tuple[EngagementState, float, float | None]] | None = None,
     open_camera: bool = True,
+    camera_backend: str = "auto",
 ) -> BaseDetector:
     """Create a detector, preferring MediaPipe if available.
 
@@ -348,13 +441,16 @@ def make_detector(
         open_camera: False = no local webcam; frames are injected via
             detect(frame=...) (used by the ROS2 perception node in image-topic
             mode, where the camera lives in the simulator or on another node).
+        camera_backend: "auto" (USB/OpenCV first, then Pi CSI/picamera2),
+            "opencv" to force USB, or "picamera2" to force a ribbon camera.
 
     Returns:
         A BaseDetector instance.
     """
     if prefer_mediapipe:
         try:
-            det = MediaPipeDetector(camera_index=camera_index, open_camera=open_camera)
+            det = MediaPipeDetector(camera_index=camera_index, open_camera=open_camera,
+                                    camera_backend=camera_backend)
             det._ensure_init()
             return det
         except (RuntimeError, ImportError) as exc:

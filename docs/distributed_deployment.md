@@ -81,26 +81,26 @@ watching a real person drives a simulated robot in real time. This proves the
 distribution is real — the tiers are separate processes on separate machines
 exchanging real messages — while keeping the demo reliable.
 
-### 3.1 Pi setup (once)
+### 3.1 Pi setup (once) — one command
 
 ```bash
-# On the Raspberry Pi (64-bit Pi OS, Pi 4/5 recommended)
-sudo apt install -y ros-jazzy-ros-base python3-pip
-python3 -m pip install --break-system-packages \
-    'numpy<2' 'mediapipe>=0.10.9' 'opencv-contrib-python<5'
-
+# On the Raspberry Pi (64-bit Pi OS Bookworm, Pi 4/5), USB camera plugged in
 git clone https://github.com/trishan9/D.R.O.N.A.git && cd D.R.O.N.A
-python3 -m pip install --break-system-packages --no-deps -e .
-python3 -m pip install --break-system-packages -r ros2_ws/requirements-robot.txt
-
-# build just the messages + nodes (no Gazebo needed on the Pi)
-mkdir -p ~/drona_ws/src && cp -r ros2_ws/src/* ~/drona_ws/src/
-cd ~/drona_ws && colcon build --symlink-install
+sudo bash scripts/setup_pi_edge.sh
 ```
 
-> `numpy<2` is mandatory: ROS 2 Jazzy ships numpy 1.26 and MediaPipe's
-> matplotlib dependency is compiled against numpy 1.x. numpy 2 fails with
-> `numpy.core.multiarray failed to import`.
+That installs `ros-jazzy-ros-base` (no Gazebo — the Pi never simulates), the
+perception Python deps, builds the workspace, wires `~/.bashrc`, adds you to the
+`video` group, and reports which `/dev/video*` devices it can see.
+
+> `numpy<2` is mandatory and the script pins it: ROS 2 Jazzy ships numpy 1.26 and
+> MediaPipe's matplotlib dependency is compiled against numpy 1.x. numpy 2 fails
+> with `numpy.core.multiarray failed to import`.
+
+**Camera support.** A **USB webcam** (the normal case) is opened with OpenCV. A Pi
+Camera Module on the **CSI ribbon** is *not* reachable through OpenCV on Bookworm
+(it moved to libcamera), so `CameraSource` falls back to **picamera2** for that.
+`camera_backend:=auto` tries USB first; force it with `opencv` or `picamera2`.
 
 ### 3.2 Put both machines on the same ROS 2 graph
 
@@ -117,14 +117,24 @@ export ROS_DOMAIN_ID=42
 ### 3.3 Run it
 
 ```bash
-# Pi (tier 1) - real camera, real face detection
-ros2 run drona_ros perception_node --ros-args \
-    -p use_camera:=true -p camera_index:=0 -p detection_hz:=10.0
+# Pi (tier 1) - real USB camera, real face detection
+ros2 launch drona_bringup drona_edge.launch.py
+#   options: camera_index:=1  camera_backend:=opencv  detection_hz:=10.0
 
 # dev box (tier 2) - the robot, in simulation
 ros2 launch drona_bringup drona_gazebo.launch.py mobile:=true \
     advisor_remote_url:=https://<your-tunnel>.trycloudflare.com
 ```
+
+Confirm the Pi is publishing (from either machine):
+
+```bash
+ros2 topic echo /drona/engagement
+```
+
+If no camera is found, the node logs exactly what it tried and falls back to the
+scripted stub detector rather than dying — so the graph stays alive and you can
+debug the camera separately.
 
 Now walk in front of the Pi's camera. The simulated robot detects you, **drives
 toward you**, stops at conversation distance, greets you, and answers with the

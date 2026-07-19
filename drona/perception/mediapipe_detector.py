@@ -11,8 +11,9 @@ Classifies a student's engagement state from a video frame:
 Two backends with the same BaseDetector interface:
 
   MediaPipeDetector (optional)
-    Uses mediapipe.solutions.face_detection. Requires:
-      pip install mediapipe opencv-python-headless
+    Uses the MediaPipe Tasks API (vision.FaceDetector, BlazeFace short-range).
+    Requires (numpy<2 is mandatory - see requirements-perception.txt):
+      pip install 'numpy<2' 'mediapipe>=0.10.9' 'opencv-contrib-python<5'
     Face bounding box area → estimated distance proxy.
     Detection confidence + temporal stability → engagement classification.
 
@@ -35,15 +36,42 @@ Hardware note (GTX 1650):
 
 from __future__ import annotations
 
+import os
 import time
+import urllib.request
 import uuid
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
+from pathlib import Path
 
 import numpy as np
 from loguru import logger
 
 from drona.contracts import EngagementState, StudentDetection
+
+# BlazeFace short-range (<2m) face detector for the MediaPipe Tasks API. Modern
+# mediapipe (>=0.10.18) removed the legacy mp.solutions API, so the Tasks API is
+# the only supported path; it needs this small (~230 KB) model on disk.
+_FACE_MODEL_URL = (
+    "https://storage.googleapis.com/mediapipe-models/face_detector/"
+    "blaze_face_short_range/float16/latest/blaze_face_short_range.tflite"
+)
+
+
+def _ensure_face_model() -> Path:
+    """Return a local path to the BlazeFace model, downloading it once if needed.
+
+    Cache dir is overridable with DRONA_FACE_MODEL_DIR so an offline robot (e.g.
+    a Raspberry Pi with no internet at boot) can ship the model alongside the code.
+    """
+    cache = Path(os.environ.get("DRONA_FACE_MODEL_DIR",
+                                str(Path.home() / ".cache" / "drona")))
+    cache.mkdir(parents=True, exist_ok=True)
+    model = cache / "blaze_face_short_range.tflite"
+    if not model.exists():
+        logger.info(f"Downloading BlazeFace model -> {model}")
+        urllib.request.urlretrieve(_FACE_MODEL_URL, model)
+    return model
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
 
@@ -153,23 +181,30 @@ class MediaPipeDetector(BaseDetector):
         try:
             import cv2  # type: ignore[import]
             import mediapipe as mp  # type: ignore[import]
+            from mediapipe.tasks import python as mp_python  # type: ignore[import]
+            from mediapipe.tasks.python import vision as mp_vision  # type: ignore[import]
         except ImportError as exc:
             raise RuntimeError(
                 "MediaPipe and OpenCV are required: "
-                "pip install mediapipe opencv-python-headless"
+                "pip install 'numpy<2' 'mediapipe>=0.10.9' 'opencv-contrib-python<5'"
             ) from exc
 
-        self._mp_face = mp.solutions.face_detection
-        self._detector = self._mp_face.FaceDetection(
-            model_selection=0,  # 0 = short-range (< 2m), 1 = full-range
+        # Tasks API FaceDetector (the modern replacement for mp.solutions).
+        options = mp_vision.FaceDetectorOptions(
+            base_options=mp_python.BaseOptions(
+                model_asset_path=str(_ensure_face_model())
+            ),
+            running_mode=mp_vision.RunningMode.IMAGE,
             min_detection_confidence=self._min_confidence,
         )
+        self._detector = mp_vision.FaceDetector.create_from_options(options)
+        self._mp = mp
         if self._open_camera:
             self._cap = cv2.VideoCapture(self._camera_index)
             if not self._cap.isOpened():
                 raise RuntimeError(f"Could not open camera {self._camera_index}")
         logger.info(
-            "MediaPipeDetector ready "
+            "MediaPipeDetector ready (Tasks API) "
             + (f"(camera {self._camera_index})" if self._open_camera else "(injected frames)")
         )
 
@@ -186,9 +221,12 @@ class MediaPipeDetector(BaseDetector):
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         h, w = frame.shape[:2]
-        frame.flags.writeable = False
-        results = self._detector.process(frame)  # type: ignore[union-attr]
-        frame.flags.writeable = True
+        # Tasks API takes an mp.Image (SRGB, contiguous uint8).
+        mp_image = self._mp.Image(
+            image_format=self._mp.ImageFormat.SRGB,
+            data=np.ascontiguousarray(frame, dtype=np.uint8),
+        )
+        results = self._detector.detect(mp_image)
 
         if not results.detections:
             self._ema_conf = self._ema_conf * (1 - _EMA_ALPHA)
@@ -196,14 +234,15 @@ class MediaPipeDetector(BaseDetector):
             return self._make_detection(EngagementState.ABSENT, None, self._ema_conf)
 
         # Use the highest-confidence detection
-        best = max(results.detections, key=lambda d: d.score[0])
-        raw_conf = float(best.score[0])
+        best = max(results.detections, key=lambda d: d.categories[0].score)
+        raw_conf = float(best.categories[0].score)
         self._ema_conf = _EMA_ALPHA * raw_conf + (1 - _EMA_ALPHA) * self._ema_conf
         self._consecutive += 1
 
-        # Face area fraction
-        bb = best.location_data.relative_bounding_box
-        area_frac = float(bb.width * bb.height)
+        # Tasks API bounding_box is in PIXELS; normalise to a frame-area fraction
+        # so the engagement thresholds (_LARGE_FACE_FRAC etc.) stay resolution-independent.
+        bb = best.bounding_box
+        area_frac = float(bb.width * bb.height) / float(max(1, w * h))
 
         state, distance_m = _classify_engagement(
             self._ema_conf, area_frac, self._consecutive

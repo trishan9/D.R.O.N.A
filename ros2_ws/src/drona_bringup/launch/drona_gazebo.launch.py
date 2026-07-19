@@ -164,6 +164,15 @@ def generate_launch_description() -> LaunchDescription:
     )
     orchestrator = Node(executable="orchestrator_node", name="drona_orchestrator_node", **common)
     diagnostics = Node(executable="diagnostics_node", name="drona_diagnostics_node", **common)
+    # gesture_node consumes /drona/gesture_command (what the orchestrator emits)
+    # and streams /drona/joint_states -> gz_joint_relay -> the arm. In sim it uses
+    # the SimArmInterface (use_hardware:=false), so no hardware is touched. Without
+    # this node the orchestrator's greet/nod commands would go unconsumed.
+    gesture = Node(
+        package="drona_ros", executable="gesture_node", name="drona_gesture_node",
+        parameters=[params_file, sim_time, {"use_hardware": False}],
+        output="screen",
+    )
 
     rviz = Node(
         package="rviz2",
@@ -185,6 +194,7 @@ def generate_launch_description() -> LaunchDescription:
         relay,
         perception,
         policy,
+        gesture,
         advising,
         orchestrator,
         diagnostics,

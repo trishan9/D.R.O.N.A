@@ -1,10 +1,15 @@
 # Perception deps for the D.R.O.N.A. camera node (face detection -> engagement).
-# Only needed if you run perception_node (real camera or simulated image topic).
-# Kept separate from requirements-robot.txt because mediapipe pulls its own
-# numpy/protobuf pins that can clash with ROS's system numpy - install it in a
-# venv (--system-site-packages) if you hit a numpy conflict with rclpy.
+# Only needed if you run perception_node with a real/simulated camera (the Pi
+# edge node, or consuming the Gazebo camera topic). Not needed for the stub
+# detector used in CI / headless loop tests.
 #
 #     pip install --break-system-packages -r requirements-perception.txt
-
+#
+# CRITICAL PIN: numpy MUST stay <2. ROS2 Jazzy ships numpy 1.26, and mediapipe's
+# matplotlib dependency is compiled against numpy 1.x - numpy 2 fails with
+# "numpy.core.multiarray failed to import". opencv-contrib 5.x pulls numpy>=2,
+# so opencv is pinned <5 as well. Verified working trio with rclpy:
+#   numpy 1.26.4 + mediapipe 0.10.35 + opencv-contrib-python 4.11.0.86
+numpy<2
 mediapipe>=0.10.9
-opencv-python-headless>=4.9.0
+opencv-contrib-python<5

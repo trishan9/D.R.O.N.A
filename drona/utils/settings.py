@@ -66,7 +66,11 @@ class DronaSettings(BaseSettings):
         "qwen2.5:3b-instruct-q4_K_M",
         description="Fallback if the primary model isn't loaded; still local, no API cost.",
     )
-    llm_max_tokens: int = Field(1024, ge=64, le=4096)  # = Ollama num_predict cap
+    # Ceiling on generated tokens (Ollama num_predict / HF max_new_tokens). 2048
+    # so a full 3-pathway answer in NEPALI fits - Devanagari is token-dense and a
+    # smaller cap (e.g. 1024) truncates the JSON mid-answer, breaking the parse.
+    # It is only a ceiling: English answers stop ~600-800 tokens regardless.
+    llm_max_tokens: int = Field(2048, ge=64, le=4096)
     llm_temperature: float = Field(0.3, ge=0.0, le=2.0)
     # "Fast mode" knobs: keep the model resident between requests (avoids the
     # multi-second cold reload) and bound the KV-cache context window.

@@ -160,6 +160,26 @@ class LLMClient:
             usable.append(self._fallback_model)
         return usable or [self._model]
 
+    def _think_kwarg(self) -> dict:
+        """{"think": False} when the ollama client supports it, else {}.
+
+        Reasoning models (e.g. Himalaya Gemma) otherwise emit a long
+        chain-of-thought and never reach the actual answer within the token
+        budget - producing EMPTY content. Advising wants the structured answer
+        directly, so we turn thinking off. Detected once; degrades on older
+        ollama-python that lacks the parameter.
+        """
+        if getattr(self, "_supports_think", None) is None:
+            import inspect
+            try:
+                params = inspect.signature(self._client.chat).parameters
+                self._supports_think = "think" in params or any(
+                    p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()
+                )
+            except (ValueError, TypeError):
+                self._supports_think = False
+        return {"think": False} if self._supports_think else {}
+
     def complete(self, prompt: str, max_tokens: int = 256, temperature: float = 0.0) -> str:
         """Raw single-turn completion (not structured advising).
 
@@ -172,6 +192,7 @@ class LLMClient:
                 model=self._model,
                 messages=[{"role": "user", "content": prompt}],
                 keep_alive=settings.ollama_keep_alive,
+                **self._think_kwarg(),
                 options={"temperature": temperature, "num_predict": max_tokens},
             )
             return (resp.message.content or "").strip()
@@ -212,6 +233,11 @@ class LLMClient:
                         # keep_alive holds the model in memory between requests
                         # so only the FIRST query pays the cold-load cost.
                         keep_alive=settings.ollama_keep_alive,
+                        # think=False disables reasoning models' chain-of-thought
+                        # (e.g. Himalaya Gemma). Advising wants the structured JSON
+                        # directly; without this a reasoning model spends its whole
+                        # token budget "thinking" and returns empty content.
+                        **self._think_kwarg(),
                         options={
                             "temperature": settings.llm_temperature,
                             "num_ctx": settings.ollama_num_ctx,

@@ -1,0 +1,48 @@
+{
+  "trials": [
+    {
+      "perception_to_decision_ms": 7.744000999998946,
+      "decision_to_motion_ms": 0.155696000000205,
+      "motion_to_actuation_ms": null,
+      "perception_to_actuation_ms": null
+    },
+    {
+      "perception_to_decision_ms": 2.2425049999981184,
+      "decision_to_motion_ms": 3.875948000001017,
+      "motion_to_actuation_ms": null,
+      "perception_to_actuation_ms": null
+    },
+    {
+      "perception_to_decision_ms": 1.9572490000001608,
+      "decision_to_motion_ms": 0.84269100000256,
+      "motion_to_actuation_ms": null,
+      "perception_to_actuation_ms": null
+    },
+    {
+      "perception_to_decision_ms": 9.503626999986636,
+      "decision_to_motion_ms": 0.5506720000028054,
+      "motion_to_actuation_ms": null,
+      "perception_to_actuation_ms": null
+    },
+    {
+      "perception_to_decision_ms": 12.95533100000057,
+      "decision_to_motion_ms": 3.0222219999984645,
+      "motion_to_actuation_ms": null,
+      "perception_to_actuation_ms": null
+    }
+  ],
+  "summary": {
+    "perception_to_decision_ms": {
+      "n": 5,
+      "mean_ms": 6.9,
+      "p50_ms": 7.7,
+      "p95_ms": 13.0
+    },
+    "decision_to_motion_ms": {
+      "n": 5,
+      "mean_ms": 1.7,
+      "p50_ms": 0.8,
+      "p95_ms": 3.9
+    }
+  }
+}

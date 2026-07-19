@@ -1,0 +1,21 @@
+# Minimal Python deps to run the D.R.O.N.A. ROS2 nodes on a robot / low-power box.
+#
+# The robot is a THIN CLIENT: retrieval (ChromaDB) + reranking (a 2.3 GB
+# cross-encoder) + the 4B LLM all run on the GPU brain (drona/advising/remote.py
+# -> the Colab T4 notebook or a deployed server). So the robot does NOT install
+# sentence-transformers, chromadb, torch, or ollama - keeping it small enough for
+# a 4 GB WSL box, a Jetson, or a Raspberry Pi.
+#
+# numpy is intentionally omitted: ROS2 Jazzy ships system python3-numpy, and
+# reinstalling it via pip can break rclpy. Install perception deps separately
+# (requirements-perception.txt) only if you run the camera node.
+#
+# Install (into the WSL Python that ROS uses):
+#     pip install --break-system-packages --no-deps -e /path/to/repo
+#     pip install --break-system-packages -r requirements-robot.txt
+
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+python-dotenv>=1.0.1
+loguru>=0.7.2
+httpx>=0.27.0

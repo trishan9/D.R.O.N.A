@@ -1,0 +1,10 @@
+# Perception deps for the D.R.O.N.A. camera node (face detection -> engagement).
+# Only needed if you run perception_node (real camera or simulated image topic).
+# Kept separate from requirements-robot.txt because mediapipe pulls its own
+# numpy/protobuf pins that can clash with ROS's system numpy - install it in a
+# venv (--system-site-packages) if you hit a numpy conflict with rclpy.
+#
+#     pip install --break-system-packages -r requirements-perception.txt
+
+mediapipe>=0.10.9
+opencv-python-headless>=4.9.0

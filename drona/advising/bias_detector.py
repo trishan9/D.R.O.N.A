@@ -103,12 +103,23 @@ _DK_OVERCONFIDENCE_PATTERNS = [
     re.compile(r"\bi (know|understand|have mastered) .{0,20}(very well|completely|perfectly|thoroughly|inside out)\b", re.I),
     re.compile(r"\bno (problem|issue|challenge|difficulty) with\b", re.I),
     re.compile(r"\b(can easily|easily (do|handle|build|create))\b", re.I),
+    # Students rarely use the textbook phrasings above. These cover how
+    # over-confidence is actually voiced ("I already know everything about X").
+    re.compile(r"\bi (already )?know (everything|it all|all of it|all there is)\b", re.I),
+    re.compile(r"\bi('?m| am) (already )?(an?\s+)?(expert|pro|master)\b", re.I),
+    re.compile(r"\bnothing (more |left )?to learn\b", re.I),
+    re.compile(r"\bi don'?t (need|have) to (learn|study)\b", re.I),
 ]
 _DK_UNDERCONFIDENCE_PATTERNS = [
     re.compile(r"\b(terrible|awful|horrible|useless|hopeless) (at|in|with)\b", re.I),
-    re.compile(r"\bi('?m| am) (not|never) (good|smart|capable) enough\b", re.I),
+    # Allow hedging adverbs ("probably/maybe/just") between the pronoun and the
+    # negation - "I'm probably not smart enough" is the common real phrasing.
+    re.compile(r"\bi('?m| am) (\w+\s+){0,2}(not|never) (good|smart|capable|talented|clever) enough\b", re.I),
+    re.compile(r"\bnot (good|smart|capable) enough (for|to)\b", re.I),
     re.compile(r"\bi (can'?t|cannot|don'?t) (understand|learn|do) (any|this|that|anything)\b", re.I),
     re.compile(r"\bi('?m| am) (too) (stupid|dumb|slow)\b", re.I),
+    re.compile(r"\bi('?m| am) (just |only )?(average|mediocre|ordinary|nothing special)\b", re.I),
+    re.compile(r"\bi'?ll never be (good|able|able to)\b", re.I),
     re.compile(r"\bno one would hire me\b", re.I),
 ]
 

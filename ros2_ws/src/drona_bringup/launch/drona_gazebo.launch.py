@@ -78,6 +78,13 @@ def generate_launch_description() -> LaunchDescription:
             description="Wheeled mobile base: the robot spawns on the floor and "
                         "drives to the student (approach_node -> /cmd_vel) instead "
                         "of sitting on the desk."),
+        DeclareLaunchArgument(
+            "tts_backend", default_value="espeak",
+            description="Voice backend: espeak | piper | elevenlabs | http | log. "
+                        "elevenlabs needs ELEVENLABS_API_KEY in the environment."),
+        DeclareLaunchArgument(
+            "voice", default_value="",
+            description="TTS voice id (backend-specific; empty = backend default)."),
     ]
 
     sim_time = {"use_sim_time": True}
@@ -180,9 +187,15 @@ def generate_launch_description() -> LaunchDescription:
     )
     orchestrator = Node(executable="orchestrator_node", name="drona_orchestrator_node", **common)
     diagnostics = Node(executable="diagnostics_node", name="drona_diagnostics_node", **common)
-    # Voice: speaks /drona/say. Defaults to offline espeak; set tts_backend:=http
-    # + http_url/http_auth (or a params.yaml entry) for a natural cloud voice.
-    speech = Node(executable="speech_node", name="drona_speech_node", **common)
+    # Voice: speaks /drona/say. Defaults to offline espeak; set
+    # tts_backend:=elevenlabs voice:=<id> (+ ELEVENLABS_API_KEY) for natural voice.
+    speech = Node(
+        package="drona_ros", executable="speech_node", name="drona_speech_node",
+        parameters=[params_file, sim_time,
+                    {"tts_backend": LaunchConfiguration("tts_backend"),
+                     "voice": LaunchConfiguration("voice")}],
+        output="screen",
+    )
     # gesture_node consumes /drona/gesture_command (what the orchestrator emits)
     # and streams /drona/joint_states -> gz_joint_relay -> the arm. In sim it uses
     # the SimArmInterface (use_hardware:=false), so no hardware is touched. Without

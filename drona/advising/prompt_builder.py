@@ -258,7 +258,12 @@ _LANGUAGE_INSTRUCTIONS = {
         "pathway titles, rationale, next steps, summary, and speak_text - in "
         "natural, respectful Nepali. Use everyday Nepali; keep well-known technical "
         "terms and company/module names in English where that is how students say "
-        "them. The spoken 'speak_text' must sound warm and natural, not translated."
+        "them. The spoken 'speak_text' must sound warm and natural, not translated.\n"
+        "BE CONCISE. Devanagari is token-dense, so a verbose answer gets cut off "
+        "mid-JSON and is unusable. Keep each 'rationale' to 1-2 short sentences, "
+        "each step to one short line, and omit 'local_market_evidence' / "
+        "'international_context' unless they add something specific. Finishing the "
+        "JSON matters more than detail."
     ),
     "en": "",
 }

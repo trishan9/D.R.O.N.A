@@ -83,7 +83,11 @@ class AdvisingEngine:
         if language == "ne" and hasattr(self._llm, "translate_to_english"):
             english = self._llm.translate_to_english(query.query_text)
             if english:
-                retrieval_text = f"{query.query_text} {english}"
+                # Search with the ENGLISH translation ALONE. Concatenating the
+                # Devanagari original dilutes the embedding against an
+                # English-embedded index (and skews the cross-encoder), which
+                # measurably degraded the retrieved modules.
+                retrieval_text = english
                 logger.info(f"Nepali query -> EN for retrieval: {english[:60]}")
         raw_docs = self._retriever.retrieve_raw(
             retrieval_text,

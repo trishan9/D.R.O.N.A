@@ -150,43 +150,63 @@ false-positive guard on neutral queries.
 > measures fit, not generalisation. Quoting it alone would invite the obvious
 > viva question ("who wrote the queries, and did you tune on them?").
 
-#### Held-out result (the number to defend)
+#### The three numbers, and which one to defend
 
-`python scripts/eval_heldout_bias.py` scores a set the detector was **not** tuned
-against (`drona/evaluation/heldout_queries.py`, 32 items: 24 biased, 8 neutral):
+Report all three. The honest headline is **v2**.
+
+| Set | Items | Status | Macro P | Macro R | **Macro F1** |
+|---|---|---|---|---|---|
+| C2 dev bank (`queries.py`) | 16 | patterns tuned on it | 1.000 | 1.000 | 1.000 |
+| Held-out **v1** (`heldout_queries.py`) | 32 | **burned** — see below | 1.000 | 1.000 | 1.000 |
+| Held-out **v2** (`heldout_queries_v2.py`) | 27 | **never tuned against** | **1.000** | **0.511** | **0.645** |
+
+`python scripts/eval_heldout_bias.py --set v2`
+
+**Why v1 is "burned".** v1 was a genuine held-out set and scored **0.860**
+(R=0.775). It exposed three real gaps — media/authority anecdotes, narrow
+commitment phrasing, and **English-only detection**. Those were then fixed
+(Nepali/Devanagari patterns added for all six bias types, media-source patterns,
+wider commitment phrasing, bare tag questions). Fixing against a set converts it
+into a development set, so v1 now scores 1.000 and that number means nothing.
+v2 was written afterwards, with deliberately different phrasings, as the
+replacement generalisation set.
+
+#### What v2 actually shows (the real finding)
 
 | Bias type | Precision | Recall | F1 |
 |---|---|---|---|
-| anchoring | 1.000 | 1.000 | 1.000 |
-| dunning_kruger | 1.000 | 1.000 | 1.000 |
-| confirmation | 1.000 | 0.800 | 0.889 |
-| loss_aversion | 1.000 | 0.750 | 0.857 |
-| consistency | 1.000 | 0.600 | 0.750 |
-| availability_heuristic | 1.000 | 0.500 | 0.667 |
-| **Macro** | **1.000** | **0.775** | **0.860** |
+| confirmation | 1.000 | 1.000 | 1.000 |
+| dunning_kruger | 1.000 | 0.667 | 0.800 |
+| availability_heuristic | 1.000 | 0.400 | 0.571 |
+| consistency | 1.000 | 0.333 | 0.500 |
+| loss_aversion | 1.000 | 0.333 | 0.500 |
+| **Macro** | **1.000** | **0.511** | **0.645** |
 
-**0 false positives on 8 neutral controls.**
+**0 false positives across all 8 neutral controls (including Nepali ones).**
 
-**Read it this way.** Precision 1.000 with recall 0.775 is the right shape for
-this application: the system never falsely accuses a student of a cognitive bias,
-and errs toward silence when unsure. A false accusation damages trust far more
-than a missed flag.
+Two findings, and both are defensible:
 
-**The misses are reported, not patched** (patching them would turn the held-out
-set into a second development set). They cluster into three honest limitations:
+1. **Precision is 1.000 on every set — dev, v1 and v2.** The system has never
+   falsely accused a student of a cognitive bias in any evaluation. For an
+   advisor this is the property that matters: a false accusation costs trust far
+   more than a missed flag, so erring toward silence is the correct failure mode.
+2. **Recall collapses from 1.000 (tuned) to 0.511 (unseen phrasings).** This is
+   the *expected* behaviour of pattern-based NLP and is the honest ceiling of the
+   rule-based approach. Every v2 miss is a novel surface form of a bias the
+   detector already models — "**Google or nothing** for me" (anchoring),
+   "I have been **telling recruiters** I am a Java developer" (commitment),
+   "I might **lose my scholarship**… not worth the risk" (loss aversion).
 
-1. **Media/authority anecdotes are missed** — "I keep seeing news about AI
-   replacing programmers", "A YouTuber said a bootcamp is better". The
-   availability patterns catch *personal* anecdotes ("my friend/senior") but not
-   media-sourced ones.
-2. **Bias detection is English-only.** The Nepali item
-   (*"मेरो साथीले Deerwalk मा job पायो…"*) was not flagged. The system advises
-   bilingually but debiases monolingually — a real gap for a bilingual advisor.
-3. **Commitment phrasing is narrow** — "I told my whole family…" is missed while
-   "I've told everyone…" is caught.
+**The misses are reported, not patched** — patching them would burn v2 as well.
+Together they make the future-work argument concrete and evidence-backed:
+**replace the regex layer with a learned classifier** (the rules become the
+high-precision fallback), and **extend Nepali coverage**, which currently
+generalises worse than English because each Devanagari pattern is narrower.
 
-These are the strongest *future work* items in the dissertation: Nepali bias
-patterns, and replacing/augmenting regexes with a learned classifier.
+> Methodological note for the viva: quoting 1.000 alone would be indefensible —
+> it is a fit statistic. The pairing "precision 1.000, recall 0.511 on unseen
+> data" is a stronger, more credible claim, and it motivates the next research
+> step rather than pretending the problem is solved.
 
 **Demo:** `python scripts/demo_bias_detection.py` → 6/6 types fire, 0 false
 positives on the neutral control.
@@ -364,7 +384,7 @@ range, fail-safe on student loss.
 | ID | Contribution | Evidence |
 |---|---|---|
 | **C1** | Hybrid retrieval beats single-retriever baselines for curriculum-grounded advising | NDCG@5 0.941 vs 0.871/0.909 |
-| **C2** | Rule-based cognitive-bias detection with prompt-level mitigation | **held-out macro-F1 0.860** (P=1.000, R=0.775), 0 false positives; dev-set 1.000 |
+| **C2** | Rule-based cognitive-bias detection with prompt-level mitigation | **held-out v2 macro-F1 0.645** (P=1.000, R=0.511), 0 false positives on any set; dev-set 1.000 |
 | **C3** | Demonstration-learned gestures are smoother than scripted playback | 100 % success; 13 % lower command jerk |
 | **C4** | Local-first, zero-cost, privacy-preserving deployment | Nepal citation ratio 1.00; all open-weight, no paid API |
 | **C5** | *(systems)* Bilingual (English/Nepali) bias-aware advising, RAG-grounded in the local curriculum | Nepali pathways citing real Softwarica modules |

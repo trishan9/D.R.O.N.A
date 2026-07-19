@@ -52,6 +52,19 @@ _AVAILABILITY_PATTERNS = [
     re.compile(r"\bpeople (are|say|told me)\b", re.I),
     re.compile(r"\b(trending|viral|hot right now|blowing up|in demand)\b", re.I),
     re.compile(r"\b(recently|lately|these days|nowadays) .{0,30}(job|salary|hire|pay)\b", re.I),
+    # MEDIA / AUTHORITY anecdotes. The patterns above catch a *personal* source
+    # ("my friend"); students just as often generalise from one salient media
+    # item ("a YouTuber said...", "I keep seeing news about AI layoffs").
+    re.compile(r"\bi (keep|kept) (seeing|hearing|reading)\b", re.I),
+    re.compile(r"\b(a |some |this )?(youtuber|influencer|tiktoker|blogger|podcaster)\b", re.I),
+    re.compile(r"\b(saw|read|heard|watched) (it )?(on|in) (youtube|tiktok|linkedin|instagram|facebook|reddit|the news|an article|a video)\b", re.I),
+    re.compile(r"\bnews (about|says|said|that)\b", re.I),
+    re.compile(r"\beverywhere i (look|see|go)\b", re.I),
+    # Nepali / code-switched: the advisor is bilingual, so debiasing must be too.
+    re.compile(r"मेरो\s*(साथी|दाइ|दिदी|भाइ|बहिनी|सिनियर|कजिन)"),
+    re.compile(r"(साथीले|दाइले|दिदीले|सिनियरले)"),
+    re.compile(r"(सबैले|मान्छेहरूले)\s*भन"),
+    re.compile(r"मैले\s*(सुनें|सुनेको|पढेको|देखें)"),
 ]
 
 # Anchoring: fixation on a specific target that narrows the query artificially
@@ -67,6 +80,9 @@ _ANCHORING_PATTERNS = [
     # Fixating on one concrete salary figure heard from a single example -
     # a textbook numeric anchor ("...earning Rs 80,000. How do I get there?").
     re.compile(r"\b(rs\.?|nrs\.?|npr\.?)\s*[\d,]{4,}\b", re.I),
+    # Nepali: मात्र/खाली = only (narrowing); रु + figure = numeric anchor
+    re.compile(r"(मात्र|मात्रै|खाली)\s*\S{0,12}\s*(जान|गर्न|काम|चाहन्छु|मन)"),
+    re.compile(r"(रु\.?|रुपैयाँ)\s*[\d,]{4,}"),
 ]
 
 # Confirmation bias: seeking validation rather than exploration
@@ -81,6 +97,10 @@ _CONFIRMATION_PATTERNS = [
     re.compile(r"\b(python|java|javascript|ai|ml|data science) is (the best|definitely|obviously|clearly|undeniably)\b", re.I),
     re.compile(r"\bjust (tell|confirm|say) (me|that)\b", re.I),
     re.compile(r"\bi (already know|already decided|know for sure) .{0,30}(right|correct)\?", re.I),
+    # Bare tag questions invite agreement rather than evidence ("…, isn't it?").
+    re.compile(r"(,\s*|\s)(isn'?t it|right|correct)\s*\?\s*$", re.I),
+    # Nepali
+    re.compile(r"(होइन\s*र|हो\s*कि\s*होइन|ठीक\s*हो\s*नि)"),
 ]
 
 # Loss aversion: query framed around avoiding negatives
@@ -92,6 +112,12 @@ _LOSS_AVERSION_PATTERNS = [
     re.compile(r"\bwhat if (i (fail|can'?t|don'?t)|nothing works|it doesn'?t)\b", re.I),
     re.compile(r"\b(safe|safer|safest) (option|choice|path|career|job)\b", re.I),
     re.compile(r"\bplay it safe\b", re.I),
+    # "what if I end up with nothing" - loss framing without the word 'fail'
+    re.compile(r"\bwhat if i (end up|lose|waste|regret)\b", re.I),
+    re.compile(r"\bend up with nothing\b", re.I),
+    # Nepali
+    re.compile(r"(डर\s*लाग्छ|डराउँछु|डर\s*छ)"),
+    re.compile(r"(गुम्ने|खेर\s*जान्छ|बर्बाद)"),
 ]
 
 # Consistency bias / sunk cost: committed due to prior statements or investment
@@ -101,8 +127,16 @@ _CONSISTENCY_PATTERNS = [
     re.compile(r"\b(can'?t|cannot) (change|switch|pivot|go back)\b.{0,30}(now|anymore|at this point)\b", re.I),
     re.compile(r"\b(too (late|far|deep|invested)|sunk cost|gone too far)\b", re.I),
     re.compile(r"\beveryone (knows|expects) (me|i)\b", re.I),
-    re.compile(r"\b(already spent|wasted|invested).{0,20}(year|month|time|money)\b", re.I),
-    re.compile(r"\bi told (everyone|my parents|my family|my friends)\b", re.I),
+    # "put two years into" is as common as "spent"; the trailing s in "years"
+    # previously broke the word-boundary match.
+    re.compile(r"\b(already )?(spent|wasted|invested|put)\b.{0,24}(year|month|semester|time|money)s?\b", re.I),
+    # Allow the determiner in "I told my WHOLE family"; add promise framings.
+    re.compile(r"\bi told (everyone|my (whole |entire )?(parents|family|friends|relatives))\b", re.I),
+    re.compile(r"\bi (promised|announced|committed to)\b", re.I),
+    re.compile(r"\b(people|everyone|they|my parents) expect me\b", re.I),
+    # Nepali
+    re.compile(r"(भनिसकें|भनिसकेको|वाचा गरें)"),
+    re.compile(r"(ढिला|ढिलो)\s*(भइसक्यो|भयो)"),
 ]
 
 # Dunning-Kruger patterns: handled with profile context, but also text signals
@@ -117,6 +151,8 @@ _DK_OVERCONFIDENCE_PATTERNS = [
     re.compile(r"\bi('?m| am) (already )?(an?\s+)?(expert|pro|master)\b", re.I),
     re.compile(r"\bnothing (more |left )?to learn\b", re.I),
     re.compile(r"\bi don'?t (need|have) to (learn|study)\b", re.I),
+    # Nepali over-confidence: "I know everything" / "I can do it all"
+    re.compile(r"(सबै\s*थाहा\s*छ|मलाई\s*सब\s*आउँछ|सिक्नु\s*पर्दैन)"),
 ]
 _DK_UNDERCONFIDENCE_PATTERNS = [
     re.compile(r"\b(terrible|awful|horrible|useless|hopeless) (at|in|with)\b", re.I),
@@ -129,6 +165,9 @@ _DK_UNDERCONFIDENCE_PATTERNS = [
     re.compile(r"\bi('?m| am) (just |only )?(average|mediocre|ordinary|nothing special)\b", re.I),
     re.compile(r"\bi'?ll never be (good|able|able to)\b", re.I),
     re.compile(r"\bno one would hire me\b", re.I),
+    # Nepali under-confidence: "I'm not good" / "I can't do it"
+    re.compile(r"(म\s*राम्रो\s*छैन|मलाई\s*आउँदैन|सक्दिनँ|सक्दिन)"),
+    re.compile(r"(अरू\s*सबै\s*भन्दा\s*कमजोर|मबाट\s*हुँदैन)"),
 ]
 
 # ── Mitigation messages ────────────────────────────────────────────────────────

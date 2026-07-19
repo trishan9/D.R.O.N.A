@@ -1,64 +1,65 @@
 {
-  "generated": "2026-07-20T03:31:06",
+  "generated": "2026-07-20T03:37:00",
   "set": "held-out (author-constructed, detector not tuned on it)",
-  "n_items": 32,
-  "n_biased": 24,
+  "set_name": "v2",
+  "n_items": 26,
+  "n_biased": 18,
   "n_neutral": 8,
   "per_bias": {
     "availability_heuristic": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "tp": 6,
+      "recall": 0.4,
+      "f1": 0.5714285714285715,
+      "tp": 2,
       "fp": 0,
-      "fn": 0
+      "fn": 3
     },
     "anchoring": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "tp": 5,
+      "recall": 0.3333333333333333,
+      "f1": 0.5,
+      "tp": 1,
       "fp": 0,
-      "fn": 0
+      "fn": 2
     },
     "confirmation": {
       "precision": 1.0,
       "recall": 1.0,
       "f1": 1.0,
-      "tp": 5,
+      "tp": 3,
       "fp": 0,
       "fn": 0
     },
     "dunning_kruger": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "tp": 4,
+      "recall": 0.6666666666666666,
+      "f1": 0.8,
+      "tp": 2,
       "fp": 0,
-      "fn": 0
+      "fn": 1
     },
     "loss_aversion": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "tp": 4,
+      "recall": 0.3333333333333333,
+      "f1": 0.5,
+      "tp": 1,
       "fp": 0,
-      "fn": 0
+      "fn": 2
     },
     "consistency": {
       "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "tp": 5,
+      "recall": 0.3333333333333333,
+      "f1": 0.5,
+      "tp": 1,
       "fp": 0,
-      "fn": 0
+      "fn": 2
     }
   },
   "macro_avg": {
     "precision": 1.0,
-    "recall": 1.0,
-    "f1": 1.0
+    "recall": 0.5111111111111111,
+    "f1": 0.6452380952380953
   },
-  "n_missed": 0,
+  "n_missed": 9,
   "n_false_positive": 0
 }

@@ -25,12 +25,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from drona.advising.bias_detector import BiasDetector  # noqa: E402
 from drona.contracts import StudentProfile  # noqa: E402
 from drona.evaluation.heldout_queries import HELDOUT_C2_QUERIES  # noqa: E402
+from drona.evaluation.heldout_queries_v2 import HELDOUT_C2_QUERIES_V2  # noqa: E402
 from drona.evaluation.metrics import bias_detection_metrics  # noqa: E402
 
 REPORT = Path(__file__).resolve().parents[1] / "reports" / "heldout_bias_report.json"
 
+# v1 is BURNED (the detector was extended after it exposed gaps) -> development.
+# v2 is the current generalisation set. Select with --set v1|v2 (default v2).
+SETS = {"v1": HELDOUT_C2_QUERIES, "v2": HELDOUT_C2_QUERIES_V2}
+
 
 def main() -> int:
+    which = sys.argv[sys.argv.index("--set") + 1] if "--set" in sys.argv else "v2"
+    queries = SETS.get(which, HELDOUT_C2_QUERIES_V2)
     det = BiasDetector()
     profile = StudentProfile(session_id="heldout-eval")
 
@@ -38,7 +45,7 @@ def main() -> int:
     misses: list[tuple[str, set[str], set[str]]] = []
     false_pos: list[tuple[str, set[str]]] = []
 
-    for q in HELDOUT_C2_QUERIES:
+    for q in queries:
         predicted = {f.bias_type for f in det.detect(q.query_text, profile=profile)}
         actual = set(q.expected_biases)
         results.append({"predicted_biases": predicted, "actual_biases": actual})
@@ -50,13 +57,14 @@ def main() -> int:
     metrics = bias_detection_metrics(results)
     macro = metrics.pop("macro_avg")
 
-    n_biased = sum(1 for q in HELDOUT_C2_QUERIES if q.expected_biases)
-    n_neutral = len(HELDOUT_C2_QUERIES) - n_biased
+    n_biased = sum(1 for q in queries if q.expected_biases)
+    n_neutral = len(queries) - n_biased
 
     print("=" * 72)
-    print("HELD-OUT bias detection (detector NOT tuned on these)")
+    label = "DEVELOPMENT (burned - detector was tuned after it)" if which == "v1" else "HELD-OUT (generalisation)"
+    print(f"bias detection - set {which}: {label}")
     print("=" * 72)
-    print(f"  items: {len(HELDOUT_C2_QUERIES)}  ({n_biased} biased, {n_neutral} neutral)")
+    print(f"  items: {len(queries)}  ({n_biased} biased, {n_neutral} neutral)")
     print()
     for name, m in sorted(metrics.items()):
         print(f"    {name:26} P={m['precision']:.3f} R={m['recall']:.3f} F1={m['f1']:.3f}")
@@ -76,12 +84,13 @@ def main() -> int:
             print(f"      \"{text[:78]}\"")
 
     REPORT.parent.mkdir(parents=True, exist_ok=True)
-    REPORT.write_text(
+    REPORT.with_name(f"heldout_bias_report_{which}.json").write_text(
         json.dumps(
             {
                 "generated": time.strftime("%Y-%m-%dT%H:%M:%S"),
                 "set": "held-out (author-constructed, detector not tuned on it)",
-                "n_items": len(HELDOUT_C2_QUERIES),
+                "set_name": which,
+                "n_items": len(queries),
                 "n_biased": n_biased,
                 "n_neutral": n_neutral,
                 "per_bias": metrics,

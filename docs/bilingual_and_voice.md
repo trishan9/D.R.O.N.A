@@ -50,24 +50,52 @@ to. So **bilingual works out of the box with just Qwen3**; Himalaya Gemma is an
 Run on whichever machine serves the brain (the Colab T4, or a local box):
 
 ```bash
-# 1. install Ollama (one-time)
-curl -fsSL https://ollama.com/install.sh | sh
+# 1. install Ollama (one-time; no sudo: extract the binary to your home dir)
+curl -fL https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64.tar.zst \
+     -o ollama.tar.zst
+tar --zstd -xf ollama.tar.zst -C ~/ollama      # or: python -m zstandard ... if no zstd
+OLLAMA_HOST=0.0.0.0:11434 ~/ollama/bin/ollama serve &
 
-# 2. pull the Nepali model (GGUF, ~2-3 GB)
-ollama pull hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf
+# 2. pull the Nepali model - the Q4_K_M quant (~3.4 GB), NOT the bare tag
+ollama pull hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf:Q4_K_M
 
 # 3. tell D.R.O.N.A. to use it (defaults already point here)
 export ADVISOR_LANGUAGE=auto
-export NEPALI_OLLAMA_MODEL=hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf
+export NEPALI_OLLAMA_MODEL=hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf:Q4_K_M
+export OLLAMA_NUM_CTX=8192        # must fit the RAG prompt + generation (>=4096)
 ```
 
-That's it — Nepali queries now route to Gemma, English stays on your fine-tuned
-Qwen3, both grounded in the same curriculum. Nothing else changes.
+Nepali queries now route to Gemma, English stays on your fine-tuned Qwen3, both
+grounded in the same curriculum.
+
+> **Pick the quant, and mind the context window — both are load-bearing:**
+> - The **bare tag** resolves to the **bf16 build (9.3 GB)**. On a GPU with < ~10 GB
+>   VRAM it is split across GPU/CPU and **crashes** (Gemma-3n
+>   `GGML_SCHED_MAX_SPLIT_INPUTS` assert). Always pull **`:Q4_K_M`** (3.4 GB).
+> - `OLLAMA_NUM_CTX` must be large enough for the whole advising prompt (system +
+>   retrieved context + Nepali instruction) **plus** room to generate. Too small
+>   (e.g. 2048) and the model returns **empty output** - the prompt fills the
+>   window. Use **>= 4096**; 8192 is comfortable.
+>
+> **Hardware reality:** the Q4 model fits a **T4 (16 GB) entirely on GPU and is
+> fast**. On a 4 GB laptop GPU it half-fits and offloads to CPU (~0.5 tok/s) -
+> correct but slow (minutes per answer). **Serve Nepali from the T4/GPU tier**;
+> use the Qwen fallback for a self-contained laptop.
+
+### Cross-lingual retrieval (why a Nepali query still finds English modules)
+The curriculum is embedded with an English model, so a **pure-Nepali query
+retrieves poorly** (a Nepali "data science" question pulled up a *Graphics
+Designer* job in testing). D.R.O.N.A. fixes this with **translate-retrieve-
+generate**: the Nepali query is translated to English for retrieval (verified:
+`मलाई डेटा साइन्समा जान मन छ` → `"how to start data science career"` → the right
+Data Science modules), then the answer is generated in Nepali from that grounded
+context. Code-switched queries (with English tech terms) already retrieve well
+and skip nothing.
 
 > **Model choice note:** `gemma4-e2b-it-nepali` and `himalaya-gemma-4-e2b-it` are
-> the same family; use whichever GGUF tag Ollama resolves. They have no knowledge
-> of the Softwarica curriculum themselves — that always comes from RAG, so the
-> answer is grounded regardless of which model writes it.
+> the same family; use whichever GGUF `:Q4_K_M` tag Ollama resolves. They have no
+> knowledge of the Softwarica curriculum themselves — that always comes from RAG,
+> so the answer is grounded regardless of which model writes it.
 
 ---
 

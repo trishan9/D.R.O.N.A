@@ -38,6 +38,8 @@
   <material name="drona_screen">  <color rgba="0.05 0.06 0.09 1.0"/></material>
   <material name="drona_eye">     <color rgba="0.20 0.85 0.95 1.0"/></material>
   <material name="drona_rubber">  <color rgba="0.10 0.10 0.12 1.0"/></material>
+  <material name="drona_hair">    <color rgba="0.09 0.07 0.07 1.0"/></material>
+  <material name="drona_attire">  <color rgba="0.16 0.26 0.42 1.0"/></material>
   <!-- Kept so any external xacro referencing the old names still resolves. -->
   <material name="drona_green">   <color rgba="0.94 0.94 0.96 1.0"/></material>
   <material name="drona_red">     <color rgba="0.94 0.94 0.96 1.0"/></material>
@@ -282,6 +284,144 @@
     <origin xyz="0 0 0.04"/>
     <axis xyz="1 0 0"/>
     <limit lower="0.0" upper="1.0" effort="3" velocity="1.0"/>
+  </joint>
+
+  <!-- ══ Counsellor presentation: passive left arm, hair, attire ═══════════════
+       The robot had ONE arm, so it read as a manipulator on a plinth rather than
+       a person. A counselling robot a student is meant to approach and talk to
+       has to read as humanoid before it reads as a machine.
+
+       Every link below is attached with a FIXED joint. Fixed joints do not appear
+       in joint_states and carry no controller, so the 6-DOF actuated right arm,
+       the gesture policies and the trajectory code are all completely unaffected -
+       this is presentation only. The left arm is deliberately passive: claiming
+       two actuated arms would misrepresent the hardware the thesis describes.
+  ═══════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Hair: a darker mass behind and above the visor. This is the single cue
+       that most strongly reads as "a person, and a woman" at a glance, which is
+       what the counsellor framing needs. -->
+  <link name="hair_back">
+    <visual>
+      <origin xyz="-0.022 0 0.012"/>
+      <geometry><sphere radius="0.098"/></geometry>
+      <material name="drona_hair"/>
+    </visual>
+    <xacro:box_inertial mass="0.01"/>
+  </link>
+  <joint name="hair_back_fixed" type="fixed">
+    <parent link="head_link"/><child link="hair_back"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="hair_bun">
+    <visual>
+      <geometry><sphere radius="0.052"/></geometry>
+      <material name="drona_hair"/>
+    </visual>
+    <xacro:box_inertial mass="0.01"/>
+  </link>
+  <joint name="hair_bun_fixed" type="fixed">
+    <parent link="head_link"/><child link="hair_bun"/>
+    <origin xyz="-0.072 0 0.058"/>
+  </joint>
+
+  <!-- Shoulders / blazer line: squares off the torso into a professional
+       silhouette instead of a bare cylinder. -->
+  <link name="attire_shoulders">
+    <visual>
+      <geometry><box size="0.20 0.34 0.075"/></geometry>
+      <material name="drona_attire"/>
+    </visual>
+    <xacro:box_inertial mass="0.02"/>
+  </link>
+  <joint name="attire_shoulders_fixed" type="fixed">
+    <parent link="base_link"/><child link="attire_shoulders"/>
+    <origin xyz="0 0 0.345"/>
+  </joint>
+
+  <link name="attire_collar">
+    <visual>
+      <geometry><cylinder radius="0.062" length="0.05"/></geometry>
+      <material name="drona_attire"/>
+    </visual>
+    <xacro:box_inertial mass="0.01"/>
+  </link>
+  <joint name="attire_collar_fixed" type="fixed">
+    <parent link="base_link"/><child link="attire_collar"/>
+    <origin xyz="0 0 0.425"/>
+  </joint>
+
+  <!-- Staff badge: signals "counsellor", the way a real advisor wears one. -->
+  <link name="staff_badge">
+    <visual>
+      <geometry><box size="0.012 0.055 0.075"/></geometry>
+      <material name="drona_crimson"/>
+    </visual>
+    <xacro:box_inertial mass="0.005"/>
+  </link>
+  <joint name="staff_badge_fixed" type="fixed">
+    <parent link="base_link"/><child link="staff_badge"/>
+    <origin xyz="0.105 0.072 0.325"/>
+  </joint>
+
+  <!-- Passive LEFT arm, mirroring the actuated right arm's proportions so the
+       two read as a pair. Posed in a relaxed, open resting position - crossed or
+       rigid arms read as closed body language, which is wrong for counselling. -->
+  <link name="left_shoulder">
+    <visual><geometry><sphere radius="0.045"/></geometry>
+      <material name="drona_graphite"/></visual>
+    <xacro:box_inertial mass="0.05"/>
+  </link>
+  <joint name="left_shoulder_fixed" type="fixed">
+    <parent link="base_link"/><child link="left_shoulder"/>
+    <origin xyz="0 0.13 0.36"/>
+  </joint>
+
+  <link name="left_upper_arm">
+    <visual>
+      <origin xyz="0 0 -0.078"/>
+      <geometry><cylinder radius="0.030" length="0.13"/></geometry>
+      <material name="drona_attire"/>
+    </visual>
+    <xacro:box_inertial mass="0.05"/>
+  </link>
+  <joint name="left_upper_arm_fixed" type="fixed">
+    <parent link="left_shoulder"/><child link="left_upper_arm"/>
+    <origin xyz="0 0.012 0" rpy="-0.20 0 0"/>
+  </joint>
+
+  <link name="left_elbow">
+    <visual><geometry><sphere radius="0.032"/></geometry>
+      <material name="drona_graphite"/></visual>
+    <xacro:box_inertial mass="0.03"/>
+  </link>
+  <joint name="left_elbow_fixed" type="fixed">
+    <parent link="left_upper_arm"/><child link="left_elbow"/>
+    <origin xyz="0 0 -0.15"/>
+  </joint>
+
+  <link name="left_forearm">
+    <visual>
+      <origin xyz="0.045 0 -0.02"/>
+      <geometry><cylinder radius="0.026" length="0.10"/></geometry>
+      <material name="drona_shell"/>
+    </visual>
+    <xacro:box_inertial mass="0.04"/>
+  </link>
+  <joint name="left_forearm_fixed" type="fixed">
+    <parent link="left_elbow"/><child link="left_forearm"/>
+    <origin xyz="0 0 0" rpy="0 -1.05 0"/>
+  </joint>
+
+  <link name="left_hand">
+    <visual><geometry><box size="0.045 0.032 0.018"/></geometry>
+      <material name="drona_shell"/></visual>
+    <xacro:box_inertial mass="0.02"/>
+  </link>
+  <joint name="left_hand_fixed" type="fixed">
+    <parent link="left_forearm"/><child link="left_hand"/>
+    <origin xyz="0.10 0 -0.02"/>
   </joint>
 
   <!-- ── Head camera (perception sensor) ──────────────────────────────────────

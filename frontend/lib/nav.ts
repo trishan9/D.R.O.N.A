@@ -23,6 +23,7 @@ import {
   BookOpen,
   Boxes,
   Search,
+  Mic,
 } from "lucide-react";
 
 export interface NavItem {
@@ -59,6 +60,13 @@ export const NAV: NavSection[] = [
         icon: Bot,
         description: "Ask the bias-aware, locally-grounded advising model",
         badge: "Live",
+      },
+      {
+        title: "Counselling",
+        href: "/counsel",
+        icon: Mic,
+        description: "Talk to the advisor - voice or text, English, Nepali or a mix",
+        badge: "Voice",
       },
       {
         title: "Pathways",

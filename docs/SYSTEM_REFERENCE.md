@@ -198,15 +198,89 @@ Two findings, and both are defensible:
    "I might **lose my scholarship**… not worth the risk" (loss aversion).
 
 **The misses are reported, not patched** — patching them would burn v2 as well.
-Together they make the future-work argument concrete and evidence-backed:
-**replace the regex layer with a learned classifier** (the rules become the
-high-precision fallback), and **extend Nepali coverage**, which currently
-generalises worse than English because each Devanagari pattern is narrower.
 
 > Methodological note for the viva: quoting 1.000 alone would be indefensible —
 > it is a fit statistic. The pairing "precision 1.000, recall 0.511 on unseen
 > data" is a stronger, more credible claim, and it motivates the next research
 > step rather than pretending the problem is solved.
+
+#### C2b — Replacing the regex layer with a learned detector
+
+The recall ceiling above motivated a direct experiment: **four detector designs,
+all scored on the same untouched held-out v2** (26 items, 8 neutral controls).
+Two of the four failed, and the failures are the most informative part.
+
+| # | Detector | P | R | **F1** | False pos. | Latency |
+|---|---|---|---|---|---|---|
+| 1 | rules (regex) — baseline | **1.000** | 0.511 | 0.645 | 0/8 | ~0 ms |
+| 2 | semantic kNN (multilingual bi-encoder) | 0.361 | 0.256 | 0.292 | 0/8 | ~0.7 s |
+| 3 | rules ∪ semantic | 0.569 | 0.567 | 0.560 | 0/8 | ~0.3 s |
+| 4 | LLM, zero-shot | 0.521 | **0.911** | 0.588 | **8/8** | ~2 s |
+| 5 | rules ∪ LLM zero-shot | 0.521 | **0.967** | 0.622 | **8/8** | ~2 s |
+| 6 | RAG-LLM (retrieved few-shot), no grounding | 0.861 | 0.722 | 0.739 | 3/8 | ~4 s |
+| 7 | RAG-LLM + evidence-span grounding | 0.333 | 0.211 | 0.258 | 0/8 | ~4 s |
+| 8 | **rules ∪ RAG-LLM + grounding — SHIPPED** | **0.917** | **0.633** | **0.731** | **0/8** | ~4 s |
+
+`python scripts/benchmark_bias_detectors.py --llm` reproduces every row;
+`reports/bias_detector_comparison.json` holds the raw output.
+
+**Negative result 1 — embeddings are the wrong tool (row 2, F1 0.292 vs 0.645).**
+Sentence encoders were the obvious "ML upgrade" and they lost to regexes by a
+wide margin. The cause is structural, not a tuning failure: **sentence embeddings
+encode topic, whereas a cognitive bias is a property of framing.** Anchoring
+questions about Google, about a salary figure and about Kathmandu share almost no
+topical content, while an anchoring question and a confirmation question about
+data science are near-neighbours — so kNN groups by subject matter and cuts
+straight across the labels. A leak-free threshold sweep (fit on the 16-item
+development bank, tune on v1) confirmed the ceiling at F1 0.455.
+
+**Negative result 2 — a zero-shot LLM cries wolf (rows 4–5).** It finds nearly
+every real bias (recall 0.511 → 0.911) and flags **all eight neutral controls**.
+Asked "find the biases", a model finds biases. This is **base-rate neglect**:
+nothing in the prompt says most student questions are ordinary factual requests.
+
+**The two fixes, and what each contributed.**
+
+1. **Retrieved few-shot (the RAG part, row 6).** Rather than a fixed prompt, the
+   k=8 nearest *labelled* questions are retrieved from the development bank and
+   shown as worked examples — the same retrieve-then-generate structure as the
+   advising path, with labelled exemplars instead of curriculum chunks. The bank
+   deliberately includes **neutral** questions labelled `[]`, restoring the base
+   rate the zero-shot prompt destroyed, and it surfaces Nepali exemplars for
+   Nepali queries. Effect: precision 0.521 → **0.861**, false positives 8/8 → 3/8.
+2. **Evidence-span grounding (row 8).** Each flag must quote the exact words that
+   triggered it, and the quote is verified against the question before the flag is
+   accepted — citation verification from grounded QA, repurposed as a classifier
+   precision filter. A model inventing a bias must invent a quote, and an invented
+   quote fails mechanically: no second model call, no threshold.
+
+   **The first implementation of this did nothing** (rows 6 and 7 initially scored
+   identically). Substring verification alone is trivially satisfied by quoting the
+   *whole question* — and that is exactly what the model did on all three remaining
+   false positives. Requiring the span to be **localised** (≤ `SPAN_MAX_COVERAGE`
+   of the question, i.e. pointing at something rather than everything) removed the
+   last 3/8 false positives. That cap was selected on development data
+   (`scripts/tune_span_grounding.py`: retrieve from the bank, tune on v1) and
+   applied to v2 unchanged.
+
+**Why row 8 ships and not row 6.** Row 6's ungrounded twin has the higher headline
+F1 (0.856 vs 0.731), but it falsely flags 3 of 8 neutral questions — and **two of
+those three are Nepali**. A detector that disproportionately accuses Nepali-speaking
+students of cognitive bias is an equity failure in a system whose entire purpose is
+bias-aware advising, and no F1 gain justifies it. Row 8 keeps the baseline's
+never-false-accuse property (0/8) while lifting recall **0.511 → 0.633 (+24%)** at
+precision 0.917.
+
+**Deployment.** `settings.bias_detector` selects `hybrid` (default) or `rules`.
+The hybrid degrades to the rules automatically whenever the LLM is unavailable, so
+no deployment ever loses bias detection outright — it only loses the extra recall.
+Set `rules` on latency-critical or fully offline robots (~0 ms vs ~4 s per query).
+
+**Honest limitations.** The detector LLM is the 4B Nepali Q4 model, chosen because
+it is already served; a larger model would likely score better. The evaluation set
+is 26 author-constructed items, not transcripts of real students — adequate for a
+relative comparison between designs, not for an absolute capability claim. Recall
+0.633 still means roughly a third of biases are missed.
 
 **Demo:** `python scripts/demo_bias_detection.py` → 6/6 types fire, 0 false
 positives on the neutral control.
@@ -317,7 +391,15 @@ range, fail-safe on student loss.
 - **Graceful degradation** — every tier falls back rather than failing
 
 **Interaction intelligence**
-- **Rule-based cognitive-bias detection** (6 types) with mitigation instructions
+- **Cognitive-bias detection** (6 types) with mitigation instructions, as a
+  four-design comparison: regex rules, embedding kNN, zero-shot LLM, and
+  **retrieval-augmented few-shot LLM with verified evidence spans** (shipped)
+- **Retrieval-augmented classification** — RAG applied to labelling rather than
+  generation: nearest labelled exemplars become the few-shot prompt
+- **Evidence-span grounding as a precision filter** — citation verification from
+  grounded QA, used to reject hallucinated classifications
+- **Base-rate correction via retrieved negatives** — neutral exemplars in the
+  prompt are what stop the LLM flagging every question
   injected into the prompt — the core novelty
 - **Goal-conditioned advising** — employment / postgrad / startup / research /
   freelance / undecided
@@ -384,7 +466,8 @@ range, fail-safe on student loss.
 | ID | Contribution | Evidence |
 |---|---|---|
 | **C1** | Hybrid retrieval beats single-retriever baselines for curriculum-grounded advising | NDCG@5 0.941 vs 0.871/0.909 |
-| **C2** | Rule-based cognitive-bias detection with prompt-level mitigation | **held-out v2 macro-F1 0.645** (P=1.000, R=0.511), 0 false positives on any set; dev-set 1.000 |
+| **C2** | Cognitive-bias detection with prompt-level mitigation | **held-out v2 macro-F1 0.645** (P=1.000, R=0.511), 0 false positives on any set; dev-set 1.000 |
+| **C2b** | Retrieval-augmented, span-grounded bias detection vs 3 alternatives on the same held-out set | **F1 0.645 → 0.731**, recall **0.511 → 0.633 (+24%)** at P=0.917, **0/8 false positives**; two diagnosed negative results (embedding kNN F1 0.292; zero-shot LLM 8/8 false positives) |
 | **C3** | Demonstration-learned gestures are smoother than scripted playback | 100 % success; 13 % lower command jerk |
 | **C4** | Local-first, zero-cost, privacy-preserving deployment | Nepal citation ratio 1.00; all open-weight, no paid API |
 | **C5** | *(systems)* Bilingual (English/Nepali) bias-aware advising, RAG-grounded in the local curriculum | Nepali pathways citing real Softwarica modules |

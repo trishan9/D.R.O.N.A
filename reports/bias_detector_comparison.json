@@ -1,0 +1,537 @@
+{
+  "set": "heldout_v2",
+  "n_items": 26,
+  "detectors": {
+    "rules (regex)": {
+      "macro": {
+        "precision": 1.0,
+        "recall": 0.5111111111111111,
+        "f1": 0.6452380952380953
+      },
+      "per_type": {
+        "availability_heuristic": {
+          "precision": 1.0,
+          "recall": 0.4,
+          "f1": 0.5714285714285715,
+          "tp": 2,
+          "fp": 0,
+          "fn": 3
+        },
+        "anchoring": {
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "f1": 0.5,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2
+        },
+        "confirmation": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "dunning_kruger": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "tp": 2,
+          "fp": 0,
+          "fn": 1
+        },
+        "loss_aversion": {
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "f1": 0.5,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2
+        },
+        "consistency": {
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "f1": 0.5,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2
+        }
+      },
+      "false_positives": 0,
+      "seconds": 0.0
+    },
+    "semantic (kNN, thr=0.55)": {
+      "macro": {
+        "precision": 0.3611111111111111,
+        "recall": 0.25555555555555554,
+        "f1": 0.2920634920634921
+      },
+      "per_type": {
+        "availability_heuristic": {
+          "precision": 0.5,
+          "recall": 0.2,
+          "f1": 0.28571428571428575,
+          "tp": 1,
+          "fp": 1,
+          "fn": 4
+        },
+        "anchoring": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 2,
+          "fn": 3
+        },
+        "confirmation": {
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "f1": 0.6666666666666666,
+          "tp": 2,
+          "fp": 1,
+          "fn": 1
+        },
+        "dunning_kruger": {
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "f1": 0.4,
+          "tp": 1,
+          "fp": 1,
+          "fn": 2
+        },
+        "loss_aversion": {
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "f1": 0.4,
+          "tp": 1,
+          "fp": 1,
+          "fn": 2
+        },
+        "consistency": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 2,
+          "fn": 3
+        }
+      },
+      "false_positives": 0,
+      "seconds": 18.1
+    },
+    "hybrid (rules \u222a semantic)": {
+      "macro": {
+        "precision": 0.5694444444444444,
+        "recall": 0.5666666666666667,
+        "f1": 0.5595238095238094
+      },
+      "per_type": {
+        "availability_heuristic": {
+          "precision": 0.6666666666666666,
+          "recall": 0.4,
+          "f1": 0.5,
+          "tp": 2,
+          "fp": 1,
+          "fn": 3
+        },
+        "anchoring": {
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "f1": 0.3333333333333333,
+          "tp": 1,
+          "fp": 2,
+          "fn": 2
+        },
+        "confirmation": {
+          "precision": 0.75,
+          "recall": 1.0,
+          "f1": 0.8571428571428571,
+          "tp": 3,
+          "fp": 1,
+          "fn": 0
+        },
+        "dunning_kruger": {
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "f1": 0.6666666666666666,
+          "tp": 2,
+          "fp": 1,
+          "fn": 1
+        },
+        "loss_aversion": {
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "f1": 0.6666666666666666,
+          "tp": 2,
+          "fp": 1,
+          "fn": 1
+        },
+        "consistency": {
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "f1": 0.3333333333333333,
+          "tp": 1,
+          "fp": 2,
+          "fn": 2
+        }
+      },
+      "false_positives": 0,
+      "seconds": 7.7
+    },
+    "llm (zero-shot)": {
+      "macro": {
+        "precision": 0.5213319088319088,
+        "recall": 0.9111111111111111,
+        "f1": 0.5883031823249215
+      },
+      "per_type": {
+        "availability_heuristic": {
+          "precision": 0.2222222222222222,
+          "recall": 0.8,
+          "f1": 0.3478260869565218,
+          "tp": 4,
+          "fp": 14,
+          "fn": 1
+        },
+        "anchoring": {
+          "precision": 0.3,
+          "recall": 1.0,
+          "f1": 0.4615384615384615,
+          "tp": 3,
+          "fp": 7,
+          "fn": 0
+        },
+        "confirmation": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "dunning_kruger": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "tp": 2,
+          "fp": 0,
+          "fn": 1
+        },
+        "loss_aversion": {
+          "precision": 0.23076923076923078,
+          "recall": 1.0,
+          "f1": 0.375,
+          "tp": 3,
+          "fp": 10,
+          "fn": 0
+        },
+        "consistency": {
+          "precision": 0.375,
+          "recall": 1.0,
+          "f1": 0.5454545454545454,
+          "tp": 3,
+          "fp": 5,
+          "fn": 0
+        }
+      },
+      "false_positives": 8,
+      "seconds": 52.3
+    },
+    "hybrid (rules \u222a llm)": {
+      "macro": {
+        "precision": 0.5213319088319088,
+        "recall": 0.9666666666666667,
+        "f1": 0.6216365156582547
+      },
+      "per_type": {
+        "availability_heuristic": {
+          "precision": 0.2222222222222222,
+          "recall": 0.8,
+          "f1": 0.3478260869565218,
+          "tp": 4,
+          "fp": 14,
+          "fn": 1
+        },
+        "anchoring": {
+          "precision": 0.3,
+          "recall": 1.0,
+          "f1": 0.4615384615384615,
+          "tp": 3,
+          "fp": 7,
+          "fn": 0
+        },
+        "confirmation": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "dunning_kruger": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "loss_aversion": {
+          "precision": 0.23076923076923078,
+          "recall": 1.0,
+          "f1": 0.375,
+          "tp": 3,
+          "fp": 10,
+          "fn": 0
+        },
+        "consistency": {
+          "precision": 0.375,
+          "recall": 1.0,
+          "f1": 0.5454545454545454,
+          "tp": 3,
+          "fp": 5,
+          "fn": 0
+        }
+      },
+      "false_positives": 8,
+      "seconds": 51.1
+    },
+    "rag-llm (few-shot, NO grounding)": {
+      "macro": {
+        "precision": 0.8611111111111112,
+        "recall": 0.7222222222222222,
+        "f1": 0.7388888888888889
+      },
+      "per_type": {
+        "availability_heuristic": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6666666666666666,
+          "tp": 5,
+          "fp": 5,
+          "fn": 0
+        },
+        "anchoring": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "confirmation": {
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "f1": 0.5,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2
+        },
+        "dunning_kruger": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "tp": 2,
+          "fp": 0,
+          "fn": 1
+        },
+        "loss_aversion": {
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "f1": 0.6666666666666666,
+          "tp": 2,
+          "fp": 1,
+          "fn": 1
+        },
+        "consistency": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "tp": 2,
+          "fp": 0,
+          "fn": 1
+        }
+      },
+      "false_positives": 3,
+      "seconds": 102.5
+    },
+    "rag-llm (few-shot + grounding)": {
+      "macro": {
+        "precision": 0.3333333333333333,
+        "recall": 0.2111111111111111,
+        "f1": 0.2583333333333333
+      },
+      "per_type": {
+        "availability_heuristic": {
+          "precision": 1.0,
+          "recall": 0.6,
+          "f1": 0.7499999999999999,
+          "tp": 3,
+          "fp": 0,
+          "fn": 2
+        },
+        "anchoring": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "tp": 2,
+          "fp": 0,
+          "fn": 1
+        },
+        "confirmation": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 3
+        },
+        "dunning_kruger": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 3
+        },
+        "loss_aversion": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 3
+        },
+        "consistency": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 3
+        }
+      },
+      "false_positives": 0,
+      "seconds": 111.0
+    },
+    "hybrid (rules \u222a rag-llm, NO grounding)": {
+      "macro": {
+        "precision": 0.8611111111111112,
+        "recall": 0.8888888888888888,
+        "f1": 0.8555555555555555
+      },
+      "per_type": {
+        "availability_heuristic": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6666666666666666,
+          "tp": 5,
+          "fp": 5,
+          "fn": 0
+        },
+        "anchoring": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "confirmation": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "dunning_kruger": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "loss_aversion": {
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "f1": 0.6666666666666666,
+          "tp": 2,
+          "fp": 1,
+          "fn": 1
+        },
+        "consistency": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "tp": 2,
+          "fp": 0,
+          "fn": 1
+        }
+      },
+      "false_positives": 3,
+      "seconds": 102.9
+    },
+    "hybrid (rules \u222a rag-llm) [PRODUCTION]": {
+      "macro": {
+        "precision": 0.9166666666666666,
+        "recall": 0.6333333333333333,
+        "f1": 0.7314814814814815
+      },
+      "per_type": {
+        "availability_heuristic": {
+          "precision": 1.0,
+          "recall": 0.8,
+          "f1": 0.888888888888889,
+          "tp": 4,
+          "fp": 0,
+          "fn": 1
+        },
+        "anchoring": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "tp": 2,
+          "fp": 0,
+          "fn": 1
+        },
+        "confirmation": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0
+        },
+        "dunning_kruger": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "tp": 2,
+          "fp": 0,
+          "fn": 1
+        },
+        "loss_aversion": {
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "f1": 0.4,
+          "tp": 1,
+          "fp": 1,
+          "fn": 2
+        },
+        "consistency": {
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "f1": 0.5,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2
+        }
+      },
+      "false_positives": 0,
+      "seconds": 103.3
+    }
+  }
+}

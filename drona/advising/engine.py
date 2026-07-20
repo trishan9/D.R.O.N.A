@@ -27,9 +27,9 @@ import uuid
 
 from loguru import logger
 
-from drona.advising.bias_detector import BiasDetector
 from drona.advising.llm_client import LLMClient, make_llm_client
 from drona.advising.prompt_builder import build_prompt
+from drona.advising.rag_bias import make_bias_detector
 from drona.advising.reranker import Reranker
 from drona.advising.retriever import Retriever
 from drona.contracts import AdvisingQuery, AdvisingResponse, BiasFlag, RetrievalCitation
@@ -54,7 +54,7 @@ class AdvisingEngine:
     ) -> None:
         self._retriever = retriever or Retriever()
         self._reranker = reranker or Reranker()
-        self._detector = BiasDetector()
+        self._detector = make_bias_detector()
         self._llm = llm or make_llm_client()
 
     # ── Public API ─────────────────────────────────────────────────────────────

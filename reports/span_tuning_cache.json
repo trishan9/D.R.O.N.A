@@ -1,0 +1,183 @@
+{
+  "My senior got placed at Fusemachines right after his internship. Should I just follow exactly the same path he took?": [
+    [
+      "availability_heuristic",
+      "My senior got placed at Fusemachines right after his internship."
+    ]
+  ],
+  "I keep seeing news about AI replacing programmers. Is there any point studying software engineering now?": [
+    [
+      "availability_heuristic",
+      "I keep seeing news about AI replacing programmers."
+    ]
+  ],
+  "A YouTuber I watch said a bootcamp is better than a degree. He got a remote job in six months. Should I do that instead?": [
+    [
+      "availability_heuristic",
+      "A YouTuber I watch said a bootcamp is better than a degree."
+    ]
+  ],
+  "\u092e\u0947\u0930\u094b \u0938\u093e\u0925\u0940\u0932\u0947 Deerwalk \u092e\u093e \u0930\u093e\u092e\u094d\u0930\u094b job \u092a\u093e\u092f\u094b, \u092e \u092a\u0928\u093f \u0924\u094d\u092f\u0939\u0940 \u0915\u092e\u094d\u092a\u0928\u0940\u092e\u093e \u091c\u093e\u0928\u094d\u091b\u0941\u0964 \u0915\u0938\u0930\u0940?": [
+    [
+      "availability_heuristic",
+      "\u092e\u0947\u0930\u094b \u0938\u093e\u0925\u0940\u0932\u0947 Deerwalk \u092e\u093e \u0930\u093e\u092e\u094d\u0930\u094b job \u092a\u093e\u092f\u094b, \u092e \u092a\u0928\u093f \u0924\u094d\u092f\u0939\u0940 \u0915\u092e\u094d\u092a\u0928\u0940\u092e\u093e \u091c\u093e\u0928\u094d\u091b\u0941\u0964 \u0915\u0938\u0930\u0940?"
+    ],
+    [
+      "anchoring",
+      "Deerwalk"
+    ]
+  ],
+  "I only want to work at Leapfrog Technology. How do I get in there?": [
+    [
+      "anchoring",
+      "I only want to work at Leapfrog Technology."
+    ]
+  ],
+  "My target is a starting salary of NPR 150000 per month. Which field should I pick to hit that?": [
+    [
+      "anchoring",
+      "My target is a starting salary of NPR 150000 per month."
+    ]
+  ],
+  "I have decided on Australia for my masters and I am not considering anywhere else. What do I need?": [
+    [
+      "anchoring",
+      "I have decided on Australia for my masters and I am not considering anywhere else."
+    ]
+  ],
+  "I want to focus only on cybersecurity, nothing else. Where do I start?": [
+    [
+      "anchoring",
+      "I want to focus only on cybersecurity, nothing else."
+    ]
+  ],
+  "Cybersecurity is the best field in Nepal right now, isn't it correct?": [
+    [
+      "confirmation",
+      "Cybersecurity is the best field in Nepal right now, isn't it correct?"
+    ]
+  ],
+  "Don't you agree that a government IT job is more secure than working at a private startup?": [
+    [
+      "confirmation",
+      "Don't you agree that a government IT job is more secure than working at a private startup?"
+    ]
+  ],
+  "Everyone says remote work for foreign companies pays much better than local jobs. Just confirm that for me.": [
+    [
+      "confirmation",
+      "Just confirm that for me."
+    ]
+  ],
+  "I already decided data analytics is right for me. Tell me I'm right.": [
+    [
+      "confirmation",
+      "I already decided data analytics is right for me. Tell me I'm right."
+    ]
+  ],
+  "I'm scared of wasting two years on a masters degree if it doesn't get me a better job afterwards.": [
+    [
+      "loss_aversion",
+      "I'm scared of wasting two years on a masters degree if it doesn't get me a better job afterwards."
+    ]
+  ],
+  "I'm worried about switching from web development to machine learning and then failing at it.": [
+    [
+      "loss_aversion",
+      "I'm worried about switching from web development to machine learning and then failing at it."
+    ]
+  ],
+  "If I leave my current internship to study for certifications, what if I end up with nothing?": [
+    [
+      "loss_aversion",
+      "what if I end up with nothing?"
+    ]
+  ],
+  "I've already spent three years specialising in ethical hacking. It's too late for me to move into AI now, isn't it?": [
+    [
+      "consistency",
+      "I've already spent three years specialising in ethical hacking. It's too late for me to move into AI now, isn't it?"
+    ]
+  ],
+  "I told my whole family I would become a software engineer, so I can't really change direction at this point.": [
+    [
+      "consistency",
+      "I told my whole family I would become a software engineer, so I can't really change direction at this point."
+    ]
+  ],
+  "I've invested a lot of money in networking certifications but I enjoy programming more. I've gone too far to switch though.": [
+    [
+      "consistency",
+      "I've invested a lot of money in networking certifications but I enjoy programming more. I've gone too far to switch though."
+    ]
+  ],
+  "I've built a few websites so I already know everything about full stack development. Which senior roles should I apply for?": [
+    [
+      "anchoring",
+      "I've built a few websites so I already know everything about full stack development."
+    ]
+  ],
+  "I'm probably not smart enough for machine learning, I'm just an average student in my batch.": [
+    [
+      "dunning_kruger",
+      "I'm probably not smart enough for machine learning, I'm just an average student in my batch."
+    ]
+  ],
+  "Honestly everyone in my class codes better than me, so I'll never be good enough for a developer job.": [
+    [
+      "dunning_kruger",
+      "Honestly everyone in my class codes better than me, so I'll never be good enough for a developer job."
+    ]
+  ],
+  "I finished a Python course so there is nothing more to learn before I start applying as a data scientist.": [
+    [
+      "dunning_kruger",
+      "I finished a Python course so there is nothing more to learn before I start applying as a data scientist."
+    ]
+  ],
+  "My cousin earns Rs 200000 a month in Sydney. I only want to go abroad like him, nothing in Nepal interests me.": [
+    [
+      "availability_heuristic",
+      "My cousin earns Rs 200000 a month in Sydney. I only want to go abroad like him, nothing in Nepal interests me."
+    ]
+  ],
+  "I've already put two years into my current specialisation and I'm afraid of losing that if I change now. Should I just stay?": [
+    [
+      "consistency",
+      "I've already put two years into my current specialisation and I'm afraid of losing that if I change now."
+    ]
+  ],
+  "Which modules in year three prepare me for backend development?": [],
+  "What is the difference between the CS with AI and Ethical Hacking programmes?": [
+    [
+      "availability_heuristic",
+      "What is the difference between the CS with AI and Ethical Hacking programmes?"
+    ]
+  ],
+  "How many credits is the data science module worth?": [
+    [
+      "anchoring",
+      "How many credits is the data science module worth?"
+    ]
+  ],
+  "Could you explain what DevOps work actually involves day to day?": [],
+  "What skills do banks and fintech companies in Kathmandu usually hire for?": [],
+  "\u092e\u0932\u093e\u0908 cloud computing \u092e\u093e \u091c\u093e\u0928 \u092e\u0928 \u091b\u0964 \u0915\u0941\u0928 modules \u0932\u0947 \u092e\u0926\u094d\u0926\u0924 \u0917\u0930\u094d\u091b?": [
+    [
+      "availability_heuristic",
+      "\u092e\u0932\u093e\u0908 cloud computing \u092e\u093e \u091c\u093e\u0928 \u092e\u0928 \u091b\u0964 \u0915\u0941\u0928 modules \u0932\u0947 \u092e\u0926\u094d\u0926\u0924 \u0917\u0930\u094d\u091b?"
+    ]
+  ],
+  "I'm in second year and interested in both data and security. What should I try first?": [
+    [
+      "availability_heuristic",
+      "interested in both data and security"
+    ]
+  ],
+  "Are there internship opportunities in Nepal for students who know Python and SQL?": [
+    [
+      "availability_heuristic",
+      "Are there internship opportunities in Nepal for students who know Python and SQL?"
+    ]
+  ]
+}

@@ -96,6 +96,22 @@ class DronaSettings(BaseSettings):
         "hf.co/himalaya-ai/himalaya-gemma-4-e2b-it-gguf:Q4_K_M",
         description="Ollama model id for Nepali advising (Himalaya Gemma GGUF, Q4_K_M).",
     )
+    # Which cognitive-bias detector the advising pipeline uses.
+    #
+    #   rules   regex only.  P=1.000 R=0.511 F1=0.645 on held-out v2, ~0 ms.
+    #   hybrid  rules union retrieval-augmented LLM with verified evidence spans.
+    #           P=0.917 R=0.633 F1=0.731, 0/8 false positives, ~4 s per query.
+    #
+    # "hybrid" is the default because recall matters here: a missed bias is advice
+    # that quietly reinforces it. It degrades to "rules" automatically whenever the
+    # LLM is unavailable, so no deployment loses bias detection entirely - it just
+    # loses the extra recall. Set to "rules" on latency-critical or offline robots.
+    # See scripts/benchmark_bias_detectors.py for the full comparison.
+    bias_detector: str = Field(
+        "hybrid",
+        pattern="^(rules|hybrid)$",
+        description="Bias detector: rules (regex only) or hybrid (rules + RAG LLM).",
+    )
     # Character budget for the retrieved context, per language. This must leave
     # room INSIDE num_ctx for the system prompt AND a full generated answer:
     #   prompt(system ~1.2k tok + citations) + answer(up to llm_max_tokens) <= num_ctx

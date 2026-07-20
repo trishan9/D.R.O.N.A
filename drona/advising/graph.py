@@ -29,9 +29,9 @@ from typing import Any, TypedDict
 
 from loguru import logger
 
-from drona.advising.bias_detector import BiasDetector
 from drona.advising.llm_client import make_llm_client
 from drona.advising.prompt_builder import build_prompt
+from drona.advising.rag_bias import make_bias_detector
 from drona.advising.reranker import Reranker
 from drona.advising.retriever import Retriever, _build_citation
 from drona.advising.verify import verify_pathways
@@ -62,7 +62,7 @@ class GraphComponents:
         return cls(
             retriever=Retriever(),
             reranker=Reranker(),
-            detector=BiasDetector(),
+            detector=make_bias_detector(),
             llm=make_llm_client(),
         )
 

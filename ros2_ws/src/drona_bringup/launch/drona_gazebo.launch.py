@@ -64,7 +64,12 @@ def generate_launch_description() -> LaunchDescription:
     use_rviz = LaunchConfiguration("use_rviz")
     advisor_remote_url = LaunchConfiguration("advisor_remote_url")
     mobile = LaunchConfiguration("mobile")
+    rosbridge = LaunchConfiguration("rosbridge")
     args = [
+        DeclareLaunchArgument(
+            "rosbridge", default_value="false",
+            description="Also start rosbridge_websocket on :9090 so the web operator "
+                        "console can drive this sim. Needs ros-jazzy-rosbridge-suite."),
         DeclareLaunchArgument("headless", default_value="false",
                               description="Run gz sim without the GUI (server only)"),
         DeclareLaunchArgument("use_rviz", default_value="false",
@@ -223,6 +228,17 @@ def generate_launch_description() -> LaunchDescription:
         output="screen",
     )
 
+    # Bridges this ROS2 graph to the browser (the web Mission Control page).
+    # Off by default so the sim does not hard-depend on rosbridge_suite being
+    # installed; pass rosbridge:=true when driving the sim from the dashboard.
+    rosbridge_node = Node(
+        package="rosbridge_server",
+        executable="rosbridge_websocket",
+        name="rosbridge_websocket",
+        condition=IfCondition(rosbridge),
+        output="screen",
+    )
+
     return LaunchDescription([
         *args,
         LogInfo(msg="Starting D.R.O.N.A. in Gazebo Harmonic (drona_advising world)"),
@@ -241,4 +257,5 @@ def generate_launch_description() -> LaunchDescription:
         diagnostics,
         speech,
         rviz,
+        rosbridge_node,
     ])

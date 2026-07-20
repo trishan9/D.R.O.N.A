@@ -22,6 +22,7 @@ import {
   FlaskConical,
   BookOpen,
   Boxes,
+  Search,
 } from "lucide-react";
 
 export interface NavItem {
@@ -64,6 +65,13 @@ export const NAV: NavSection[] = [
         href: "/pathways",
         icon: Route,
         description: "Explore, compare, and inspect evidence for each pathway",
+      },
+      {
+        title: "Retrieval",
+        href: "/retrieval",
+        icon: Search,
+        description: "Trace a query through BM25, dense, RRF fusion and reranking",
+        badge: "C1",
       },
       {
         title: "Curriculum",

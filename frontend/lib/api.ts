@@ -250,6 +250,50 @@ export async function getCurriculumModules(
   return (await res.json()) as CurriculumModules;
 }
 
+export interface TraceDoc {
+  rank: number;
+  id: string;
+  excerpt: string;
+  tier: string;
+  source_type: string;
+  title: string;
+  collection: string;
+  rrf_score: number;
+}
+
+export interface TraceStage {
+  key: "bm25" | "dense" | "rrf" | "rerank";
+  label: string;
+  description: string;
+  elapsed_ms?: number;
+  docs: TraceDoc[];
+}
+
+export interface RetrievalTrace {
+  available: boolean;
+  reason?: string;
+  query?: string;
+  top_k?: number;
+  stages?: TraceStage[];
+  summary?: {
+    n_stages: number;
+    bm25_only: string[];
+    /** Documents in the final ranking that the first stage never returned. */
+    surfaced_by_pipeline: string[];
+  };
+}
+
+export async function getRetrievalTrace(
+  q: string,
+  topK = 6,
+  signal?: AbortSignal,
+): Promise<RetrievalTrace> {
+  const url = `${apiBaseUrl()}/retrieval/trace?q=${encodeURIComponent(q)}&top_k=${topK}`;
+  const res = await fetch(url, { signal });
+  if (!res.ok) throw new Error(`retrieval/trace failed: ${res.status}`);
+  return (await res.json()) as RetrievalTrace;
+}
+
 export async function getEvaluation(signal?: AbortSignal): Promise<EvaluationData> {
   const res = await fetch(`${apiBaseUrl()}/evaluation`, { signal, cache: "no-store" });
   if (!res.ok) throw new Error(`Evaluation fetch failed: ${res.status}`);

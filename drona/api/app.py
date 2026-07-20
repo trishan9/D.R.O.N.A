@@ -283,6 +283,23 @@ def curriculum_modules_endpoint() -> dict:
         return {"available": False, "modules": []}
 
 
+@app.get("/retrieval/trace")
+def retrieval_trace_endpoint(q: str = "", top_k: int = 8) -> dict:
+    """Stage-by-stage hybrid retrieval, for the retrieval explorer.
+
+    Read-only inspection of the SAME pipeline the advising path runs: BM25,
+    dense, RRF fusion + tier boost, cross-encoder rerank - each returned
+    separately so the contribution of every stage is visible.
+    """
+    from drona.api.retrieval_trace import retrieval_trace
+
+    try:
+        return retrieval_trace(q, top_k=max(1, min(top_k, 20)))
+    except Exception as exc:  # noqa: BLE001 - explorer must not break the API
+        logger.warning(f"/retrieval/trace failed: {exc}")
+        return {"available": False, "reason": str(exc)}
+
+
 @app.post("/advise", response_model=AdvisingResponse)
 async def advise(req: AdviseRequest, advisor: Advisor = Depends(get_advisor)) -> AdvisingResponse:
     """Run the full advising pipeline synchronously (off the event loop)."""

@@ -26,6 +26,8 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  Gauge,
+  HeartPulse,
   MessageSquare,
   OctagonX,
   Radio,
@@ -35,10 +37,13 @@ import {
 import {
   DRONA_COMMAND_TOPICS,
   DRONA_TOPICS,
-  RosBridge,
+  diagnosticLevelName,
+  sharedBridge,
   twist,
   zeroTwist,
+  type RosBridge,
   type RosStatus,
+  type TopicStat,
 } from "@/lib/rosbridge";
 import { GESTURES, JOINT_SHORT } from "@/lib/robot";
 import { useStore } from "@/lib/store";
@@ -66,6 +71,14 @@ function StatusPill({ status }: { status: RosStatus }) {
   );
 }
 
+/** One entry of a diagnostic_msgs/DiagnosticArray. */
+interface DiagStatus {
+  name?: string;
+  level?: number | string;
+  message?: string;
+  hardware_id?: string;
+}
+
 export function CommandCenter() {
   const { prefs } = useStore();
   const bridgeRef = React.useRef<RosBridge | null>(null);
@@ -78,6 +91,13 @@ export function CommandCenter() {
   const [turn, setTurn] = React.useState(0.6);
   const [askText, setAskText] = React.useState("");
   const [sayText, setSayText] = React.useState("");
+  const [diagnostics, setDiagnostics] = React.useState<DiagStatus[]>([]);
+  const [topicStats, setTopicStats] = React.useState<TopicStat[]>([]);
+  const [lastAdvice, setLastAdvice] = React.useState<{
+    summary: string;
+    nPathways: number;
+    nBiasFlags: number;
+  } | null>(null);
 
   const connected = status === "connected";
 
@@ -88,23 +108,83 @@ export function CommandCenter() {
 
   // ── Connect + telemetry subscriptions ──────────────────────────────────────
   React.useEffect(() => {
-    const bridge = new RosBridge(prefs.rosbridgeUrl);
+    const bridge = sharedBridge(prefs.rosbridgeUrl);
     bridgeRef.current = bridge;
-    bridge.onStatus((s) => {
-      setStatus(s);
-      addLog(`rosbridge ${s}`);
-    });
-    bridge.subscribe(DRONA_TOPICS.jointStates, "sensor_msgs/JointState", (m) => {
-      const pos = (m.position as number[]) ?? null;
-      if (pos) setJoints(pos);
-    });
-    bridge.subscribe(DRONA_TOPICS.engagement, "drona_msgs/EngagementDetection", (m) => {
-      setEngagement({ state: m.state as string, distance_m: m.distance_m as number });
-    });
-    bridge.subscribe(DRONA_TOPICS.sessionState, "drona_msgs/SessionState", (m) => {
-      setSession((m.state as string) ?? "—");
-    });
+
+    // Every registration returns its own detach function. The socket is shared
+    // with other panels, so cleanup releases THIS panel's handles and never
+    // closes the connection out from under them.
+    const detach: Array<() => void> = [];
+
+    detach.push(
+      bridge.onStatus((s) => {
+        setStatus(s);
+        addLog(`rosbridge ${s}`);
+      }),
+    );
+    detach.push(
+      // Joint states arrive far faster than the panel repaints; 100 ms is
+      // smooth to the eye and keeps the socket quiet.
+      bridge.subscribe(
+        DRONA_TOPICS.jointStates.name,
+        DRONA_TOPICS.jointStates.type,
+        (m) => {
+          const pos = (m.position as number[]) ?? null;
+          if (pos) setJoints(pos);
+        },
+        { throttleMs: 100 },
+      ),
+    );
+    detach.push(
+      bridge.subscribe(DRONA_TOPICS.engagement.name, DRONA_TOPICS.engagement.type, (m) => {
+        setEngagement({ state: m.state as string, distance_m: m.distance_m as number });
+      }),
+    );
+    detach.push(
+      bridge.subscribe(DRONA_TOPICS.sessionState.name, DRONA_TOPICS.sessionState.type, (m) => {
+        setSession((m.state as string) ?? "—");
+      }),
+    );
+    detach.push(
+      // Field names verified against `ros2 interface show drona_msgs/msg/GestureResult`:
+      // gesture_label / success / policy_used / error_message.
+      bridge.subscribe(DRONA_TOPICS.gestureResult.name, DRONA_TOPICS.gestureResult.type, (m) => {
+        const ok = Boolean(m.success);
+        const label = (m.gesture_label as string) || "gesture";
+        const policy = (m.policy_used as string) || "";
+        const err = (m.error_message as string) || "";
+        const detail = ok ? (policy ? ` via ${policy}` : "") : err ? ` - ${err}` : "";
+        addLog(`${ok ? "✓" : "✗"} ${label}${detail}`);
+      }),
+    );
+    detach.push(
+      bridge.subscribe(
+        DRONA_TOPICS.diagnostics.name,
+        DRONA_TOPICS.diagnostics.type,
+        (m) => {
+          const status = (m.status as DiagStatus[]) ?? [];
+          setDiagnostics(status);
+        },
+        { throttleMs: 1000 },
+      ),
+    );
+    detach.push(
+      bridge.subscribe(
+        DRONA_TOPICS.advisingResponse.name,
+        DRONA_TOPICS.advisingResponse.type,
+        (m) => {
+          setLastAdvice({
+            summary: (m.summary as string) ?? "",
+            nPathways: Array.isArray(m.pathways) ? m.pathways.length : 0,
+            nBiasFlags: Array.isArray(m.bias_flags) ? m.bias_flags.length : 0,
+          });
+          addLog(`advice received (${Array.isArray(m.pathways) ? m.pathways.length : 0} pathways)`);
+        },
+      ),
+    );
+
     bridge.connect();
+
     return () => {
       // Never leave the base moving when the console unmounts.
       try {
@@ -112,10 +192,18 @@ export function CommandCenter() {
       } catch {
         /* noop */
       }
-      bridge.disconnect();
+      for (const off of detach) off();
       bridgeRef.current = null;
     };
   }, [prefs.rosbridgeUrl, addLog]);
+
+  // Refresh the topic-rate strip on a timer; the bridge accumulates the counts.
+  React.useEffect(() => {
+    const t = setInterval(() => {
+      setTopicStats(bridgeRef.current?.topicStats() ?? []);
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
 
   // ── Teleop: publish while held, zero on release ────────────────────────────
   const driveRef = React.useRef<{ lin: number; ang: number } | null>(null);
@@ -378,6 +466,118 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.xml`}
             ) : (
               <p className="text-xs text-muted-foreground">
                 No /drona/joint_states yet - start the sim or hardware bring-up.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Node health, straight from /diagnostics. */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <HeartPulse className="h-4 w-4" /> Node health
+              <span className="ml-auto font-mono text-[10px] text-muted-foreground">
+                /diagnostics
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {diagnostics.length > 0 ? (
+              <div className="space-y-1.5">
+                {diagnostics.map((d, i) => {
+                  const level = diagnosticLevelName(d.level);
+                  const cls =
+                    level === "OK"
+                      ? "bg-tier-nepal/15 text-tier-nepal"
+                      : level === "WARN"
+                        ? "bg-amber-500/15 text-amber-600"
+                        : "bg-destructive/15 text-destructive";
+                  return (
+                    <div key={i} className="flex items-center gap-2 text-[11px]">
+                      <span className={`rounded px-1.5 py-0.5 font-mono ${cls}`}>{level}</span>
+                      <span className="truncate font-medium">{d.name ?? "unnamed"}</span>
+                      <span className="ml-auto truncate text-muted-foreground">{d.message}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                No /diagnostics yet - the diagnostics node aggregates per-stream liveness once the
+                graph is up.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Per-topic message rates: proves the link is live, not just open. */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Gauge className="h-4 w-4" /> Topic rates
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {topicStats.some((t) => t.count > 0) ? (
+              <div className="space-y-1.5 font-mono text-[11px]">
+                {topicStats
+                  .filter((t) => t.count > 0)
+                  .map((t) => {
+                    const stale = t.lastSeenMs !== null && t.lastSeenMs > 5000;
+                    return (
+                      <div key={t.topic} className="flex items-center gap-2">
+                        <span className="truncate text-muted-foreground">{t.topic}</span>
+                        <span className="ml-auto tabular-nums">
+                          {t.hz >= 0.1 ? `${t.hz.toFixed(1)} Hz` : "—"}
+                        </span>
+                        <span
+                          className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                            stale ? "bg-muted-foreground/40" : "bg-tier-nepal"
+                          }`}
+                          title={stale ? "no message in >5 s" : "live"}
+                        />
+                      </div>
+                    );
+                  })}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Connected topics will report their measured publish rate here.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* What the robot last advised - closes the ask -> advise loop on-screen. */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <MessageSquare className="h-4 w-4" /> Last advice from the robot
+              <span className="ml-auto font-mono text-[10px] text-muted-foreground">
+                /drona/advising_response
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {lastAdvice ? (
+              <div className="space-y-2">
+                <p className="text-sm">{lastAdvice.summary || "(no summary)"}</p>
+                <div className="flex gap-2">
+                  <Badge variant="secondary" className="text-[10px]">
+                    {lastAdvice.nPathways} pathways
+                  </Badge>
+                  <Badge
+                    variant={lastAdvice.nBiasFlags ? "default" : "outline"}
+                    className="text-[10px]"
+                  >
+                    {lastAdvice.nBiasFlags} bias flags
+                  </Badge>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Send a question with <span className="font-mono">Ask</span> above; the advice the
+                robot produces appears here.
               </p>
             )}
           </CardContent>

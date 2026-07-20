@@ -20,6 +20,8 @@ import {
   Brain,
   Radio,
   FlaskConical,
+  BookOpen,
+  Boxes,
 } from "lucide-react";
 
 export interface NavItem {
@@ -64,6 +66,12 @@ export const NAV: NavSection[] = [
         description: "Explore, compare, and inspect evidence for each pathway",
       },
       {
+        title: "Curriculum",
+        href: "/curriculum",
+        icon: BookOpen,
+        description: "Browse the ingested Softwarica modules the advisor retrieves over",
+      },
+      {
         title: "Skills & Interests",
         href: "/skills",
         icon: Network,
@@ -80,6 +88,12 @@ export const NAV: NavSection[] = [
         href: "/analytics",
         icon: BarChart3,
         description: "Retrieval, bias, and contribution metrics (C1–C4)",
+      },
+      {
+        title: "Models",
+        href: "/models",
+        icon: Boxes,
+        description: "Every model in the stack, what it does, and why it was chosen",
       },
       {
         title: "Bias Lab",

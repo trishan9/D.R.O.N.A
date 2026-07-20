@@ -25,7 +25,13 @@ import {
   type GestureName,
   type TrajFrame,
 } from "@/lib/robot";
-import { RosBridge, type RosStatus, DRONA_TOPICS, DRONA_GESTURE_SERVICE } from "@/lib/rosbridge";
+import {
+  sharedBridge,
+  type RosBridge,
+  type RosStatus,
+  DRONA_TOPICS,
+  DRONA_GESTURE_SERVICE,
+} from "@/lib/rosbridge";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -180,7 +186,7 @@ export function RobotControl() {
   // ── Live ROS2 bridge ───────────────────────────────────────────────────────
   const connect = () => {
     bridgeRef.current?.disconnect();
-    const bridge = new RosBridge(prefs.rosbridgeUrl);
+    const bridge = sharedBridge(prefs.rosbridgeUrl);
     bridge.onStatus((s) => {
       setRosStatus(s);
       if (s === "connected") {
@@ -189,15 +195,19 @@ export function RobotControl() {
       } else if (s === "error") addLog("✗ rosbridge connection error");
       else if (s === "disconnected") addLog("rosbridge disconnected");
     });
-    bridge.subscribe(DRONA_TOPICS.jointStates, "sensor_msgs/JointState", (msg) => {
+    bridge.subscribe(DRONA_TOPICS.jointStates.name, DRONA_TOPICS.jointStates.type, (msg) => {
       const pos = msg.position as number[] | undefined;
       if (Array.isArray(pos) && pos.length >= 6) setJoints(pos.slice(0, 6));
     });
-    bridge.subscribe(DRONA_TOPICS.engagement, "drona_msgs/EngagementDetection", (msg) => {
-      const score = (msg.engagement_score ?? msg.score ?? msg.value) as number | undefined;
+    bridge.subscribe(DRONA_TOPICS.engagement.name, DRONA_TOPICS.engagement.type, (msg) => {
+      // drona_msgs/msg/EngagementDetection exposes `confidence` (EMA-smoothed
+      // face-detection confidence in [0,1]). The previously-read
+      // engagement_score/score/value fields do not exist on this message, so
+      // this readout was always empty against a live graph.
+      const score = msg.confidence as number | undefined;
       if (typeof score === "number") setEngagement(Math.max(0, Math.min(1, score)));
     });
-    bridge.subscribe(DRONA_TOPICS.sessionState, "drona_msgs/SessionState", (msg) => {
+    bridge.subscribe(DRONA_TOPICS.sessionState.name, DRONA_TOPICS.sessionState.type, (msg) => {
       const raw = (msg.state ?? msg.current_state ?? msg.session_state) as string | undefined;
       if (raw) {
         const up = raw.toUpperCase();

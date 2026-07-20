@@ -207,6 +207,49 @@ export async function getCorpusStats(signal?: AbortSignal): Promise<CorpusStats>
   return (await res.json()) as CorpusStats;
 }
 
+export interface CurriculumModuleRow {
+  module_code: string;
+  title: string;
+  programme: string;
+  year: number;
+  semester: number | null;
+  credits: number | null;
+  is_core: boolean;
+  skills: string[];
+  learning_outcomes: string[];
+  prerequisites: string[];
+  /**
+   * How much LMS lecture text backs this module. The text itself is never sent -
+   * it is authenticated college material - but its SIZE is, because it shows
+   * which modules the RAG index actually has depth on.
+   */
+  content_chars: number;
+  content_depth: "catalogue only" | "light" | "moderate" | "deep";
+  has_lms_content: boolean;
+}
+
+export interface CurriculumModules {
+  available: boolean;
+  modules: CurriculumModuleRow[];
+  facets?: { programmes: string[]; years: number[] };
+  totals?: {
+    modules: number;
+    programmes: number;
+    with_lms_content: number;
+    catalogue_only: number;
+    total_credits: number;
+    distinct_skills: number;
+  };
+}
+
+export async function getCurriculumModules(
+  signal?: AbortSignal,
+): Promise<CurriculumModules> {
+  const res = await fetch(`${apiBaseUrl()}/curriculum/modules`, { signal });
+  if (!res.ok) throw new Error(`curriculum/modules failed: ${res.status}`);
+  return (await res.json()) as CurriculumModules;
+}
+
 export async function getEvaluation(signal?: AbortSignal): Promise<EvaluationData> {
   const res = await fetch(`${apiBaseUrl()}/evaluation`, { signal, cache: "no-store" });
   if (!res.ok) throw new Error(`Evaluation fetch failed: ${res.status}`);

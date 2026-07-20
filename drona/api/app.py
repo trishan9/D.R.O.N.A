@@ -267,6 +267,22 @@ def corpus() -> dict:
         return {"available": False}
 
 
+@app.get("/curriculum/modules")
+def curriculum_modules_endpoint() -> dict:
+    """Module metadata for the curriculum explorer.
+
+    Returns metadata and skills only - never the LMS lesson bodies, which are
+    authenticated college material. See drona/api/curriculum_browse.py.
+    """
+    from drona.api.curriculum_browse import curriculum_modules
+
+    try:
+        return curriculum_modules()
+    except Exception as exc:  # noqa: BLE001 - explorer must not break the API
+        logger.warning(f"/curriculum/modules failed: {exc}")
+        return {"available": False, "modules": []}
+
+
 @app.post("/advise", response_model=AdvisingResponse)
 async def advise(req: AdviseRequest, advisor: Advisor = Depends(get_advisor)) -> AdvisingResponse:
     """Run the full advising pipeline synchronously (off the event loop)."""

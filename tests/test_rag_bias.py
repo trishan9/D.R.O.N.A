@@ -158,3 +158,40 @@ def test_detector_falls_back_to_rules_when_model_fails():
 def test_empty_query_short_circuits():
     det = RAGBiasDetector(client=_StubClient("[]"))
     assert det.detect("   ") == []
+
+
+def test_no_llm_served_falls_back_without_loading_the_encoder():
+    """CI and offline robots must not pay for a 470 MB encoder they cannot use.
+
+    The availability probe runs before retrieval, so an unreachable model costs
+    one cheap HTTP check rather than an encoder download per query.
+    """
+    det = RAGBiasDetector()
+
+    def _boom(_q):
+        raise AssertionError("retrieval must not run when no LLM is served")
+
+    det._neighbours = _boom  # type: ignore[method-assign]  # noqa: SLF001
+    det._llm_ok = False  # noqa: SLF001 - simulate a failed probe
+
+    flags = det.detect("My friend got a job at Google so I should do the same, right?")
+    assert flags, "expected the rule-based fallback to still detect bias"
+
+
+def test_availability_probe_is_latched():
+    """One probe per process, not one per query."""
+
+    class _CountingClient:
+        def __init__(self):
+            self.probes = 0
+
+        def is_available(self):
+            self.probes += 1
+            return False
+
+    det = RAGBiasDetector()
+    counter = _CountingClient()
+    det._get_client = lambda: counter  # type: ignore[method-assign]  # noqa: SLF001
+    for _ in range(5):
+        det.detect("Which semester covers operating systems?")
+    assert counter.probes == 1

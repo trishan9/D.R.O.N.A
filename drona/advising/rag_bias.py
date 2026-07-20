@@ -209,6 +209,7 @@ class RAGBiasDetector:
         self._rules: Any = None
         self._pool: Any = None
         self._pool_matrix: Any = None
+        self._llm_ok: bool | None = None  # latched availability probe
 
     # ── Lazy dependencies ────────────────────────────────────────────────────
 
@@ -229,6 +230,28 @@ class RAGBiasDetector:
 
             self._client = LLMClient(model=self._model or settings.nepali_ollama_model)
         return self._client
+
+    def _llm_available(self) -> bool:
+        """Probe the model once per process and remember the answer.
+
+        A stub or injected client is trusted without probing - tests supply one
+        deliberately, and an injected client has no availability contract.
+        """
+        if self._llm_ok is None:
+            if self._client is not None:
+                self._llm_ok = True
+            else:
+                try:
+                    self._llm_ok = bool(self._get_client().is_available())
+                except Exception as exc:  # noqa: BLE001
+                    self._llm_ok = False
+                    logger.warning(f"bias-detection LLM probe failed: {exc}")
+                if not self._llm_ok:
+                    logger.info(
+                        "No LLM served; bias detection runs rules-only "
+                        "(recall 0.511 instead of 0.633)"
+                    )
+        return self._llm_ok
 
     def _get_rules(self):
         if self._rules is None:
@@ -283,6 +306,15 @@ class RAGBiasDetector:
     ) -> list[BiasFlag]:
         if not query_text.strip():
             return []
+
+        # Cheap check before the expensive one. Retrieval loads a ~470 MB encoder;
+        # the LLM probe is one HTTP call. Checking the LLM first means a robot (or
+        # a CI runner) with no model served never pays for an encoder it cannot
+        # use. The result is latched, so an unavailable model costs one probe for
+        # the whole process instead of one per query.
+        if not self._llm_available():
+            return self._get_rules().detect(query_text, profile=profile)
+
         try:
             neighbours = self._neighbours(query_text)
             prompt = _PROMPT.format(

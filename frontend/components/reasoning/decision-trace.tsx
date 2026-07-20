@@ -31,6 +31,7 @@ import {
 
 import type { AdvisingResponse, ProfileDraft } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
+import { EvidenceKindBadge, EvidenceSpan } from "@/components/bias/evidence-span";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const TIER_COLOR: Record<string, string> = {
@@ -194,10 +195,11 @@ export function DecisionTrace({
                   <Badge className="bg-amber-500/15 text-amber-600 hover:bg-amber-500/15">
                     {b.bias_type.replace(/_/g, " ")}
                   </Badge>
+                  <EvidenceKindBadge signal={b.detected_signal} />
                 </div>
-                <p className="mt-2 text-xs">
+                <p className="mt-2 text-xs leading-relaxed">
                   <span className="text-muted-foreground">Triggered by: </span>
-                  <span className="font-mono">{b.detected_signal}</span>
+                  <EvidenceSpan signal={b.detected_signal} queryText={question} />
                 </p>
                 <p className="mt-1 text-xs">
                   <span className="text-muted-foreground">Mitigation applied: </span>

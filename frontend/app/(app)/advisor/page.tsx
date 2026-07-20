@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function AdvisorPage() {
-  const { profile, setProfile, resetProfile, response, recordQuery, bumpExploration } = useStore();
+  const { profile, setProfile, resetProfile, response, recordQuery, bumpExploration, history } =
+    useStore();
   const lastQuery = React.useRef("");
 
   return (
@@ -55,7 +56,7 @@ export default function AdvisorPage() {
           </Card>
         )}
         <DiversityMeter response={response} />
-        <BiasFlags flags={response?.bias_flags ?? []} />
+        <BiasFlags flags={response?.bias_flags ?? []} queryText={history?.[0]?.query} />
         {!response && (
           <Card className="border-dashed">
             <CardContent className="py-6 text-center text-sm text-muted-foreground">

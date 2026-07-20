@@ -4,11 +4,14 @@ import { Brain, ShieldCheck } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { EvidenceKindBadge, EvidenceSpan } from "@/components/bias/evidence-span";
 import { BIAS_LABELS } from "@/lib/gamification";
 import type { BiasFlag } from "@/lib/types";
 
 interface BiasFlagsProps {
   flags: BiasFlag[];
+  /** The question these flags came from, so verified quotes can be shown in context. */
+  queryText?: string | null;
 }
 
 /**
@@ -16,7 +19,7 @@ interface BiasFlagsProps {
  * student's question and how the answer was shaped to counter them. This makes
  * the bias-mitigation explicit rather than silent - a core proposal claim.
  */
-export function BiasFlags({ flags }: BiasFlagsProps) {
+export function BiasFlags({ flags, queryText }: BiasFlagsProps) {
   if (flags.length === 0) {
     return (
       <Card>
@@ -46,12 +49,15 @@ export function BiasFlags({ flags }: BiasFlagsProps) {
       <CardContent className="space-y-3">
         {flags.map((f, i) => (
           <div key={i} className="space-y-1.5 rounded-md border bg-background/60 p-3">
-            <Badge variant="secondary" className="bg-amber-500/15 text-amber-700">
-              {BIAS_LABELS[f.bias_type] ?? f.bias_type}
-            </Badge>
-            <p className="text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary" className="bg-amber-500/15 text-amber-700">
+                {BIAS_LABELS[f.bias_type] ?? f.bias_type}
+              </Badge>
+              <EvidenceKindBadge signal={f.detected_signal} />
+            </div>
+            <p className="text-xs leading-relaxed">
               <span className="font-medium text-muted-foreground">Signal: </span>
-              {f.detected_signal}
+              <EvidenceSpan signal={f.detected_signal} queryText={queryText} />
             </p>
             <p className="text-xs">
               <span className="font-medium text-muted-foreground">How we countered it: </span>

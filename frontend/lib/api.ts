@@ -110,6 +110,49 @@ export interface EvaluationData {
     bias_mitigation_off?: BiasMitigationRow | null;
     ablation_delta?: Record<string, number> | null;
   };
+  /**
+   * C2b - the bias-detector design comparison. Four designs scored on the same
+   * held-out set, INCLUDING the two that failed. `false_positives` is the number
+   * of neutral control questions a detector wrongly flagged, and it is the column
+   * that decided which design ships: the highest-F1 row is not the shipped one.
+   */
+  detectors?: {
+    set?: string;
+    n_items?: number;
+    n_neutral?: number;
+    rows: DetectorRow[];
+  };
+  /** The same detector on the set it was tuned against vs one it has never seen. */
+  heldout?: HeldoutRow[];
+  /** Measured per-stage robot reaction latency. */
+  latency?: { stages: LatencyStage[]; n_trials?: number };
+}
+
+export interface DetectorRow {
+  detector: string;
+  precision: number;
+  recall: number;
+  f1: number;
+  false_positives: number;
+  n_neutral: number;
+  seconds?: number;
+  shipped: boolean;
+}
+
+export interface HeldoutRow {
+  set: string;
+  n_items?: number;
+  precision: number;
+  recall: number;
+  f1: number;
+}
+
+export interface LatencyStage {
+  stage: string;
+  n: number;
+  median_ms: number;
+  p95_ms: number;
+  max_ms: number;
 }
 
 export interface BiasMitigationRow {

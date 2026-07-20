@@ -129,7 +129,8 @@ def main() -> int:
     print("semantic exemplars: development data only (C2 bank + v1)")
     print("=" * 74)
 
-    out: dict = {"set": "heldout_v2", "n_items": len(v2), "detectors": {}}
+    out: dict = {"set": "heldout_v2", "n_items": len(v2),
+                 "n_neutral": n_neutral, "detectors": {}}
     for name, det in detectors.items():
         t0 = time.time()
         macro, per_type, fp = score(det, v2, profile)

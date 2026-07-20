@@ -19,6 +19,7 @@ import {
   Info,
   Brain,
   Radio,
+  FlaskConical,
 } from "lucide-react";
 
 export interface NavItem {
@@ -79,6 +80,13 @@ export const NAV: NavSection[] = [
         href: "/analytics",
         icon: BarChart3,
         description: "Retrieval, bias, and contribution metrics (C1–C4)",
+      },
+      {
+        title: "Bias Lab",
+        href: "/bias-lab",
+        icon: FlaskConical,
+        description: "Detector designs compared on held-out data, negative results included",
+        badge: "C2b",
       },
     ],
   },

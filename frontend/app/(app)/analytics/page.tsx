@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Activity, ShieldAlert, Route, MapPin, Timer, Gauge, Trophy } from "lucide-react";
 
 import { useStore } from "@/lib/store";
@@ -18,6 +19,12 @@ import {
   PolicyBars,
   TierDonut,
 } from "@/components/analytics/charts";
+import {
+  FalsePositiveBars,
+  GeneralisationGapBars,
+  LatencyStageBars,
+  PrecisionRecallScatter,
+} from "@/components/analytics/detector-charts";
 import { ValidationPanel } from "@/components/analytics/validation-panel";
 import { CorpusPanel } from "@/components/analytics/corpus-panel";
 
@@ -199,6 +206,89 @@ export default function AnalyticsPage() {
                       <span className="text-xs text-muted-foreground">{v.evidence}</span>
                     </div>
                   ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* C2b - detector design comparison. Summary here; full story on /bias-lab. */}
+      {evalData?.detectors && evalData.detectors.rows.length > 0 && (
+        <section className="space-y-3">
+          <SectionHeading
+            title="Bias detector designs (C2b)"
+            description="Four designs on the same held-out set. The best F1 is not the one that ships."
+            action={
+              <Link
+                href="/bias-lab"
+                className="text-xs font-medium text-brand hover:underline"
+              >
+                Open Bias Lab →
+              </Link>
+            }
+          />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm">Precision / recall trade-off</CardTitle>
+                <SourceBadge thesis />
+              </CardHeader>
+              <CardContent>
+                <PrecisionRecallScatter rows={evalData.detectors.rows} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm">
+                  Neutral questions wrongly flagged
+                </CardTitle>
+                <SourceBadge thesis />
+              </CardHeader>
+              <CardContent>
+                <FalsePositiveBars rows={evalData.detectors.rows} />
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      )}
+
+      {/* Generalisation gap + measured robot latency */}
+      {(evalData?.heldout?.length || evalData?.latency?.stages?.length) && (
+        <section className="space-y-3">
+          <SectionHeading
+            title="Generalisation and latency"
+            description="What the detector scores on unseen phrasings, and how fast the robot actually reacts."
+          />
+          <div className="grid gap-4 lg:grid-cols-2">
+            {evalData?.heldout && evalData.heldout.length > 0 && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm">Tuned set vs unseen set</CardTitle>
+                  <SourceBadge thesis />
+                </CardHeader>
+                <CardContent>
+                  <GeneralisationGapBars rows={evalData.heldout} />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    v1 reads 1.000 because the detector was tuned against it — that is a fit
+                    statistic, not an ability. v2 is the honest number.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            {evalData?.latency?.stages && evalData.latency.stages.length > 0 && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm">
+                    Robot reaction latency
+                    <span className="ml-1 font-normal text-muted-foreground">
+                      ({evalData.latency.n_trials} trials)
+                    </span>
+                  </CardTitle>
+                  <SourceBadge thesis />
+                </CardHeader>
+                <CardContent>
+                  <LatencyStageBars stages={evalData.latency.stages} />
                 </CardContent>
               </Card>
             )}

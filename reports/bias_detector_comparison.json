@@ -533,5 +533,6 @@
       "false_positives": 0,
       "seconds": 103.3
     }
-  }
+  },
+  "n_neutral": 8
 }

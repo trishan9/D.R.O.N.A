@@ -157,6 +157,96 @@ def evaluation() -> dict:
         except Exception as exc:
             logger.warning(f"/evaluation: could not parse validation report: {exc}")
 
+    # C2b - the bias-detector design comparison (scripts/benchmark_bias_detectors.py).
+    # Four designs on the same held-out set, including the two that FAILED. The
+    # dashboard renders the negative results too: a detector that finds every bias
+    # by flagging every question is the failure mode this comparison exists to show.
+    det_path = root / "reports" / "bias_detector_comparison.json"
+    if det_path.exists():
+        try:
+            det = json.loads(det_path.read_text(encoding="utf-8"))
+            n_neutral = det.get("n_neutral", 8)
+            rows = []
+            for name, v in det.get("detectors", {}).items():
+                macro = v.get("macro", {})
+                rows.append({
+                    "detector": name,
+                    "precision": round(macro.get("precision", 0.0), 3),
+                    "recall": round(macro.get("recall", 0.0), 3),
+                    "f1": round(macro.get("f1", 0.0), 3),
+                    "false_positives": v.get("false_positives", 0),
+                    "n_neutral": n_neutral,
+                    "seconds": v.get("seconds"),
+                    "shipped": "PRODUCTION" in name,
+                })
+            rows.sort(key=lambda r: -r["f1"])
+            out["detectors"] = {
+                "set": det.get("set"),
+                "n_items": det.get("n_items"),
+                "n_neutral": n_neutral,
+                "rows": rows,
+            }
+            out["available"] = True
+        except Exception as exc:
+            logger.warning(f"/evaluation: could not parse detector comparison: {exc}")
+
+    # Generalisation gap: the same detector on the set it was tuned against (v1,
+    # now burned) vs a set it has never seen (v2). The gap IS the finding.
+    heldout = []
+    for tag, fname in (("v1 (tuned against)", "heldout_bias_report.json"),
+                       ("v2 (never tuned)", "heldout_bias_report_v2.json")):
+        hp = root / "reports" / fname
+        if not hp.exists():
+            continue
+        try:
+            h = json.loads(hp.read_text(encoding="utf-8"))
+            macro = h.get("macro_avg") or h.get("macro") or {}
+            heldout.append({
+                "set": tag,
+                "n_items": h.get("n_items"),
+                "precision": round(macro.get("precision", 0.0), 3),
+                "recall": round(macro.get("recall", 0.0), 3),
+                "f1": round(macro.get("f1", 0.0), 3),
+            })
+        except Exception as exc:
+            logger.warning(f"/evaluation: could not parse {fname}: {exc}")
+    if heldout:
+        out["heldout"] = heldout
+        out["available"] = True
+
+    # Robot reaction latency (scripts/measure_latency.py) - the real per-stage
+    # timings behind the "responds in well under a second" claim.
+    lat_path = root / "reports" / "latency_sim.json"
+    if lat_path.exists():
+        try:
+            lat = json.loads(lat_path.read_text(encoding="utf-8"))
+            trials = lat.get("trials", [])
+            stages = [
+                ("perception_to_decision_ms", "Perception → decision"),
+                ("decision_to_motion_ms", "Decision → motion"),
+                ("motion_to_actuation_ms", "Motion → actuation"),
+                ("perception_to_actuation_ms", "End to end"),
+            ]
+            rows = []
+            for key, label in stages:
+                vals = sorted(
+                    t[key] for t in trials if isinstance(t.get(key), (int, float))
+                )
+                if not vals:
+                    continue
+                rows.append({
+                    "stage": label,
+                    "n": len(vals),
+                    "median_ms": round(vals[len(vals) // 2], 2),
+                    "p95_ms": round(vals[min(len(vals) - 1, int(len(vals) * 0.95))], 2),
+                    "max_ms": round(vals[-1], 2),
+                })
+            if rows:
+                out["latency"] = {"stages": rows, "n_trials": len(trials)}
+                out["available"] = True
+        except Exception as exc:
+            logger.warning(f"/evaluation: could not parse latency report: {exc}")
+
     return out
 
 
